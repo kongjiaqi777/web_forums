@@ -24,7 +24,7 @@ class PostController extends Controller
      *
      * @apiParam {Numeric} [page=1] 页码，默认值1
      * @apiParam {Numeric} [perpage=20] 每页条数
-     * @apiParam {Numeric} [square_id]  广场ID，筛选广场下的广播必穿这个字段
+     * @apiParam {Numeric} [square_id]  广场ID，筛选广场下的广播必传这个字段
      * @apiParam {Numeric} [post_type] 广播类型:广场广播10/个人广播20
      *
      * @apiParamExample 首页广场广播列表
@@ -474,8 +474,7 @@ class PostController extends Controller
      * {
      *      "code": 0,
      *      "msg": "success",
-     *      "info": [
-     *           "list": [
+     *      "info":
      *              {
      *                  "id": 1000,
      *                  "square_id": 1001,
@@ -491,14 +490,6 @@ class PostController extends Controller
      *                  "deleted_at": null,
      *                  "is_del": 0
      *              }
-     *          ],
-     *          "pagination": {
-     *              "page": 1,
-     *              "perpage": 20,
-     *              "total_page": 1,
-     *              "total_count": 1
-     *          }
-     *      ]
      * }
      */
     public function detail(Request $request)
