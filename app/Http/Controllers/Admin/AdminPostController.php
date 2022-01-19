@@ -185,9 +185,9 @@ class AdminPostController extends Controller
     }
 
     /**
-     * @api {get} /v1/admin/post/suggest 广播标题模糊搜索
+     * @api {get} /v1/admin/post/suggest 管理端广播标题模糊搜索
      * @apiVersion 1.0.0
-     * @apiName 广播标题模糊搜索
+     * @apiName 管理端广播标题模糊搜索
      * @apiGroup AdminPost
      * @apiPermission 必须登录
      *

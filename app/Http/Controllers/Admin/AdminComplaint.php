@@ -8,9 +8,9 @@ use Illuminate\Http\Request;
 class AdminComplaintController extends Controller
 {
     /**
-     * @api {get} /v1/admin/complaint/post_list 广播/评论投诉列表
+     * @api {get} /v1/admin/complaint/post_list 管理端广播/评论投诉列表
      * @apiVersion 1.0.0
-     * @apiName 广播投诉列表
+     * @apiName 管理端广播投诉列表
      * @apiGroup AdminComplaint
      * @apiPermission 必须登录
      *
@@ -42,9 +42,9 @@ class AdminComplaintController extends Controller
     }
 
     /**
-     * @api {get} /v1/admin/complaint/user_list 广场主投诉列表
+     * @api {get} /v1/admin/complaint/user_list 管理端广场主投诉列表
      * @apiVersion 1.0.0
-     * @apiName 广场主投诉列表
+     * @apiName 管理端广场主投诉列表
      * @apiGroup AdminComplaint
      * @apiPermission 必须登录
      *
@@ -76,9 +76,9 @@ class AdminComplaintController extends Controller
     }
 
     /**
-     * @api {post} /v1/admin/complaint/deal 处理投诉
+     * @api {post} /v1/admin/complaint/deal 管理端处理投诉
      * @apiVersion 1.0.0
-     * @apiName 处理投诉
+     * @apiName 管理端处理投诉
      * @apiGroup AdminComplaint
      * @apiPermission 必须登录
      *
@@ -92,9 +92,9 @@ class AdminComplaintController extends Controller
     }
 
     /**
-     * @api {post} /v1/admin/complaint/detail 投诉详情
+     * @api {post} /v1/admin/complaint/detail 管理端投诉详情
      * @apiVersion 1.0.0
-     * @apiName 投诉详情
+     * @apiName 管理端投诉详情
      * @apiGroup AdminComplaint
      * @apiPermission 必须登录
      *
