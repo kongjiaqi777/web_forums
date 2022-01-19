@@ -62,9 +62,9 @@ class AdminSquareController extends Controller
     }
 
     /**
-     * @api {get} /v1/admin/square/suggest 广场名称suggest
+     * @api {get} /v1/admin/square/suggest 管理端广场名称suggest
      * @apiVersion 1.0.0
-     * @apiName 广场名称suggest
+     * @apiName 管理端广场名称suggest
      * @apiGroup AdminSquare
      * @apiPermission 必须登录
      * 
@@ -95,9 +95,9 @@ class AdminSquareController extends Controller
     }
 
     /**
-     * @api {get} /v1/admin/square/detail 广场详情
+     * @api {get} /v1/admin/square/detail 管理端广场详情
      * @apiVersion 1.0.0
-     * @apiName 广场详情
+     * @apiName 管理端广场详情
      * @apiGroup AdminSquare
      * @apiPermission 必须登录
      *
@@ -141,9 +141,9 @@ class AdminSquareController extends Controller
     }
 
     /**
-     * @api {post} /v1/admin/square/update 编辑广场
+     * @api {post} /v1/admin/square/update 管理端编辑广场
      * @apiVersion 1.0.0
-     * @apiName 编辑广场
+     * @apiName 管理端编辑广场
      * @apiGroup AdminSquare
      * @apiPermission 必须登录
      *
@@ -190,9 +190,9 @@ class AdminSquareController extends Controller
     }
 
     /**
-     * @api {post} /v1/admin/square/delete 解散广场
+     * @api {post} /v1/admin/square/delete 管理端解散广场
      * @apiVersion 1.0.0
-     * @apiName 解散广场
+     * @apiName 管理端解散广场
      * @apiGroup AdminSquare
      * @apiPermission 必须登录
      *
@@ -204,9 +204,9 @@ class AdminSquareController extends Controller
     }
 
     /**
-     * @api {post} /v1/admin/square/approve 广场审核通过
+     * @api {post} /v1/admin/square/approve 管理端广场审核通过
      * @apiVersion 1.0.0
-     * @apiName 广场审核通过
+     * @apiName 管理端广场审核通过
      * @apiGroup AdminSquare
      * @apiPermission 必须登录
      *
@@ -218,9 +218,9 @@ class AdminSquareController extends Controller
     }
 
     /**
-     * @api {post} /v1/admin/square/reject 广场审核驳回
+     * @api {post} /v1/admin/square/reject 管理端广场审核驳回
      * @apiVersion 1.0.0
-     * @apiName 广场审核驳回
+     * @apiName 管理端广场审核驳回
      * @apiGroup AdminSquare
      * @apiPermission 必须登录
      *
@@ -233,9 +233,9 @@ class AdminSquareController extends Controller
     }
 
     /**
-     * @api {post} /v1/admin/square/switch 更换广场主
+     * @api {post} /v1/admin/square/switch 管理端更换广场主
      * @apiVersion 1.0.0
-     * @apiName 广场审核驳回
+     * @apiName 管理端广场审核驳回
      * @apiGroup AdminSquare
      * @apiPermission 必须登录
      *
