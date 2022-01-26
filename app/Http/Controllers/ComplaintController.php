@@ -3,9 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\ComplaintServices;
 
 class ComplaintController extends Controller
 {
+    private $complaintServices;
+
+    public function __construct(ComplaintServices $complaintServices)
+    {
+        $this->complaintServices = $complaintServices;
+    }
+
     /**
      * @api {get} /v1/complaint/detail 投诉详情
      * @apiVersion 1.0.0
@@ -28,6 +36,9 @@ class ComplaintController extends Controller
      */
     public function detail(Request $request)
     {
+        $params = $request->all();
+        $detail = $this->complaintServices->detail($params);
+        return $this->buildSucceed($detail);
     }
 
     /**
@@ -69,6 +80,9 @@ class ComplaintController extends Controller
      */
     public function create(Request $request)
     {
-
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        $detail = $this->complaintServices->create($params, $operationInfo);
+        return $this->buildSucceed($detail);
     }
 }

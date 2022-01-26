@@ -39,6 +39,7 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
+        // NotFoundHttpException提示格式
         $this->renderable(function (NotFoundHttpException $e, $request) {
             return response()->json([
                 'code' => 404,
@@ -46,6 +47,7 @@ class Handler extends ExceptionHandler
             ]);
         });
 
+        // MethodNotAllowedHttpException 提示格式
         $this->renderable(function (MethodNotAllowedHttpException $e, $request) {
             return response()->json([
                 'code' => 405,
@@ -53,28 +55,29 @@ class Handler extends ExceptionHandler
             ]);
         });
 
-        
-        // $this->reportable(function (ValidationException $e, $request) {
-        //     $this->logException($request, $e, 'debug');
+        // ValidationException提示格式
+        $this->reportable(function (ValidationException $e, $request) {
+            $this->logException($request, $e, 'debug');
 
-        //     $allMessage = [];
-        //     $responseData = $e->errors();
-        //     // json_decode($e->errors(), true);
+            $allMessage = [];
+            $responseData = $e->errors();
+            // json_decode($e->errors(), true);
 
-        //     if ($responseData) {
-        //         foreach ($responseData as $item) {
-        //             array_push($allMessage, implode(',', $item));
-        //         };
-        //     } else {
-        //         $responseData = 'validation failed';
-        //     }
-        //     return response()->json([
-        //         'code' => $e->getCode() ? $e->getCode() : -1,
-        //         'msg' => implode(';', $allMessage),
-        //         'info' => $responseData,
-        //     ]);
-        // });
+            if ($responseData) {
+                foreach ($responseData as $item) {
+                    array_push($allMessage, implode(',', $item));
+                };
+            } else {
+                $responseData = 'validation failed';
+            }
+            return response()->json([
+                'code' => $e->getCode() ? $e->getCode() : -1,
+                'msg' => implode(';', $allMessage),
+                'info' => $responseData,
+            ]);
+        });
 
+        // NoStackException提示格式
         $this->renderable(function (NoStackException $e, $request) {
             $this->logException($request, $e, 'warning');
 
@@ -87,7 +90,7 @@ class Handler extends ExceptionHandler
             ]);
         });
         
-        
+        // BaseException提示格式
         $this->renderable(function (BaseException $e, $request) {
             $this->logException($request, $e, $e->getLogLevel());
             $code = $e->getCode();
@@ -99,25 +102,25 @@ class Handler extends ExceptionHandler
             ]);
         });
 
-        
-        // $this->reportable(function (Throwable $e, $request) {
-        //     $err = [
-        //         'message' => $e->getMessage(),
-        //         'file' => $e->getFile(),
-        //         'line' => $e->getLine(),
-        //         'code' => $e->getCode(),
-        //         'url' => $request->url(),
-        //         'input' => $request->all(),
-        //         /* 'strace' => $e->getTrace(), */
-        //     ];
+        // 通用错误提示格式
+        $this->renderable(function (Throwable $e, $request) {
+            $err = [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'code' => $e->getCode(),
+                'url' => $request->url(),
+                'input' => $request->all(),
+                /* 'strace' => $e->getTrace(), */
+            ];
     
-        //     $response = [
-        //         'code' => $e->getCode(),
-        //         'msg' => $err['message'],
-        //         'error_info' => $err,
-        //     ];
-        //     return response()->json($response);    
-        // });
+            $response = [
+                'code' => $e->getCode(),
+                'msg' => $err['message'],
+                'error_info' => $err,
+            ];
+            return response()->json($response);    
+        });
     }
 
     private function logException($request, Exception $e, $errorLevel = 'error')

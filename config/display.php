@@ -2,22 +2,27 @@
 
 return [
     // 广场审核状态
-    'post_verify_status' => [
-        [
-            'code' => 100,
-            'desc' => '待审核',
+    'square_verify_status' => [
+        'waitting_approve' => [
+            'code' => 10,
+            'desc' => '申请创建',
         ],
-        [
-            'code' => 200,
-            'desc' => '审核成功',
+        'approved' => [
+            'code' => 20,
+            'desc' => '已通过',
         ],
-        [
-            'code' => 300,
+        'rejected' => [
+            'code' => 30,
             'desc' => '审核驳回'
         ],
-        [
-            'code' => 400,
-            'desc' => '申请变更广场主'
+        // 申请更换广场主
+        'apply_relieve' => [
+            'code' => 40,
+            'desc' => '申请解除'
+        ],
+        'dismissed' => [
+            'code' => 50,
+            'desc' => '已解散'
         ],
     ],
     // 用户状态

@@ -2,7 +2,6 @@
 
 namespace App\Libs;
 
-use App\Exceptions\BeeperException;
 use Carbon\Carbon;
 use Log;
 use Illuminate\Support\Arr;
@@ -92,7 +91,7 @@ class UtilLib
         } else {
             $config = $configName;
         }
-
+        
         $result = $default;
 
         foreach ($config as $key => $eachConfig) {

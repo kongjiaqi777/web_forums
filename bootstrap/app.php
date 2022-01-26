@@ -57,12 +57,11 @@ $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
     // 用户相关接口
-    // require __DIR__.'/../routes/web.php';
+    require __DIR__.'/../routes/web.php';
     // 广场相关接口
     require __DIR__.'/../routes/square.php';
     // 广播相关接口
     require __DIR__.'/../routes/post.php';
-
     // 管理端相关接口
     require __DIR__.'/../routes/admin.php';
 });

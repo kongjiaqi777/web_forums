@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Models\Complaint;
+namespace App\Models\Message;
 
 use App\Models\BaseOpLogModel;
 
-class ComplaintOpLogModel extends BaseOpLogModel
+class MessageOpLogModel extends BaseOpLogModel
 {
     protected $connection  = 'mysql';
-    protected $table       = 'complaints_op_logs';
-    protected $idKey       = 'complaint_id';
+    protected $table       = 'message_op_logs';
+    protected $idKey       = 'message_id';
     public $timestamps     = true;
 
     public $fillable = [
-        'complaint_id',
+        'message_id',
         'operation_type',
         'before_change',
         'after_change',
@@ -24,7 +24,7 @@ class ComplaintOpLogModel extends BaseOpLogModel
 
     public $findable = [
         'id',
-        'complaint_id',
+        'message_id',
         'operation_type',
         'before_change',
         'after_change',

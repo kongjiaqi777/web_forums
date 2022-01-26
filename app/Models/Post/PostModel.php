@@ -19,7 +19,7 @@ class PostModel extends BaseModel
         'content',
         'photo',
         'creater_id',
-        'verify_status',
+        'post_type',
     ];
  
     // 可以作为筛选条件的字段
@@ -32,10 +32,6 @@ class PostModel extends BaseModel
             ],
             'creater_id' => [
                 'query_key' => 'creater_id',
-                'operator' => '=',
-            ],
-            'verify_status' => [
-                'query_key' => 'verify_status',
                 'operator' => '=',
             ],
             'title' => [
@@ -58,21 +54,20 @@ class PostModel extends BaseModel
         'title',
         'content',
         'photo',
-        'verify_status',
-        'verify_reason',
         'top_rule',
         'reply_count',
         'praise_count',
+        'is_del',
+        'deleted_at',
     ];
 
     public $findable = [
         'id',
         'square_id',
+        'post_type',
         'creater_id',
         'title',
         'content',
-        'verify_status',
-        'verify_reason',
         'top_rule',
         'photo',
         'reply_count',

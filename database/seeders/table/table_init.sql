@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS `user_op_logs` (
 CREATE TABLE IF NOT EXISTS `user_login_logs` (
     `id` INT(11) UNSIGNED AUTO_INCREMENT COMMENT 'ID',
     `user_id` INT(11) NOT NULL COMMENT '用户ID',
+    `request_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '请求信息',
     `created_at` datetime NOT NULL COMMENT '创建时间',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=UTF8 COLLATE=UTF8_UNICODE_CI COMMENT '用户登陆日志表';
@@ -57,7 +58,9 @@ CREATE TABLE IF NOT EXISTS `follow_user_records` (
 	`id` INT(11) UNSIGNED AUTO_INCREMENT COMMENT 'ID',
 	`user_id` INT(11) NOT NULL COMMENT '用户ID',
     `follow_user_id` INT(11) NOT NULL COMMENT '关注人ID',
+    `is_mutual` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '是否是互相关注',
     `created_at` DATETIME NOT NULL COMMENT '创建时间',
+    `updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     `deleted_at` DATETIME COMMENT '删除时间',
     `is_del` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '是否删除:未删除0/已删除1',
 	PRIMARY KEY (`id`),
@@ -111,6 +114,7 @@ CREATE TABLE IF NOT EXISTS `follow_square_records` (
     `square_id` INT(11) NOT NULL COMMENT '广场ID',
     `follow_user_id` INT(11) NOT NULL COMMENT '关注人ID',
     `created_at` datetime NOT NULL COMMENT '关注时间',
+    `updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     `is_del` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否删除:未删除0/已删除1',
     `deleted_at` DATETIME COMMENT '删除时间',
     PRIMARY KEY (`id`),
@@ -204,6 +208,8 @@ CREATE TABLE IF NOT EXISTS `post_replys` (
 CREATE TABLE IF NOT EXISTS `post_praises` (
 	`id` INT(11) UNSIGNED AUTO_INCREMENT COMMENT '点赞记录ID',
     `post_id` INT(11) NOT NULL COMMENT '广播ID',
+    `reply_id` INT(11) NOT NULL DEFAULT 0 COMMENT '回复ID',
+    `praise_type` tinyint(2) NOT NULL DEFAULT 10 COMMENT '点赞类型:广播点赞10/回复点赞20', 
     `user_id` INT(11) NOT NULL COMMENT '操作人ID',
     `created_at` datetime NOT NULL COMMENT '创建时间',
     `is_del` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否删除:未删除0/已删除1',
@@ -290,3 +296,35 @@ CREATE TABLE IF NOT EXISTS `system_messages` (
     PRIMARY KEY (`id`),
     KEY `user_idx` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=UTF8_UNICODE_CI COMMENT '系统消息';
+
+-- ----------------------------
+-- Records of message operation log
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `message_op_logs` (
+    `id` INT(11) UNSIGNED AUTO_INCREMENT COMMENT 'ID',
+    `message_id` INT(11) NOT NULL COMMENT '消息ID',
+    `operation_type` tinyint(3) unsigned NOT NULL COMMENT '操作类型:创建10/更新20/删除30',
+    `before_change` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '修改前信息',
+    `after_change` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '修改后信息',
+    `comment` varchar(256) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT '' COMMENT '操作信息',
+    `operator_id` int(11) unsigned NOT NULL COMMENT '操作人ID',
+    `operator_type` int(3) unsigned DEFAULT 100 COMMENT '操作人类型',
+    `operator_ip` varchar(15) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT '操作人IP',
+    `created_at` datetime NOT NULL COMMENT '创建时间',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT '消息信息操作日志表';
+
+-- ----------------------------
+-- Records of admin user
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `admin_users` (
+	`id` INT(11) UNSIGNED AUTO_INCREMENT COMMENT '用户ID',
+	`nickname` VARCHAR(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户昵称',
+    `email` VARCHAR(256) NOT NULL COMMENT '邮箱账号',
+	`is_del` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '是否删除:未删除0/已删除1',
+	`created_at` DATETIME NOT NULL COMMENT '创建时间',
+	`updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+    `deleted_at` DATETIME COMMENT '删除时间',
+	PRIMARY KEY (`id`),
+    KEY `emailx` (`email`(20))
+) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_UNICODE_CI AUTO_INCREMENT=3000 COMMENT '管理端用户信息表';

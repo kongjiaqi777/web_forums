@@ -371,7 +371,7 @@ abstract class BaseRepository
      * @param string    $message        提示信息
      * @return void
      */
-    public function commonUpdate($dataId, $updateModel, $updateLogModel, $updateData, $operationInfo, $message='')
+    public function commonUpdate($dataId, $updateModel, $updateLogModel, $updateData, $operationInfo, $message='更新', $operationTypeSpec='update')
     {
         $oriInfo = $updateModel->getById($dataId);
 
@@ -387,7 +387,7 @@ abstract class BaseRepository
         $updateInfoForUp = $this->getUpdateData($updateInfo, $originalInfo);
         
         // 更新
-        $res = DB::transaction(function () use ($dataId, $updateModel, $updateLogModel, $updateInfoForUp, $operationInfo, $message) {
+        $res = DB::transaction(function () use ($dataId, $updateModel, $updateLogModel, $updateInfoForUp, $operationInfo, $message, $operationTypeSpec) {
             $updateNew = Arr::get($updateInfoForUp, 'new', []);
             $updateOri = Arr::get($updateInfoForUp, 'original', []);
             try {
@@ -397,7 +397,8 @@ abstract class BaseRepository
                     [$dataId => $updateNew],
                     [$dataId => $updateOri],
                     $operationInfo,
-                    $message
+                    $message,
+                    $operationTypeSpec
                 );
                 return $updateRes;
             } catch (\Exception $e) {

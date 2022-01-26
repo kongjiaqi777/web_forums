@@ -4,9 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Services\Admin\SquareServices;
 
 class AdminSquareController extends Controller
 {
+    private $squareServices;
+
+    public function __construct(SquareServices $squareServices)
+    {
+        $this->squareServices = $squareServices;
+    }
+
     /**
      * @api {get} /v1/admin/square/list 管理端广场列表
      * @apiVersion 1.0.0
@@ -34,6 +42,7 @@ class AdminSquareController extends Controller
      * @apiSuccess {Numeric} follow_count 关注人数
      * @apiSuccess {DateTime} created_at 创建时间
      * @apiSuccess {Numeric} verify_status 审核状态:申请创建100/审核通过200/审核驳回300/申请更换广场主400/申请解除500
+     * @apiSuccess {String} verify_status_display 审核状态展示
      * @apiSuccessExample Success-Response
      *
      *  {
@@ -50,7 +59,8 @@ class AdminSquareController extends Controller
      *              "label":"留学广场标签",
      *              "follow_count": 100,
      *              "created_at": "2021-12-02 13:00:00",
-     *              "verify_status": 100
+     *              "verify_status": 100,
+     *              "verify_status_display":"申请创建"
      *          }
      *      ]
      * }
@@ -58,7 +68,13 @@ class AdminSquareController extends Controller
      */
     public function list(Request $request)
     {
-        
+        $params = $request->all();
+
+        $params ['page'] ?? $params ['page'] = 1;
+        $params ['perpage'] ?? $params ['perpage'] = 20;
+
+        $res = $this->squareServices->getList($params);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -89,9 +105,15 @@ class AdminSquareController extends Controller
      *      ]
      * }
      */
-    public function suggestName(Request $request)
+    public function suggest(Request $request)
     {
+        $params = $request->all();
 
+        $params ['page'] ?? $params ['page'] = 1;
+        $params ['perpage'] ?? $params ['perpage'] = 20;
+
+        $res = $this->squareServices->suggest($params);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -137,7 +159,9 @@ class AdminSquareController extends Controller
      */
     public function detail(Request $request)
     {
-
+        $params = $request->all();
+        $res = $this->squareServices->detail($params);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -186,7 +210,10 @@ class AdminSquareController extends Controller
      */
     public function update(Request $request)
     {
-
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->squareServices->update($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -200,7 +227,10 @@ class AdminSquareController extends Controller
      */
     public function delete(Request $request)
     {
-
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->squareServices->delete($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -214,7 +244,15 @@ class AdminSquareController extends Controller
      */
     public function approve(Request $request)
     {
-
+        $this->validate($request, [
+            'square_id' => 'required|numeric|min:1'
+        ], [
+            'square_id.*' => '广场ID参数不合法'
+        ]);
+        $params = $request->only(['square_id']);
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->squareServices->doApprove($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -229,7 +267,18 @@ class AdminSquareController extends Controller
      */
     public function reject(Request $request)
     {
-
+        $this->validate($request, [
+            'square_id' => 'required|numeric|min:1'
+        ], [
+            'square_id.*' => '广场ID参数不合法'
+        ]);
+        $params = $request->only([
+            'square_id',
+            'verify_reason',
+        ]);
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->squareServices->doReject($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -244,6 +293,17 @@ class AdminSquareController extends Controller
      */
     public function switch(Request $request)
     {
-
+        $this->validate($request, [
+            'square_id' => 'required|numeric|min:1'
+        ], [
+            'square_id.*' => '广场ID参数不合法'
+        ]);
+        $params = $request->only([
+            'square_id',
+            'creater_id'
+        ]);
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->squareServices->doSwitch($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 }

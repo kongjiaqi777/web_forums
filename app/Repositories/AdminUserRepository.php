@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Repositories\BaseRepository;
 
-class MessageRepository extends BaseRepository
+class AdminUserRepository extends BaseRepository
 {
 
 }

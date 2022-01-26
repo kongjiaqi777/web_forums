@@ -3,9 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\PraiseServices;
 
 class PraiseController extends Controller
 {
+    private $praiseServices;
+
+    public function __construct(PraiseServices $praiseServices)
+    {
+        $this->praiseServices = $praiseServices;
+    }
+
     /**
      * @api {post} /v1/praise/create_post 点赞广播
      * @apiVersion 1.0.0
@@ -18,7 +26,9 @@ class PraiseController extends Controller
      */
     public function createPost(Request $request)
     {
-        
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        return $this->praiseServices->createPost($params, $operationInfo);
     }
 
     /**
@@ -33,7 +43,9 @@ class PraiseController extends Controller
      */
     public function cancelPost(Request $request)
     {
-        
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        return $this->praiseServices->cancelPost($params, $operationInfo);
     }
 
     /**
@@ -48,7 +60,9 @@ class PraiseController extends Controller
      */
     public function createReply(Request $request)
     {
-
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        return $this->praiseServices->createReply($params, $operationInfo);
     }
 
     /**
@@ -63,6 +77,8 @@ class PraiseController extends Controller
      */
     public function cancelReply(Request $request)
     {
-        
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        return $this->praiseServices->cancelReply($params, $operationInfo);
     }
 }

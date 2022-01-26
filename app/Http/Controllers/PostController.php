@@ -175,7 +175,14 @@ class PostController extends Controller
      */
     public function getMyPostList(Request $request)
     {
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        $params ['page'] ?? $params ['page'] = 1;
+        $params ['perpage'] ?? $params ['perpage'] = 20;
+        $params ['creater_id'] = $operationInfo['operator_id'];
 
+        $res = $this->postServices->getList($params);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -235,7 +242,13 @@ class PostController extends Controller
      */
     public function suggest(Request $request)
     {
+        $params = $request->all();
 
+        $params ['page'] ?? $params ['page'] = 1;
+        $params ['perpage'] ?? $params ['perpage'] = 20;
+
+        $res = $this->postServices->suggest($params);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -276,7 +289,6 @@ class PostController extends Controller
     public function create(Request $request)
     {
         $params = $request->all();
-        $params['creater_id'] ?? $params['creater_id'] = 1001;
         $operationInfo = $this->getOperationInfo($request);
         $res = $this->postServices->createPost($params, $operationInfo);
         return $this->buildSucceed($res);
@@ -346,7 +358,10 @@ class PostController extends Controller
      */
     public function update(Request $request)
     {
-
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->postServices->updatePost($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -404,7 +419,10 @@ class PostController extends Controller
      */
     public function getTopList(Request $request)
     {
+        $params = $request->all();
 
+        $res = $this->postServices->getAll($params);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -425,7 +443,10 @@ class PostController extends Controller
      */
     public function setTop(Request $request)
     {
-
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->postServices->setTop($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -447,6 +468,10 @@ class PostController extends Controller
      */
     public function delete(Request $request)
     {
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->postServices->delete($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -554,6 +579,17 @@ class PostController extends Controller
      */
     public function browseList(Request $request)
     {
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->postServices->browseList($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 
+    public function addBrowseRecord(Request $request)
+    {
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->postServices->addBrowseRecord($params, $operationInfo);
+        return $this->buildSucceed($res);
+    }
 }

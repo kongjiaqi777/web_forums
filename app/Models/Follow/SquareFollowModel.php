@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Square;
+namespace App\Models\Follow;
 
 use App\Models\BaseModel;
 
@@ -10,22 +10,20 @@ class SquareFollowModel extends BaseModel
     protected $connection = 'mysql';
 
     // 表名称
-    protected $table = 'square_followers';
-
-    public $timestamps = false;
+    protected $table = 'follow_square_records';
 
     // 可以插入表的字段
     public $fillable = [
         'square_id',
-        'follower_id',
+        'follow_user_id',
     ];
  
     // 可以作为筛选条件的字段
     function getSearchAble()
     {
         return [
-            'follower_id' => [
-                'query_key' => 'follower_id',
+            'follow_user_id' => [
+                'query_key' => 'follow_user_id',
                 'operator' => '=',
             ],
             'square_id' => [
@@ -44,9 +42,8 @@ class SquareFollowModel extends BaseModel
     public $findable = [
         'id',
         'square_id',
-        'follower_id',
+        'follow_user_id',
         'created_at',
-        'deleted_at',
         'is_del',
     ];
 }

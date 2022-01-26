@@ -50,10 +50,18 @@ class SquareController extends Controller
      */
     public function suggest(Request $request)
     {
+        $this->validate($request, [
+            'page' => 'numeric',
+            'perpage' => 'numeric|max:50',
+            'name' => 'required|string',
+        ]);
 
+        $params = $request->only(['page', 'perpage', 'name', 'operator_id']);
+        $res = $this->squareServices->suggestList($params);
+        return $this->buildSucceed($res);
     }
 
-      /**
+    /**
      * @api {GET} /v1/square/detail 广场详情
      * @apiVersion 1.0.0
      * @apiName 广场详情
@@ -69,6 +77,7 @@ class SquareController extends Controller
      * @apiSuccess {String}  avatar      广场头像
      * @apiSuccess {String}  label       广场简介
      * @apiSuccess {Numeric} follow_count 成员人数
+     * @apiSuccess {Numeric} post_count 广播数目
      * @apiSuccess {DateTime} created_at 创建时间
      * @apiSuccess {Numeric} is_follow   当前登录用户是否关注[0未关注/1已关注，用户未登录统一为0]
      * @apiSuccess {string} verify_status 审核状态:申请创建100/审核通过200/审核驳回300/申请更换广场主400/申请解除500
@@ -101,10 +110,10 @@ class SquareController extends Controller
             'square_id.required' => '广场ID必传',
             'square_id.numeric' => '广场ID格式不正确'
         ]);
-        $params = $request->only(['square_id']);
+        $params = $request->only(['square_id', 'operator_id']);
 
         $squareId = $params['square_id'] ?? 0;
-        $userId = $_REQUEST['user_id'] ?? 0;
+        $userId = $params['operator_id'] ?? 0;
 
         $res = $this->squareServices->getDetail($squareId, $userId);
         return $this->buildSucceed($res);
@@ -142,6 +151,15 @@ class SquareController extends Controller
      */
     public function myFollowList(Request $request)
     {
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+
+        $params ['page'] ?? $params ['page'] = 1;
+        $params ['perpage'] ?? $params ['perpage'] = 20;
+
+        $userId = $operationInfo['operator_id'];
+        $res = $this->squareServices->myFollowList($params, $userId);
+        return $this->buildSucceed($res);
     }
 
   
@@ -181,7 +199,10 @@ class SquareController extends Controller
         ], [
 
         ]);
+        
         $params = $request->all();
+
+        $params ['creater_id'] = $params['operator_id'];
         $operationInfo = $this->getOperationInfo($request);
         $res = $this->squareServices->createSquare($params, $operationInfo);
         return $this->buildSucceed($res);
@@ -233,7 +254,12 @@ class SquareController extends Controller
      */
     public function update(Request $request)
     {
-        $params = $request->all();
+        $params = $request->only([
+            'square_id',
+            'name',
+            'label',
+            'avatar'
+        ]);
         $operationInfo = $this->getOperationInfo($request);
         $res = $this->squareServices->updateSquare($params, $operationInfo);
         return $this->buildSucceed($res);
@@ -263,9 +289,9 @@ class SquareController extends Controller
     public function setFollow(Request $request)
     {
         $params = $request->all();
-        // $operationInfo = $this->getOperationInfo($request);
+        $operationInfo = $this->getOperationInfo($request);
         $squareId = $params['square_id'] ?? 0;
-        $userId = $params['user_id'] ?? 0;
+        $userId = $operationInfo['operator_id'] ?? 0;
 
         $res = $this->squareServices->setFollow($squareId, $userId);
         return $this->buildSucceed($res);
@@ -288,14 +314,15 @@ class SquareController extends Controller
      *  {
      *      "code": 0,
      *      "msg": "success",
-     *      "info": "取消关注成功"
+     *      "info": 2
      *  }
      */
     public function cancelFollow(Request $request)
     {
         $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
         $squareId = $params['square_id'] ?? 0;
-        $userId = $params['user_id'] ?? 0;
+        $userId = $operationInfo['operator_id'] ?? 0;
 
         $res = $this->squareServices->cancelFollow($squareId, $userId);
         return $this->buildSucceed($res);
@@ -326,6 +353,13 @@ class SquareController extends Controller
      */
     public function applyRelieve(Request $request)
     {
-        
+        $params = $request->only([
+            'square_id'
+        ]);
+        $operationInfo = $this->getOperationInfo($request);
+
+        $params['verify_status'] = config('display.square_verify_status.apply_relieve.code');
+        $res = $this->squareServices->updateSquare($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 }

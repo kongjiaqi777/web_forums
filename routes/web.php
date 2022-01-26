@@ -10,18 +10,20 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-$router->group(['prefix' => 'v1/user/', 'middleware' => 'api'], function () use ($router) {
+$router->group(['prefix' => 'v1/user', 'middleware' => 'api'], function () use ($router) {
     // 根据token获取用户信息
-    $router->post('info', ['uses' => 'UserController@getUserInfoById']);
+    $router->post('info', ['uses' => 'UserController@getUserInfoByToken']);
 
     // 修改用户信息
-    $router->post('update_info', ['uses' => 'UserController@updateInfo']);
+    $router->post('update_label', ['uses' => 'UserController@updateLabel']);
 
-    // 修改用户头像
-    $router->post('update_avatar', ['uses' => 'UserController@updateAvatar']);
-
+    // 
+    $router->get('follow_list', ['uses' => 'UserController@myFollowUserList']);
+    $router->post('set_follow', ['uses' => 'UserController@setFollowUser']);
+    $router->post('cancel_follow', ['uses' => 'UserController@cancelFollowUser']);
+    $router->get('fans_list', ['uses' => 'UserController@myFansUserList']);
+    $router->get('get_by_id', ['uses' => 'UserController@getUserInfoById']);
     // 查询用户信息
-    $router->post('suggest_user', ['uses' => 'UserController@suggestUser']);
+    $router->get('suggest_user', ['uses' => 'UserController@suggestUser']);
 });
 

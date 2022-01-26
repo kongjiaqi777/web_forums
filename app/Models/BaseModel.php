@@ -93,6 +93,9 @@ class BaseModel extends Model
             'sort',
             'page',
             'perpage',
+            'operator_id',
+            'operator_type',
+            'operator_ip',
         ]);
 
         foreach ($condition as $key => $value) {

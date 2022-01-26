@@ -31,7 +31,7 @@ $router->group(['prefix' => 'v1/square', 'middleware' => 'api'], function () use
     $router->post('update', ['uses' => 'SquareController@update']);
     
     // 关注广场
-    $router->post('follow', ['uses' => 'SquareController@follow']);
+    $router->post('set_follow', ['uses' => 'SquareController@setFollow']);
     
     // 取消关注
     $router->post('cancel_follow', ['uses' => 'SquareController@cancelFollow']);

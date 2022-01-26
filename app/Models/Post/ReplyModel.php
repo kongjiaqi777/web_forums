@@ -17,27 +17,21 @@ class ReplyModel extends BaseModel
         'reply_type',
         'parent_id',
         'parent_user_id',
-        'reply_count',
-        'praise_count',
         'post_id',
-        'content',
         'user_id',
+        'content',
     ];
  
     // 可以作为筛选条件的字段
     function getSearchAble()
     {
         return [
-            'reply_type' => [
-                'query_key' => 'reply_type',
+            'parent_id' => [
+                'query_key' => 'parent_id',
                 'operator' => '=',
             ],
-            'post_id' => [
-                'query_key' => 'post_id',
-                'operator' => '=',
-            ],
-            'user_id' => [
-                'query_key' => 'user_id',
+            'parent_user_id' => [
+                'query_key' => 'parent_user_id',
                 'operator' => '=',
             ],
         ];    
@@ -45,26 +39,24 @@ class ReplyModel extends BaseModel
  
     // 可以更新的字段
     public $updateable = [
-        'is_del',
-        'deleted_at',
         'reply_count',
         'praise_count',
-        'updated_at',
     ];
 
+    // 可以查询到的字段
     public $findable = [
         'id',
+        'reply_count',
+        'praise_count',
         'reply_type',
         'parent_id',
         'parent_user_id',
-        'reply_count',
-        'praise_count',
         'post_id',
-        'content',
         'user_id',
+        'content',
         'created_at',
-        // 'deleted_at',
+        'updated_at',
         'is_del',
-        // 'updated_at',
+        'deleted_at',
     ];
 }

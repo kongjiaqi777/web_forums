@@ -29,33 +29,36 @@ $router->group(['prefix' => 'v1/admin/user', 'middleware' => 'admin'], function 
 // 管理端用户-广场相关路由
 $router->group(['prefix' => 'v1/admin/square', 'middleware' => 'admin'], function () use ($router) {
     // 广场列表
-    $router->get('list', ['uses' => 'AdminSquareController@list']);
+    $router->get('list', ['uses' => 'Admin\AdminSquareController@list']);
 
     // 广场详情
-    $router->get('detail', ['uses' => 'AdminSquareController@detail']);
+    $router->get('detail', ['uses' => 'Admin\AdminSquareController@detail']);
 
     // 更新广场信息
-    $router->post('update', ['uses' => 'AdminSquareController@update']);
+    $router->post('update', ['uses' => 'Admin\AdminSquareController@update']);
 
     // 删除广场
-    $router->post('delete', ['uses' => 'AdminSquareController@delete']);
+    $router->post('delete', ['uses' => 'Admin\AdminSquareController@delete']);
 
     // 审核通过广场创建申请
-    $router->post('approve', ['uses' => 'AdminSquareController@approve']);
+    $router->post('approve', ['uses' => 'Admin\AdminSquareController@approve']);
 
     // 审核驳回广场创建申请
-    $router->post('reject', ['uses' => 'AdminSquareController@reject']);
+    $router->post('reject', ['uses' => 'Admin\AdminSquareController@reject']);
 
-    $router->get('detail', ['uses' => 'AdminSquareController@']);
-    $router->get('detail', ['uses' => 'AdminSquareController@']);
-    $router->get('detail', ['uses' => 'AdminSquareController@']);
-    $router->get('detail', ['uses' => 'AdminSquareController@']);
-    $router->get('detail', ['uses' => 'AdminSquareController@']);
-    $router->get('detail', ['uses' => 'AdminSquareController@']);
+    // 更换广场主
+    $router->post('switch', ['uses' => 'Admin\AdminSquareController@switch']);
+
+    // 模糊搜索
+    $router->get('suggest', ['uses' => 'Admin\AdminSquareController@suggest']);
 });
 
 // 管理端用户-广播相关路由
+$router->group(['prefix' => 'v1/admin/post', 'middleware' => 'admin'], function () use ($router) {
+});
 
 // 管理端用户-投诉相关路由
+$router->group(['prefix' => 'v1/admin/complaint', 'middleware' => 'admin'], function () use ($router) {
+});
 
 // 管理端用户-用户管理相关路由

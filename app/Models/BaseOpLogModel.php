@@ -39,20 +39,22 @@ class BaseOpLogModel extends BaseModel
         return $logs;
     }
 
-    public function saveUpdateOpLogDatas($news, $originals, $operationInfo, $comment = '')
+    public function saveUpdateOpLogDatas($news, $originals, $operationInfo, $comment = '', $operationTypeSpec = 'update')
     {
-        $logs = $this->getUpdateOpLogDatas($news, $originals, $operationInfo, $comment);
+        $logs = $this->getUpdateOpLogDatas($news, $originals, $operationInfo, $comment, $operationTypeSpec);
         return $this->insert($logs);
     }
 
-    public function getUpdateOpLogDatas($news, $originals, $operationInfo, $comment = '')
+    public function getUpdateOpLogDatas($news, $originals, $operationInfo, $comment, $operationTypeSpec)
     {
         $logs = [];
         if ($news && $originals && $operationInfo) {
+            $operationType = config($this->opConfigKey . '.'.$operationTypeSpec.'.code');
+
             foreach ($news as $id => $info) {
                 $before = Arr::get($originals, $id, []);
                 $logs[] = array_merge([
-                    'operation_type' => config($this->opConfigKey . '.update.code'),
+                    'operation_type' => $operationType,
                     $this->idKey => $id,
                     'before_change' => json_encode($before),
                     'after_change' => json_encode($info),
