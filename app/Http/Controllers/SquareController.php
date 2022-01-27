@@ -26,7 +26,10 @@ class SquareController extends Controller
      * @apiParam {String}  name         广场名称或标签
      * 
      * @apiParamExample {curl} Request Example
-     * curl 'http://forums.test/v1/square/suggest'
+     * {
+     *      "name": "暴富"
+     * }
+     * 
      * @apiSuccess {Numeric} id          广场ID
      * @apiSuccess {String}  name        广场名称
      * @apiSuccess {String}  avatar      广场头像
@@ -34,30 +37,49 @@ class SquareController extends Controller
      * @apiSuccess {Numeric} is_follow   当前登录用户是否关注[0未关注/1已关注，用户未登录统一为0]
      * @apiSuccess {DateTime} created_at 创建时间
      * @apiSuccessExample Success-Response
-     *
-     *  {
-     *      "code": 0,
-     *      "msg": "success",
-     *      "info": [
-     *          {
-     *              "id": 1000,
-     *              "name": "留学广场",
-     *              "avatar": "广场头像"
-     *          }
-     *      ]
-     * }
-     *
+     * {
+    "code": 0,
+    "msg": "success",
+    "info": {
+        "list": [
+            {
+                "id": 1004,
+                "name": "股票广场",
+                "label": "这是一个分享交流股票心得的广场。想一夜暴富吗？",
+                "avatar": "hhhhh",
+                "verify_status": 20,
+                "follow_count": 5,
+                "is_del": 0,
+                "is_follow": 1
+            }
+        ],
+        "pagination": {
+            "page": 1,
+            "perpage": 20,
+            "total_page": 1,
+            "total_count": 1
+        }
+    }
+}
      */
     public function suggest(Request $request)
     {
         $this->validate($request, [
             'page' => 'numeric',
             'perpage' => 'numeric|max:50',
-            'name' => 'required|string',
+            'name' => 'required|max:38',
+        ], [
+            'name.required' => '请输入模糊搜索关键字',
+            'name.max' => '模糊搜索关键字最长38个字符'
         ]);
 
+        $params ['page'] ?? $params ['page'] = 1;
+        $params ['perpage'] ?? $params ['perpage'] = 20;
+
         $params = $request->only(['page', 'perpage', 'name', 'operator_id']);
-        $res = $this->squareServices->suggestList($params);
+        
+        $operatorId = $params['operator_id'] ?? 0;
+        $res = $this->squareServices->suggestList($params, true, $operatorId);
         return $this->buildSucceed($res);
     }
 
@@ -85,22 +107,25 @@ class SquareController extends Controller
      * @apiSuccessExample Success-Response
      *
      *  {
-     *      "code": 0,
-     *      "msg": "success",
-     *      "info":
-     *          {
-     *              "id": 1000,
-     *              "creater_id": 1001,
-     *              "name": "留学广场",
-     *              "avatar": "广场头像",
-     *              "label": "广场标签",
-     *              "follow_count": 100,
-     *              "created_at": "2021-10-02 13:00:00",
-     *              "is_follow": 0,
-     *              "verify_status": "300",
-     *              "verify_reason": "请给出广场详细简介"
-     *          }
-     * }
+    "code": 0,
+    "msg": "success",
+    "info": {
+        "id": 1004,
+        "name": "股票广场",
+        "creater_id": 118,
+        "avatar": "hhhhh",
+        "label": "这是一个分享交流股票心得的广场。想一夜暴富吗？",
+        "verify_status": 20,
+        "verify_reason": null,
+        "follow_count": 5,
+        "created_at": "2022-01-20T07:59:23.000000Z",
+        "updated_at": "2022-01-26T14:58:25.000000Z",
+        "deleted_at": null,
+        "is_del": 0,
+        "post_count": 0,
+        "is_follow": 1
+    }
+}
      */
     public function detail(Request $request)
     {
@@ -137,27 +162,62 @@ class SquareController extends Controller
      * @apiSuccessExample Success-Response
      *
      *  {
-     *      "code": 0,
-     *      "msg": "success",
-     *      "info": [
-     *          {
-     *              "id": 1000,
-     *              "name": "留学广场",
-     *              "avatar": "广场头像"
-     *          }
-     *      ]
-     * }
+    "code": 0,
+    "msg": "success",
+    "info": {
+        "list": [
+            {
+                "id": 1004,
+                "name": "股票广场",
+                "creater_id": 118,
+                "avatar": "hhhhh",
+                "label": "aaa",
+                "verify_status": 20,
+                "verify_reason": null,
+                "follow_count": 5,
+                "created_at": "2022-01-20T07:59:23.000000Z",
+                "updated_at": "2022-01-20T13:58:08.000000Z",
+                "deleted_at": null,
+                "is_del": 0,
+                "square_id": 1004
+            },
+            {
+                "id": 1000,
+                "name": "广场3",
+                "creater_id": 1001,
+                "avatar": "hhhhh",
+                "label": "aaa",
+                "verify_status": 20,
+                "verify_reason": null,
+                "follow_count": 0,
+                "created_at": "2022-01-19T01:43:58.000000Z",
+                "updated_at": "2022-01-26T14:42:25.000000Z",
+                "deleted_at": null,
+                "is_del": 0,
+                "square_id": 1000
+            }
+        ],
+        "pagination": {
+            "page": 1,
+            "perpage": 20,
+            "total_page": 1,
+            "total_count": 2
+        }
+    }
+}
      *
      */
     public function myFollowList(Request $request)
     {
-        $params = $request->all();
+        $params = $request->only(['page', 'perpage', 'operator_id']);
+
         $operationInfo = $this->getOperationInfo($request);
 
         $params ['page'] ?? $params ['page'] = 1;
         $params ['perpage'] ?? $params ['perpage'] = 20;
 
-        $userId = $operationInfo['operator_id'];
+        $userId = $operationInfo['operator_id'] ?? 0;
+        
         $res = $this->squareServices->myFollowList($params, $userId);
         return $this->buildSucceed($res);
     }
@@ -197,10 +257,12 @@ class SquareController extends Controller
             'avatar' => 'required',
             'label' => 'required',
         ], [
-
+            'name.require' => '请输入广场名称',
+            'name.avatar' => '请输入广场头像',
+            'name.label' => '请输入广场标签'
         ]);
         
-        $params = $request->all();
+        $params = $request->only(['name', 'avatar', 'label', 'operator_id']);
 
         $params ['creater_id'] = $params['operator_id'];
         $operationInfo = $this->getOperationInfo($request);
@@ -254,6 +316,19 @@ class SquareController extends Controller
      */
     public function update(Request $request)
     {
+        $this->validate($request, [
+            'square_id' => 'required|numeric',
+            'name' => 'required',
+            'avatar' => 'required',
+            'label' => 'required',
+        ], [
+            'square_id.required' => '请输入广场ID',
+            'square_id.numeric' => '广场ID的格式不正确',
+            'name.require' => '请输入广场名称',
+            'name.avatar' => '请输入广场头像',
+            'name.label' => '请输入广场标签'
+        ]);
+
         $params = $request->only([
             'square_id',
             'name',
@@ -291,9 +366,9 @@ class SquareController extends Controller
         $params = $request->all();
         $operationInfo = $this->getOperationInfo($request);
         $squareId = $params['square_id'] ?? 0;
-        $userId = $operationInfo['operator_id'] ?? 0;
+        $operatorId = $operationInfo['operator_id'] ?? 0;
 
-        $res = $this->squareServices->setFollow($squareId, $userId);
+        $res = $this->squareServices->setFollow($squareId, $operatorId);
         return $this->buildSucceed($res);
     }
 
@@ -322,9 +397,9 @@ class SquareController extends Controller
         $params = $request->all();
         $operationInfo = $this->getOperationInfo($request);
         $squareId = $params['square_id'] ?? 0;
-        $userId = $operationInfo['operator_id'] ?? 0;
+        $operatorId = $operationInfo['operator_id'] ?? 0;
 
-        $res = $this->squareServices->cancelFollow($squareId, $userId);
+        $res = $this->squareServices->cancelFollow($squareId, $operatorId);
         return $this->buildSucceed($res);
     }
 
@@ -341,15 +416,35 @@ class SquareController extends Controller
      *      "square_id": 1001
      * }
      *
+     * @apiSuccess {Numeric} id          广场ID
+     * @apiSuccess {Numeric} creater_id  创建人ID
+     * @apiSuccess {String}  name        广场名称
+     * @apiSuccess {String}  avatar      广场头像
+     * @apiSuccess {String}  label       广场简介
+     * @apiSuccess {Numeric} follow_count 关注人数
+     * @apiSuccess {DateTime} created_at 创建时间
+     * @apiSuccess {Numeric} is_follow   当前登录用户是否关注[0未关注/1已关注，用户未登录统一为0]
+     * @apiSuccess {string} verify_status 审核状态:待审核100/审核通过200/审核驳回300
+     * @apiSuccess {string} verify_reason 审核不通过的原因
      * @apiSuccessExample Success-Response
+     *
      *  {
      *      "code": 0,
      *      "msg": "success",
-     *      "info": {
-     *          "square_id": 1001,
-     *          "verify_status": 400
-     *      }
-     *  }
+     *      "info":
+     *          {
+     *              "id": 1000,
+     *              "creater_id": 1001,
+     *              "name": "留学广场",
+     *              "avatar": "广场头像",
+     *              "label": "广场标签",
+     *              "follow_count": 100,
+     *              "created_at": "2021-10-02 13:00:00",
+     *              "is_follow": 0,
+     *              "verify_status": "300",
+     *              "verify_reason": "请给出广场详细简介"
+     *          }
+     * }
      */
     public function applyRelieve(Request $request)
     {
@@ -357,7 +452,6 @@ class SquareController extends Controller
             'square_id'
         ]);
         $operationInfo = $this->getOperationInfo($request);
-
         $params['verify_status'] = config('display.square_verify_status.apply_relieve.code');
         $res = $this->squareServices->updateSquare($params, $operationInfo);
         return $this->buildSucceed($res);

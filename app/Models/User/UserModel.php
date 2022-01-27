@@ -43,7 +43,7 @@ class UserModel extends BaseModel
                 'query_key' => 'email',
                 'operator' => '=',
             ],
-            'square_id' => [
+            'user_id' => [
                 'query_key' => 'id',
                 'operator' => '='
             ],

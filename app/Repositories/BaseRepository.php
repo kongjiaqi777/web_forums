@@ -298,29 +298,26 @@ abstract class BaseRepository
         $condsSearch = array_intersect_key($searchAble, $conds);
 
         $query = $searchModel;
+        $leftTableName = $searchModel->getTable();
 
         if ($leftModels) {
             foreach ($leftModels as $leftModel) {
                 $leftModelName = Arr::get($leftModel, 'table_name', '');
                 $leftModelLeft = Arr::get($leftModel, 'left', '');
                 $leftModelRight = Arr::get($leftModel, 'right', '');
+                $leftModelConds = Arr::get($leftModel, 'conds', []);
+                $leftModelCondsSearch = Arr::get($leftModel, 'conds_search', []);
+
                 $query = $query->leftJoin($leftModelName, $leftModelLeft, '=', $leftModelRight);
+                $query = $this->getQuery($query, $leftModelConds, $leftModelCondsSearch, $leftModelName . '.', );
             }
         }
 
         if ($condsSearch) {
-            $query = $this->getQueryBuilder($query, $conds, $condsSearch, $fields, 'sales_order.');
+            $query = $this->getQueryBuilder($query, $conds, $condsSearch, $fields, $leftTableName . '.');
         }
 
-        $offset = ($page - 1) * $perpage;
-        $pagination = $searchModel->getPaginate($fields, $query, $page, $perpage);
-
-        $list = $query->select($fields)->offset($offset)->limit($perpage)->get()->all();
-
-        return [
-            'list' => $list,
-            'pagination' => $pagination,
-        ];
+        return $searchModel->overwritePagination($query, $page, $perpage, $fields);
     }
 
     /**
@@ -390,21 +387,26 @@ abstract class BaseRepository
         $res = DB::transaction(function () use ($dataId, $updateModel, $updateLogModel, $updateInfoForUp, $operationInfo, $message, $operationTypeSpec) {
             $updateNew = Arr::get($updateInfoForUp, 'new', []);
             $updateOri = Arr::get($updateInfoForUp, 'original', []);
-            try {
-                $updateRes = $updateModel->where('id', $dataId)->update($updateNew);
+            if ($updateNew && $updateOri) {
+                try {
                 
-                $updateLogModel->saveUpdateOpLogDatas(
-                    [$dataId => $updateNew],
-                    [$dataId => $updateOri],
-                    $operationInfo,
-                    $message,
-                    $operationTypeSpec
-                );
-                return $updateRes;
-            } catch (\Exception $e) {
-                Log::info(sprintf($message.'信息失败[Code][%s][Msg][%s][Input][%s]', $e->getCode(), $e->getMessage(), json_encode($updateInfoForUp)));
-                throw new NoStackException($message.'信息失败');
+
+                    $updateRes = $updateModel->where('id', $dataId)->update($updateNew);
+                    
+                    $updateLogModel->saveUpdateOpLogDatas(
+                        [$dataId => $updateNew],
+                        [$dataId => $updateOri],
+                        $operationInfo,
+                        $message,
+                        $operationTypeSpec
+                    );
+                    return $updateRes;
+                } catch (\Exception $e) {
+                    Log::info(sprintf($message.'信息失败[Code][%s][Msg][%s][Input][%s]', $e->getCode(), $e->getMessage(), json_encode($updateInfoForUp)));
+                    throw new NoStackException($message.'信息失败');
+                }
             }
+           
         });
 
         return $res;

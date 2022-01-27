@@ -30,8 +30,11 @@ class AdminSquareController extends Controller
      * @apiParam {DateTime} created_start 创建开始时间
      * @apiParam {DateTime} created_end 创建结束时间
      *
-     * @apiParamExample {curl} Request Example
-     * curl 'http://forums.test/v1/admin/square/list'
+     * @apiParamExample Request Example
+     * {
+            "created_start": "2022-01-20",
+            "created_end":"2022-01-21"
+        }
      * @apiSuccess {Numeric} id          广场ID
      * @apiSuccess {Numeric} creater_id  创建人ID
      * @apiSuccess {String} creater_email 创建人账户
@@ -45,25 +48,105 @@ class AdminSquareController extends Controller
      * @apiSuccess {String} verify_status_display 审核状态展示
      * @apiSuccessExample Success-Response
      *
-     *  {
-     *      "code": 0,
-     *      "msg": "success",
-     *      "info": [
-     *          {
-     *              "id": 1000,
-     *              "name": "留学广场",
-     *              "avatar": "广场头像",
-     *              "creater_id": 1011,
-     *              "creater_email": "hello@qq.com",
-     *              "creater_nickname": "张三",
-     *              "label":"留学广场标签",
-     *              "follow_count": 100,
-     *              "created_at": "2021-12-02 13:00:00",
-     *              "verify_status": 100,
-     *              "verify_status_display":"申请创建"
-     *          }
-     *      ]
-     * }
+     * {
+        "code": 0,
+        "msg": "success",
+        "info": {
+            "list": [
+                {
+                    "id": 1005,
+                    "name": "直播广场",
+                    "creater_id": 118,
+                    "avatar": "头像链接",
+                    "label": "label",
+                    "verify_status": 20,
+                    "verify_reason": null,
+                    "follow_count": 1,
+                    "created_at": "2022-01-20T08:05:27.000000Z",
+                    "updated_at": "2022-01-20T13:57:37.000000Z",
+                    "deleted_at": null,
+                    "is_del": 0,
+                    "creater_email": "test18@123.com",
+                    "creater_nickname": "霜降",
+                    "verify_status_display": "已通过"
+                },
+                {
+                    "id": 1004,
+                    "name": "股票广场",
+                    "creater_id": 118,
+                    "avatar": "hhhhh",
+                    "label": "这是一个分享交流股票心得的广场。想一夜暴富吗？",
+                    "verify_status": 20,
+                    "verify_reason": null,
+                    "follow_count": 5,
+                    "created_at": "2022-01-20T07:59:23.000000Z",
+                    "updated_at": "2022-01-26T14:58:25.000000Z",
+                    "deleted_at": null,
+                    "is_del": 0,
+                    "creater_email": "test18@123.com",
+                    "creater_nickname": "霜降",
+                    "verify_status_display": "已通过"
+                },
+                {
+                    "id": 1003,
+                    "name": "职场讨论",
+                    "creater_id": 118,
+                    "avatar": "头像链接",
+                    "label": "讨论职场奇葩事",
+                    "verify_status": 20,
+                    "verify_reason": null,
+                    "follow_count": 3,
+                    "created_at": "2022-01-20T07:53:04.000000Z",
+                    "updated_at": "2022-01-20T13:57:43.000000Z",
+                    "deleted_at": null,
+                    "is_del": 0,
+                    "creater_email": "test18@123.com",
+                    "creater_nickname": "霜降",
+                    "verify_status_display": "已通过"
+                },
+                {
+                    "id": 1002,
+                    "name": "外汇广场",
+                    "creater_id": 118,
+                    "avatar": "头像链接",
+                    "label": "这是外汇的广场",
+                    "verify_status": 20,
+                    "verify_reason": null,
+                    "follow_count": 1,
+                    "created_at": "2022-01-20T07:51:24.000000Z",
+                    "updated_at": "2022-01-20T13:57:31.000000Z",
+                    "deleted_at": null,
+                    "is_del": 0,
+                    "creater_email": "test18@123.com",
+                    "creater_nickname": "霜降",
+                    "verify_status_display": "已通过"
+                },
+                {
+                    "id": 1001,
+                    "name": "留学广场",
+                    "creater_id": 118,
+                    "avatar": "头像链接",
+                    "label": "这是留学的广场",
+                    "verify_status": 20,
+                    "verify_reason": null,
+                    "follow_count": 1,
+                    "created_at": "2022-01-20T07:04:24.000000Z",
+                    "updated_at": "2022-01-20T13:57:28.000000Z",
+                    "deleted_at": null,
+                    "is_del": 0,
+                    "creater_email": "test18@123.com",
+                    "creater_nickname": "霜降",
+                    "verify_status_display": "已通过"
+                }
+            ],
+            "pagination": {
+                "page": 1,
+                "perpage": 20,
+                "total_page": 1,
+                "total_count": 5
+            }
+        }
+    }
      *
      */
     public function list(Request $request)
@@ -88,22 +171,47 @@ class AdminSquareController extends Controller
      * @apiParam {Numeric} [perpage=20] 每页条数
      * @apiParam {String} name          广场名称模糊搜索
      *
-     * @apiParamExample {curl} Request Example
-     * curl 'http://forums.test/v1/admin/square/list'
+     * @apiParamExample Request Example
+     * {
+            "name": "车"
+        }
      * @apiSuccess {Numeric} id          广场ID
      * @apiSuccess {String} name        广场名称
      * @apiSuccessExample Success-Response
-     *
-     *  {
-     *      "code": 0,
-     *      "msg": "success",
-     *      "info": [
-     *          {
-     *              "id": 1000,
-     *              "name": "留学广场",
-     *          }
-     *      ]
-     * }
+     * {
+            "code": 0,
+            "msg": "success",
+            "info": {
+                "list": [
+                    {
+                        "id": 1007,
+                        "name": "车车车",
+                        "label": "label",
+                        "avatar": "车车车",
+                        "verify_status": 20,
+                        "follow_count": 0,
+                        "is_del": 0,
+                        "is_follow": 0
+                    },
+                    {
+                        "id": 1006,
+                        "name": "车车车",
+                        "label": "label",
+                        "avatar": "车车车",
+                        "verify_status": 50,
+                        "follow_count": 0,
+                        "is_del": 1,
+                        "is_follow": 0
+                    }
+                ],
+                "pagination": {
+                    "page": 1,
+                    "perpage": 20,
+                    "total_page": 1,
+                    "total_count": 2
+                }
+            }
+        }
      */
     public function suggest(Request $request)
     {
@@ -125,8 +233,10 @@ class AdminSquareController extends Controller
      *
      * @apiParam {Numeric} square_id    广场ID
      *
-     * @apiParamExample {curl} Request Example
-     * curl 'http://forums.test/v1/admin/square/detail'
+     * @apiParamExample Request Example
+     * {
+            "square_id": 1006
+        }
      * @apiSuccess {Numeric} id          广场ID
      * @apiSuccess {Numeric} creater_id  创建人ID
      * @apiSuccess {String}  name        广场名称
@@ -138,27 +248,33 @@ class AdminSquareController extends Controller
      * @apiSuccess {string} verify_status 审核状态:审核状态:申请创建100/审核通过200/审核驳回300/申请更换广场主400/申请解除500
      * @apiSuccess {string} verify_reason 审核不通过的原因
      * @apiSuccessExample Success-Response
-     *
-     *  {
-     *      "code": 0,
-     *      "msg": "success",
-     *      "info":
-     *          {
-     *              "id": 1000,
-     *              "creater_id": 1001,
-     *              "name": "留学广场",
-     *              "avatar": "广场头像",
-     *              "label": "广场标签",
-     *              "follow_count": 100,
-     *              "created_at": "2021-10-02 13:00:00",
-     *              "is_follow": 0,
-     *              "verify_status": "300",
-     *              "verify_reason": "请给出广场详细简介"
-     *          }
-     * }
+     * {
+            "code": 0,
+            "msg": "success",
+            "info": {
+                "id": 1006,
+                "name": "车车车",
+                "creater_id": 111,
+                "avatar": "车车车",
+                "label": "label",
+                "verify_status": 50,
+                "verify_reason": "名称不能重复",
+                "follow_count": 0,
+                "created_at": "2022-01-22T12:52:56.000000Z",
+                "updated_at": "2022-01-22T14:12:14.000000Z",
+                "deleted_at": "2022-01-22 22:12:14",
+                "is_del": 1,
+                "verify_status_display": "已解散"
+            }
+        }
      */
     public function detail(Request $request)
     {
+        $this->validate($request, [
+            'square_id' => 'required|numeric|min:1'
+        ], [
+            'square_id.*' => '广场ID参数不合法'
+        ]);
         $params = $request->all();
         $res = $this->squareServices->detail($params);
         return $this->buildSucceed($res);
@@ -176,8 +292,12 @@ class AdminSquareController extends Controller
      * @apiParam {String}  avatar      广场头像
      * @apiParam {String}  label       广场简介
      * 
-     * @apiParamExample {curl} Request Example
-     * curl 'http://forums.test/v1/square/detail'
+     * @apiParamExample Request Example
+     * {
+        "square_id": 1007,
+        "name": "闲人说车",
+        "label": "车辆爱好者，互相交流"
+    }
      * @apiSuccess {Numeric} id          广场ID
      * @apiSuccess {Numeric} creater_id  创建人ID
      * @apiSuccess {String}  name        广场名称
@@ -189,27 +309,32 @@ class AdminSquareController extends Controller
      * @apiSuccess {string} verify_status 审核状态:待审核100/审核通过200/审核驳回300
      * @apiSuccess {string} verify_reason 审核不通过的原因
      * @apiSuccessExample Success-Response
-     *
-     *  {
-     *      "code": 0,
-     *      "msg": "success",
-     *      "info":
-     *          {
-     *              "id": 1000,
-     *              "creater_id": 1001,
-     *              "name": "留学广场",
-     *              "avatar": "广场头像",
-     *              "label": "广场标签",
-     *              "follow_count": 100,
-     *              "created_at": "2021-10-02 13:00:00",
-     *              "is_follow": 0,
-     *              "verify_status": "300",
-     *              "verify_reason": "请给出广场详细简介"
-     *          }
-     * }
+     * {
+            "code": 0,
+            "msg": "success",
+            "info": {
+                "id": 1007,
+                "name": "闲人说车",
+                "creater_id": 111,
+                "avatar": "车车车",
+                "label": "车辆爱好者，互相交流",
+                "verify_status": 20,
+                "verify_reason": null,
+                "follow_count": 0,
+                "created_at": "2022-01-22T12:58:04.000000Z",
+                "updated_at": "2022-01-27T02:30:27.000000Z",
+                "deleted_at": null,
+                "is_del": 0
+            }
+        }
      */
     public function update(Request $request)
     {
+        $this->validate($request, [
+            'square_id' => 'required|numeric|min:1'
+        ], [
+            'square_id.*' => '广场ID参数不合法'
+        ]);
         $params = $request->all();
         $operationInfo = $this->getOperationInfo($request);
         $res = $this->squareServices->update($params, $operationInfo);
@@ -227,6 +352,11 @@ class AdminSquareController extends Controller
      */
     public function delete(Request $request)
     {
+        $this->validate($request, [
+            'square_id' => 'required|numeric|min:1'
+        ], [
+            'square_id.*' => '广场ID参数不合法'
+        ]);
         $params = $request->all();
         $operationInfo = $this->getOperationInfo($request);
         $res = $this->squareServices->delete($params, $operationInfo);
@@ -294,9 +424,11 @@ class AdminSquareController extends Controller
     public function switch(Request $request)
     {
         $this->validate($request, [
-            'square_id' => 'required|numeric|min:1'
+            'square_id' => 'required|numeric|min:1',
+            'creater_id' => 'required|numeric|min:1',
         ], [
-            'square_id.*' => '广场ID参数不合法'
+            'square_id.*' => '广场ID参数不合法',
+            'creater_id.*' => '请选择新的广场主',
         ]);
         $params = $request->only([
             'square_id',

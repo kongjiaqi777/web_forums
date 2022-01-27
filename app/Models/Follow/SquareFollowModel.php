@@ -30,6 +30,10 @@ class SquareFollowModel extends BaseModel
                 'query_key' => 'square_id',
                 'operator' => '=',
             ],
+            'is_del' => [
+                'query_key' => 'is_del',
+                'operator' => '=',
+            ],
         ];    
     }
  
@@ -46,4 +50,9 @@ class SquareFollowModel extends BaseModel
         'created_at',
         'is_del',
     ];
+
+    public function square_info()
+    {
+        $this->hasOne(App\Models\Square\SquareModel::class, 'id', 'square_id');
+    }
 }

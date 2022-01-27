@@ -68,4 +68,9 @@ class UserRepository extends BaseRepository
             'pagination' => $pagination,
         ];
     }
+
+    public function getById($userId)
+    {
+        return $this->userModel->getById($userId);
+    }
 }

@@ -166,10 +166,9 @@ class BaseModel extends Model
 
         $count = $query->distinct()->count($fields);
 
-        $skip = $page > 1 ? ($page - 1) * $perpage : 0;
-        $query->skip($skip)->take($perpage);
-
-        $list = $query->get($fields)->toArray();
+        $offset = $page > 1 ? ($page - 1) * $perpage : 0;
+        
+        $list = $query->offset($offset)->limit($perpage)->get($fields)->toArray();
 
         Log::info('SQL====='.$query->toSql());
 
@@ -197,7 +196,7 @@ class BaseModel extends Model
      * @return array
      * @throws DatabaseException
      */
-    public function getAll($condition, $sortInfo = ['id' => 'desc'])
+    public function getAll($condition, $sortInfo = ['id' => 'desc'], $fields = ['*'])
     {
         if (empty($condition)) {
             throw new DatabaseException('Parameter cannot be null.');
@@ -205,7 +204,7 @@ class BaseModel extends Model
 
         $query = $this->buildQueryCondition($condition, $sortInfo);
 
-        return $query->get()->toArray();
+        return $query->select($fields)->get()->toArray();
     }
 
     /**
@@ -342,16 +341,12 @@ class BaseModel extends Model
                 'total_page' => $paginator->lastPage(),
                 'total_count' => $paginator->total(),
             ];
-            if ($withItems)
-            {
+            if ($withItems) {
                 $items = $paginator->items();
-                if (!empty($items))
-                {
+                if (!empty($items)) {
                     foreach ($items as $item) {
-                        if ($item)
-                        {
-                            if (is_object($item))
-                            {
+                        if ($item) {
+                            if (is_object($item)) {
                                 $result['list'][] = $item->toArray();
                             } else {
                                 $result['list'][] = $item;
@@ -359,7 +354,6 @@ class BaseModel extends Model
                         } else {
                             $result['list'][] = [];
                         }
-                        
                     }
                 } else {
                     $result['list'] = [];

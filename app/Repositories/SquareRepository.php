@@ -8,8 +8,10 @@ use App\Models\Square\SquareModel;
 use App\Models\Square\SquareOpLogModel;
 use App\Models\Follow\SquareFollowModel;
 use App\Models\Post\PostModel;
+use App\Models\User\UserModel;
 use DB;
 use Carbon\Carbon;
+use App\Libs\UtilLib;
 
 
 class SquareRepository extends BaseRepository
@@ -18,28 +20,51 @@ class SquareRepository extends BaseRepository
     private $squareOpLogModel;
     private $squareFollowModel;
     private $postModel;
+    private $squareStatusEffective;
+    private $userModel;
 
     public function __construct(
         SquareModel $squareModel,
         SquareOpLogModel $squareOpLogModel,
         SquareFollowModel $squareFollowModel,
-        PostModel $postModel
+        PostModel $postModel,
+        UserModel $userModel
     ) {
         $this->squareModel = $squareModel;
         $this->squareOpLogModel = $squareOpLogModel;
         $this->squareFollowModel = $squareFollowModel;
         $this->postModel = $postModel;
+        $this->userModel = $userModel;
+        $this->squareStatusEffective = [
+            config('display.square_verify_status.approved.code'),
+            config('display.square_verify_status.dismissed.code'),
+        ];
     }
 
     /**
-     * 广场列表-分页
-     * @param [array] $params 筛选条件
+     *  广场列表-分页
+     * @param [type] $params 筛选条件
+     * @param [boolean] $isJoinFollow 是否查询当前登录用户关注情况
+     * @param [numeric] $operatorId 当前登录用户ID
      * @return array
      */
-    public function getList($params)
+    public function getList($params, $isJoinFollow=false, $operatorId=0, $isJoinCreaterInfo=false)
     {
-        // $params['status'] = $this->squareStatusEffective;
-        return $this->squareModel->getList($params);
+        $page = $params['page'] ?? 1;
+        $perpage = $params['perpage'] ?? 20;
+        $res = $this->getDataList($this->squareModel, ['*'], $params, $page, $perpage);
+
+        $list = $res['list'] ?? [];
+        if ($list && $isJoinFollow && $operatorId) {
+            $list = $this->joinFollowFlag($list, $operatorId);
+        }
+
+        if ($list && $isJoinCreaterInfo) {
+            $list = $this->joinCreaterInfo($list);
+        }
+
+        $res ['list'] = $list;
+        return $res;
     }
 
     /**
@@ -47,10 +72,10 @@ class SquareRepository extends BaseRepository
      * @param [array] $params 筛选条件
      * @return array
      */
-    public function getAll($params)
-    {
-        return $this->squareModel->getAll($params);
-    }
+    // public function getAll($params)
+    // {
+    //     return $this->squareModel->getAll($params);
+    // }
 
     /**
      * 根据广场ID获取广场详情
@@ -221,9 +246,11 @@ class SquareRepository extends BaseRepository
     /**
      * 广场名称和标签模糊搜索，按照关注人数倒序排列，支持分页
      * @param [array] $params 筛选条件
+     * @param [boolean] $isJoinFollow 是否查询当前登录用户关注情况
+     * @param [numeric] $operatorId 当前登录用户ID
      * @return void
      */
-    public function suggest($params)
+    public function suggest($params, $isJoinFollow=false, $operatorId=0)
     {
         $name = $params['name'] ?? '';
         $page = $params['page'] ?? 1;
@@ -266,10 +293,142 @@ class SquareRepository extends BaseRepository
             ->orderBy('id', 'desc')
             ->get()
             ->all();
+   
+        if ($list && $isJoinFollow && $operatorId) {
+            $list = $this->joinFollowFlag($list, $operatorId);
+        }
 
         return [
             'list' => $list,
             'pagination' => $pagination,
         ];
+    }
+
+    /**
+     * 给广场列表join用户是否关注标识
+     * @param [array] $list 广场列表
+     * @param [numeric] $operatorId 当前登录用户ID
+     * @return array $list 广场列表
+     */
+    private function joinFollowFlag($list, $operatorId)
+    {
+        $squareIds = array_column($list, 'id');
+
+        $followList = $this->squareFollowModel->getAll(
+            [
+                'square_id' => $squareIds,
+                'follow_user_id' => $operatorId,
+                'is_del' => 0
+            ]
+        );
+
+        if ($followList) {
+            $followList = UtilLib::indexBy($followList, 'square_id');
+
+            foreach ($list as &$detail) {
+                $squareId = $detail['id'] ?? 0;
+                $followFlag = $followList[$squareId] ?? 0;
+                if ($followFlag) {
+                    $detail['is_follow'] = 1;
+                } else {
+                    $detail['is_follow'] = 0;
+                }
+            }
+        }
+
+        return $list;
+    }
+
+    /**
+     * 我关注的广场列表
+     * @param [type] $params 筛选条件
+     * @param [type] $operatorId 当前登录用户ID
+     * @return void
+     */
+    public function myFollowList($params, $operatorId)
+    {
+        $page = $params ['page'] ?? 1;
+        $perpage = $params ['perpage'] ?? 20;
+
+        $fields = [
+            'squares.*',
+            'follow_square_records.square_id'
+        ];
+
+        $conds = [
+            'follow_user_id' => $operatorId,
+            'is_del' => 0,
+        ];
+
+        $leftModels = [
+            [
+                'table_name' => 'squares',
+                'left' => 'squares.id',
+                'right' => 'follow_square_records.square_id',
+                'conds' => [
+                    'is_del' => 0,
+                    'verify_status' => $this->squareStatusEffective
+                ],
+                'conds_search' => [
+                    'is_del' => [
+                        'query_key' => 'is_del',
+                        'operator' => '='
+                    ],
+                    'verify_status' => [
+                        'query_key' => 'verify_status',
+                        'operator' => 'in'
+                    ]
+                ]
+            ]
+        ];
+    
+        return $this->getDataList(
+            $this->squareFollowModel,
+            $fields,
+            $conds,
+            $page,
+            $perpage,
+            $leftModels
+        );
+    }
+
+    /**
+     * 给广场列表join广场主email
+     * @param [type] $list
+     * @return void
+     */
+    private function joinCreaterInfo($list)
+    {
+        $createrIds = array_column($list, 'creater_id');
+
+        if ($createrIds) {
+            $createrIds = array_unique($createrIds);
+        }
+
+        $createrInfo = $this->userModel->getAll([
+            'id' => $createrIds
+        ], [
+            'id' => 'desc'
+        ], [
+            'id',
+            'email',
+            'nickname'
+        ]);
+
+        if ($createrInfo) {
+            $createrInfo = UtilLib::indexBy($createrInfo, 'id');
+            foreach ($list as &$detail) {
+                $createrId = $detail['creater_id'] ?? 0;
+                $createrDetail = $createrInfo[$createrId] ?? [];
+               
+                $email = $createrDetail['email'] ?? '';
+                $nickname = $createrDetail['nickname'] ?? '';
+
+                $detail['creater_email'] = $email;
+                $detail['creater_nickname'] = $nickname;
+                
+            }
+        }
+        return $list;
     }
 }

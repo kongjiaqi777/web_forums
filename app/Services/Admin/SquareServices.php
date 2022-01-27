@@ -2,18 +2,24 @@
 
 namespace App\Services\Admin;
 
+use App\Exceptions\NoStackException;
 use App\Services\BaseServices;
 use App\Repositories\SquareRepository;
+use App\Repositories\UserRepository;
 use Carbon\Carbon;
 use App\Libs\UtilLib;
 
 class SquareServices extends BaseServices
 {
     private $squareRepos;
+    private $userRepos;
 
-    public function __construct(SquareRepository $squareRepos)
-    {
+    public function __construct(
+        SquareRepository $squareRepos,
+        UserRepository $userRepos
+    ) {
         $this->squareRepos = $squareRepos;
+        $this->userRepos = $userRepos;
     }
 
     /**
@@ -23,11 +29,15 @@ class SquareServices extends BaseServices
      */
     public function getList($params)
     {
-        $res = $this->squareRepos->getList($params);
+        $res = $this->squareRepos->getList($params, false, 0, true);
         $list = $res['list'] ?? [];
         if ($list) {
             foreach ($list as &$info) {
-                $info['verify_status_display'] = UtilLib::getConfigByCode($info['verify_status'], 'display.square_verify_status', 'desc');
+                $info['verify_status_display'] = UtilLib::getConfigByCode(
+                    $info['verify_status'],
+                    'display.square_verify_status',
+                    'desc'
+                );
             }
             $res['list'] = $list;
         }
@@ -43,7 +53,15 @@ class SquareServices extends BaseServices
     public function detail($params)
     {
         $squareId = $params['square_id'] ?? 0;
-        return $this->squareRepos->detail($squareId);
+        $detail = $this->squareRepos->detail($squareId);
+        if ($detail) {
+            $detail['verify_status_display'] = UtilLib::getConfigByCode(
+                $detail['verify_status'],
+                'display.square_verify_status',
+                'desc'
+            );
+        }
+        return $detail;
     }
 
     /**
@@ -89,6 +107,21 @@ class SquareServices extends BaseServices
     public function doSwitch($params, $operationInfo)
     {
         $params['verify_status'] = config('display.square_verify_status.approved.code');
+        
+        // validate for creater id
+        $createrId = $params['creater_id'] ?? 0;
+        $createrInfo = $this->userRepos->getById($createrId);
+        if (empty($createrInfo)) {
+            throw New NoStackException('广场主信息不存在，请重新选择');
+        }
+
+        // validate for square verify status
+        $squareId = $params['square_id'] ?? 0;
+        $squareInfo = $this->squareRepos->detail($squareId);
+
+        if ($squareInfo != config('display.square_verify_status.dismissed.code')) {
+            throw New NoStackException('广场状态不合理，无法操作');
+        }
         return $this->squareRepos->updateSquare($params, $operationInfo, '管理员更换广场主');
     }
 
