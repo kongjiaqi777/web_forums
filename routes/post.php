@@ -29,6 +29,12 @@ $router->group(['prefix' => 'v1/post', 'middleware' => 'api'], function () use (
 
     // 广播详情
     $router->get('detail', ['uses' => 'PostController@detail']);
+
+    // 添加浏览记录
+    $router->post('add_record', ['uses' => 'PostController@addBrowseRecord']);
+
+    // 浏览历史
+    $router->get('browse_list', ['uses' => 'PostController@browseList']);
 });
 
 

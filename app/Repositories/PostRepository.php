@@ -8,7 +8,11 @@ use App\Models\Post\PostModel;
 use App\Models\Post\PostOpLogModel;
 use App\Models\Square\SquareModel;
 use App\Models\Post\ReplyModel;
+use App\Models\Post\PraiseModel;
+use App\Models\Post\BrowseRecordModel;
 use Carbon\Carbon;
+use App\Libs\UtilLib;
+use DB;
 
 class PostRepository extends BaseRepository
 {
@@ -16,38 +20,84 @@ class PostRepository extends BaseRepository
     private $postOpLogModel;
     private $squareModel;
     private $replyModel;
+    private $praiseModel;
+    private $browseRecordModel;
 
     public function __construct(
         PostModel $postModel,
         PostOpLogModel $postOpLogModel,
         SquareModel $squareModel,
-        ReplyModel $replyModel
+        ReplyModel $replyModel,
+        PraiseModel $praiseModel,
+        BrowseRecordModel $browseRecordModel
     ) {
         $this->postModel = $postModel;
         $this->postOpLogModel = $postOpLogModel;
         $this->squareModel = $squareModel;
         $this->replyModel = $replyModel;
+        $this->praiseModel = $praiseModel;
+        $this->browseRecordModel = $browseRecordModel;
     }
 
-    public function getList($params)
+    /**
+     * 广播列表-分页
+     * @param [type] $params
+     * @param bool $isShowPraise 是否展示点赞记录
+     * @param int $operatorId 当前登录用户ID
+     * @return void
+     */
+    public function getList($params, $isShowPraise=false, $operatorId=0)
     {
-        return $this->postModel->getList($params);
+        $page = $params['page'] ?? 1;
+        $perpage = $params['perpage'] ?? 20;
+
+        $fields = array_merge($this->postModel->findable, [
+            DB::raw('0 as is_praise'),
+        ]);
+        $res = $this->getDataList(
+            $this->postModel,
+            $fields,
+            $params,
+            $page,
+            $perpage
+        );
+
+        $list = $res ['list'] ?? [];
+        if($list && $isShowPraise && $operatorId) {
+            $list = $this->joinPraiseFlag($list, $operatorId);
+        }
+
+        $res ['list'] = $list;
+        return $res;
     }
 
+    /**
+     * 广播列表-不分页
+     * @param [type] $params
+     * @return void
+     */
     public function getAll($params)
     {
         return $this->postModel->getAll($params);
     }
 
+    /**
+     * 创建广播
+     * @param [type] $params
+     * @param [type] $operationInfo
+     * @return void
+     */
     public function createPost($params, $operationInfo)
     {
         $squareId = $params['square_id'] ?? 0;
-        $squareInfo = $this->squareModel->getById($squareId);
-
-        if (empty($squareInfo)) {
-            throw New NoStackException('广场信息有误，无法创建');
+        $postType = $params['post_type'] ?? 0;
+        if ($postType == config('display.post_type.square.code')) {
+            $squareInfo = $this->squareModel->getById($squareId);
+            if (empty($squareInfo)) {
+                throw New NoStackException('广场信息有误，无法创建');
+            }
         }
-
+        
         return $this->commonCreate(
             $this->postModel,
             $params,
@@ -57,12 +107,23 @@ class PostRepository extends BaseRepository
         );
     }
 
+    /**
+     * 广播详情
+     * @param [type] $params
+     * @return void
+     */
     public function detailPost($params)
     {
         $postId = $params['post_id'] ?? 0;
         return $this->postModel->getById($postId);
     }
 
+    /**
+     * 更新广播
+     * @param [type] $params
+     * @param [type] $operationInfo
+     * @return void
+     */
     public function updatePost($params, $operationInfo)
     {
         $postId = $params['post_id'] ?? 0;
@@ -82,7 +143,14 @@ class PostRepository extends BaseRepository
         );
     }
 
-    public function suggest($params)
+    /**
+     * 广播模糊搜索
+     * @param [type] $params
+     * @param bool $isShowPraise
+     * @param int $operatorId
+     * @return void
+     */
+    public function suggest($params, $isShowPraise=false, $operatorId=0)
     {
         $name = $params['name'] ?? '';
         $page = $params['page'] ?? 1;
@@ -125,17 +193,34 @@ class PostRepository extends BaseRepository
             ->get()
             ->all();
 
+        if ($list && $isShowPraise && $operatorId) {
+            $list = $this->joinPraiseFlag($list, $operatorId);
+        }
+
         return [
             'list' => $list,
             'pagination' => $pagination,
         ];
     }
 
-    public function setTop()
+    /**
+     * 设置置顶
+     * @param [type] $postId
+     * @param [type] $operationInfo
+     * @param [type] $topType
+     * @return void
+     */
+    public function setTop($postId, $operationInfo, $topType)
     {
-
+        
     }
 
+    /**
+     * 删除广播
+     * @param [type] $params
+     * @param [type] $operationInfo
+     * @return void
+     */
     public function delete($params, $operationInfo)
     {
         $postId = $params['post_id'] ?? 0;
@@ -159,13 +244,110 @@ class PostRepository extends BaseRepository
         });
     }
 
-    public function browseList()
+    public function browseList($params, $operatorId)
     {
+        $page = $params['page'] ?? 1;
+        $perpage = $params['perpage'] ?? 20;
 
+        $leftModels = [
+            [
+                'table_name' => 'posts',
+                'left' => 'posts.id',
+                'right' => 'post_browse_records.post_id',
+                'conds' => [
+                    'is_del' => 0,
+                ],
+                'conds_search' => [
+                    'is_del' => [
+                        'query_key' => 'is_del',
+                        'operator' => '='
+                    ],
+                ]
+            ]
+        ];
+
+        $fields = [
+            'posts.*',
+            'posts.id as post_id',
+            'post_browse_records.browsed_at'
+        ];
+
+        return $this->getDataList(
+            $this->browseRecordModel,
+            $fields,
+            [
+                'is_del' => 0,
+                'user_id' => $operatorId
+            ],
+            $page,
+            $perpage,
+            $leftModels
+        );
     }
 
-    public function addBrowseRecord()
+    public function addBrowseRecord($params, $operationInfo)
     {
+        $insertDate = [
+            'post_id' => $params['post_id'] ?? 0,
+            'user_id' => $operationInfo['operator_id'] ?? 0,
+            'is_del' => 0
+        ];
 
+        $time = [
+            'browsed_at' => Carbon::now()->toDateTimeString()
+        ];
+
+        $browseRecord = $this->browseRecordModel->getFirstByCondition($insertDate);
+        if ($browseRecord) {
+            $recordId = $browseRecord['id'] ?? 0;
+            return $this->commonUpdate(
+                $recordId,
+                $this->browseRecordModel,
+                null,
+                $time,
+                $operationInfo,
+                '更新',
+                'update',
+                false
+            );
+        } else {
+            return $this->commonCreate(
+                $this->browseRecordModel,
+                array_merge($insertDate, $time),
+                null,
+                $operationInfo,
+                '浏览广播',
+                false
+            );
+        }
+        
+    }
+
+    private function joinPraiseFlag($list, $operatorId)
+    {
+        $postIds = array_column($list, 'id');
+
+        $praiseList = $this->praiseModel->getAll([
+            'post_id' => $postIds,
+            'user_id' => $operatorId,
+            'praise_type' => config('display.praise_type.post_type.code'),
+            'is_del' => 0
+        ], [
+            'id',
+            'post_id'
+        ]);
+          
+        if ($praiseList) {
+            $praiseList = UtilLib::indexBy($praiseList, 'post_id');
+
+            foreach ($list as &$detail) {
+                $postId = $detail['id'] ?? 0;
+                $praiseFlag = $praiseList[$postId] ?? 0;
+                if ($praiseFlag) {
+                    $detail['is_praise'] = 1;
+                }
+            }     
+        }
+        return $list;
     }
 }

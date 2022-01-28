@@ -95,10 +95,15 @@ class PostController extends Controller
      */
     public function list(Request $request)
     {
-        $params = $request->all();
+        $params = $request->only([
+            'page',
+            'perpage',
+            'square_id',
+            'post_type'
+        ]);
 
-        $params ['page'] ?? $params ['page'] = 1;
-        $params ['perpage'] ?? $params ['perpage'] = 20;
+        // $params ['page'] ?? $params ['page'] = 1;
+        // $params ['perpage'] ?? $params ['perpage'] = 20;
 
         $res = $this->postServices->getList($params);
         return $this->buildSucceed($res);
@@ -277,7 +282,7 @@ class PostController extends Controller
      * {
      *      "code": 0,
      *      "msg": "success",
-     *      "info": 1003
+     *      "info": 10000
      *  }
      *
      * @apiErrorExample Error-Response
@@ -290,6 +295,7 @@ class PostController extends Controller
     {
         $params = $request->all();
         $operationInfo = $this->getOperationInfo($request);
+        $params ['creater_id'] = $operationInfo['operator_id'] ?? 0;
         $res = $this->postServices->createPost($params, $operationInfo);
         return $this->buildSucceed($res);
     }
@@ -494,28 +500,28 @@ class PostController extends Controller
      * @apiSuccess {Numeric} top_rule       置顶规则
      * @apiSuccess {Numeric} reply_count    回复数目
      * @apiSuccess {Numeric} praise_count   点赞数目
-     * @apiSuccess {Numeric} my_praise      我是否点赞：0未点赞/1已点赞
+     * @apiSuccess {Numeric} is_praise      我是否点赞：0未点赞/1已点赞
      * @apiSuccessExample Success-Response
      * {
-     *      "code": 0,
-     *      "msg": "success",
-     *      "info":
-     *              {
-     *                  "id": 1000,
-     *                  "square_id": 1001,
-     *                  "title": "hello",
-     *                  "content": "hello",
-     *                  "photo": null,
-     *                  "creater_id": 1001,
-     *                  "top_rule": 1,
-     *                  "reply_count": 0,
-     *                  "praise_count": 0,
-     *                  "created_at": "2022-01-15T22:42:33.000000Z",
-     *                  "updated_at": null,
-     *                  "deleted_at": null,
-     *                  "is_del": 0
-     *              }
-     * }
+    "code": 0,
+    "msg": "success",
+    "info": {
+        "id": 10000,
+        "square_id": 1003,
+        "post_type": 10,
+        "title": "第一个广播",
+        "content": "广播内容",
+        "photo": "photoUrl",
+        "creater_id": 111,
+        "top_rule": 0,
+        "reply_count": 0,
+        "praise_count": 0,
+        "created_at": "2022-01-27T15:30:56.000000Z",
+        "updated_at": "2022-01-27T15:30:56.000000Z",
+        "deleted_at": null,
+        "is_del": 0
+    }
+}
      */
     public function detail(Request $request)
     {
@@ -581,13 +587,35 @@ class PostController extends Controller
     {
         $params = $request->all();
         $operationInfo = $this->getOperationInfo($request);
-        $res = $this->postServices->browseList($params, $operationInfo);
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+        $res = $this->postServices->browseList($params, $operatorId);
         return $this->buildSucceed($res);
     }
 
+    /**
+     * @api {post} /v1/post/add_browse 添加浏览记录
+     * @apiVersion 1.0.0
+     * @apiName 添加浏览记录
+     * @apiGroup Post
+     * @apiPermission 必须登录
+     *
+     * @apiParam {Numeric} post_id 广播ID
+     *
+     * @apiSuccessExample Success-Response
+     * {
+    "code": 0,
+    "msg": "success",
+    "info": 1
+}
+     */
     public function addBrowseRecord(Request $request)
     {
-        $params = $request->all();
+        $this->validate($request, [
+            'post_id' => 'required'
+        ], [
+            'post_id.required' => '广播ID必传'
+        ]);
+        $params = $request->only(['post_id']);
         $operationInfo = $this->getOperationInfo($request);
         $res = $this->postServices->addBrowseRecord($params, $operationInfo);
         return $this->buildSucceed($res);

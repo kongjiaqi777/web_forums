@@ -46,6 +46,10 @@ class PostModel extends BaseModel
                 'query_key' => 'id',
                 'operator' => '='
             ],
+            'post_type' => [
+                'query_key' => 'post_type',
+                'operator' => '='
+            ],
         ];    
     }
  

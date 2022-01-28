@@ -317,7 +317,21 @@ abstract class BaseRepository
             $query = $this->getQueryBuilder($query, $conds, $condsSearch, $fields, $leftTableName . '.');
         }
 
-        return $searchModel->overwritePagination($query, $page, $perpage, $fields);
+        $offset = ($page - 1) * $perpage;
+        $pagination = $searchModel->getPaginate($fields, $query, $page, $perpage);
+
+        $list = $query->select($fields)
+            ->offset($offset)
+            ->limit($perpage)
+            ->get()
+            ->all();
+
+        return [
+            'list' => $list,
+            'pagination' => $pagination
+        ];
+
+        // return $searchModel->overwritePagination($query, $page, $perpage, $fields);
     }
 
     /**
@@ -368,7 +382,7 @@ abstract class BaseRepository
      * @param string    $message        提示信息
      * @return void
      */
-    public function commonUpdate($dataId, $updateModel, $updateLogModel, $updateData, $operationInfo, $message='更新', $operationTypeSpec='update')
+    public function commonUpdate($dataId, $updateModel, $updateLogModel, $updateData, $operationInfo, $message='更新', $operationTypeSpec='update', $isNeedOpLog=true)
     {
         $oriInfo = $updateModel->getById($dataId);
 
@@ -384,22 +398,22 @@ abstract class BaseRepository
         $updateInfoForUp = $this->getUpdateData($updateInfo, $originalInfo);
         
         // 更新
-        $res = DB::transaction(function () use ($dataId, $updateModel, $updateLogModel, $updateInfoForUp, $operationInfo, $message, $operationTypeSpec) {
+        $res = DB::transaction(function () use ($dataId, $updateModel, $updateLogModel, $updateInfoForUp, $operationInfo, $message, $operationTypeSpec, $isNeedOpLog) {
             $updateNew = Arr::get($updateInfoForUp, 'new', []);
             $updateOri = Arr::get($updateInfoForUp, 'original', []);
             if ($updateNew && $updateOri) {
                 try {
-                
-
                     $updateRes = $updateModel->where('id', $dataId)->update($updateNew);
-                    
-                    $updateLogModel->saveUpdateOpLogDatas(
-                        [$dataId => $updateNew],
-                        [$dataId => $updateOri],
-                        $operationInfo,
-                        $message,
-                        $operationTypeSpec
-                    );
+                    if ($isNeedOpLog) {
+                        $updateLogModel->saveUpdateOpLogDatas(
+                            [$dataId => $updateNew],
+                            [$dataId => $updateOri],
+                            $operationInfo,
+                            $message,
+                            $operationTypeSpec
+                        );
+                    }
+                   
                     return $updateRes;
                 } catch (\Exception $e) {
                     Log::info(sprintf($message.'信息失败[Code][%s][Msg][%s][Input][%s]', $e->getCode(), $e->getMessage(), json_encode($updateInfoForUp)));

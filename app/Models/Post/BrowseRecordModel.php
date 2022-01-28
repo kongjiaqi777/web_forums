@@ -37,6 +37,10 @@ class BrowseRecordModel extends BaseModel
 
     // 可以更新的字段
     public $updateable = [
+        'is_del',
+        'updated_at',
+        'browsed_at',
+        'deleted_at',
     ];
  
     public $findable = [
@@ -44,5 +48,6 @@ class BrowseRecordModel extends BaseModel
         'user_id',
         'post_id',
         'browsed_at',
+        'is_del',
     ];
 }

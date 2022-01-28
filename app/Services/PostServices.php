@@ -104,9 +104,9 @@ class PostServices extends BaseServices
      * @param [type] $params
      * @return void
      */
-    public function browseList($params,$operationInfo)
+    public function browseList($params,$operatorId)
     {
-        return $this->postRepos->browseList($params, $operationInfo);
+        return $this->postRepos->browseList($params, $operatorId);
     }
 
     /**

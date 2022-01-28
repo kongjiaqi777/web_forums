@@ -52,7 +52,19 @@ class SquareRepository extends BaseRepository
     {
         $page = $params['page'] ?? 1;
         $perpage = $params['perpage'] ?? 20;
-        $res = $this->getDataList($this->squareModel, ['*'], $params, $page, $perpage);
+
+        $fields = array_merge($this->squareModel->findable, [
+            DB::raw('0 as is_follow'),
+            DB::raw('null as creater_email'),
+            DB::raw('null as creater_nickname')
+        ]);
+        $res = $this->getDataList(
+            $this->squareModel,
+            $fields,
+            $params,
+            $page,
+            $perpage
+        );
 
         $list = $res['list'] ?? [];
         if ($list && $isJoinFollow && $operatorId) {

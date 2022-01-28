@@ -26,4 +26,8 @@ $router->group(['prefix' => 'v1/user', 'middleware' => 'api'], function () use (
     // 查询用户信息
     $router->get('suggest_user', ['uses' => 'UserController@suggestUser']);
 });
+$router->group(['prefix' => 'v1/common'], function () use ($router) {
+    $router->get('config', ['uses' => 'ConfigController@getConfigList']);
+});
+
 
