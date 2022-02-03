@@ -37,264 +37,88 @@ class ReplyController extends Controller
      * @apiSuccess {Array} sub_reply_pagination 本条评论下的回复列表分页数据，默认展示五条，当sub_reply_pagination.total_count>5的时候，需要额外请求展示更多的评论回复
      * @apiSuccessExample Success-Response
      * {
-            "code": 0,
-            "msg": "success",
-            "info": {
-                "list": [
+    "code": 0,
+    "msg": "success",
+    "info": {
+        "list": [
+            {
+                "id": 1,
+                "reply_type": 10,
+                "parent_id": 0,
+                "parent_user_id": 0,
+                "reply_count": 1,
+                "praise_count": 0,
+                "post_id": 10006,
+                "user_id": 113,
+                "content": "说得好",
+                "created_at": "2022-02-01T14:28:28.000000Z",
+                "updated_at": "2022-02-02T15:59:02.000000Z",
+                "is_del": 0,
+                "deleted_at": null,
+                "first_reply_id": 0,
+                "user_nickname": "立秋",
+                "sub_reply_list": [
                     {
-                        "id": 1,
-                        "reply_type": 10,
-                        "parent_id": 1001,
-                        "parent_user_id": 1001,
-                        "reply_count": 5,
+                        "id": 4,
+                        "reply_type": 20,
+                        "parent_id": 3,
+                        "parent_user_id": 115,
+                        "reply_count": 0,
                         "praise_count": 0,
-                        "post_id": 1001,
-                        "user_id": 1005,
-                        "content": "评论1-第一楼",
-                        "created_at": "2022-01-16T18:15:34.000000Z",
+                        "post_id": 10006,
+                        "user_id": 114,
+                        "content": "并不赞同",
+                        "created_at": "2022-02-02T15:59:02.000000Z",
+                        "updated_at": "2022-02-02T15:59:02.000000Z",
                         "is_del": 0,
                         "deleted_at": null,
-                        "updated_at": null,
-                        "sub_reply_list": [
-                            {
-                                "id": 5,
-                                "reply_type": 20,
-                                "parent_id": 1,
-                                "parent_user_id": 1005,
-                                "reply_count": 0,
-                                "praise_count": 0,
-                                "post_id": 1001,
-                                "user_id": 1002,
-                                "content": "第一楼，真的吗",
-                                "created_at": "2022-01-16T18:17:45.000000Z",
-                                "is_del": 0,
-                                "deleted_at": null,
-                                "updated_at": null
-                            },
-                            {
-                                "id": 6,
-                                "reply_type": 20,
-                                "parent_id": 1,
-                                "parent_user_id": 1002,
-                                "reply_count": 0,
-                                "praise_count": 0,
-                                "post_id": 1001,
-                                "user_id": 1006,
-                                "content": "第一楼，是的",
-                                "created_at": "2022-01-16T18:18:36.000000Z",
-                                "is_del": 0,
-                                "deleted_at": null,
-                                "updated_at": null
-                            },
-                            {
-                                "id": 7,
-                                "reply_type": 20,
-                                "parent_id": 1,
-                                "parent_user_id": 1005,
-                                "reply_count": 0,
-                                "praise_count": 0,
-                                "post_id": 1001,
-                                "user_id": 1007,
-                                "content": "第一楼，我觉得不好",
-                                "created_at": "2022-01-16T18:19:46.000000Z",
-                                "is_del": 0,
-                                "deleted_at": null,
-                                "updated_at": null
-                            },
-                            {
-                                "id": 11,
-                                "reply_type": 20,
-                                "parent_id": 1,
-                                "parent_user_id": 1007,
-                                "reply_count": 0,
-                                "praise_count": 0,
-                                "post_id": 1001,
-                                "user_id": 1010,
-                                "content": "666",
-                                "created_at": "2022-01-16T18:20:27.000000Z",
-                                "is_del": 0,
-                                "deleted_at": null,
-                                "updated_at": null
-                            },
-                            {
-                                "id": 12,
-                                "reply_type": 20,
-                                "parent_id": 1,
-                                "parent_user_id": 1010,
-                                "reply_count": 0,
-                                "praise_count": 0,
-                                "post_id": 1001,
-                                "user_id": 1011,
-                                "content": "哦",
-                                "created_at": "2022-01-16T18:20:27.000000Z",
-                                "is_del": 0,
-                                "deleted_at": null,
-                                "updated_at": null
-                            }
-                        ],
-                        "sub_reply_pagination": {
-                            "page": 1,
-                            "perpage": 5,
-                            "total_page": 2,
-                            "total_count": 7
-                        }
-                    },
-                    {
-                        "id": 2,
-                        "reply_type": 10,
-                        "parent_id": 1001,
-                        "parent_user_id": 1001,
-                        "reply_count": 3,
-                        "praise_count": 0,
-                        "post_id": 1001,
-                        "user_id": 1002,
-                        "content": "评论2-第二楼",
-                        "created_at": "2022-01-16T18:16:00.000000Z",
-                        "is_del": 0,
-                        "deleted_at": null,
-                        "updated_at": null,
-                        "sub_reply_list": [
-                            {
-                                "id": 8,
-                                "reply_type": 20,
-                                "parent_id": 2,
-                                "parent_user_id": 1002,
-                                "reply_count": 0,
-                                "praise_count": 0,
-                                "post_id": 1001,
-                                "user_id": 1008,
-                                "content": "第一楼，我觉得蛮好的",
-                                "created_at": "2022-01-16T18:17:45.000000Z",
-                                "is_del": 0,
-                                "deleted_at": null,
-                                "updated_at": null
-                            },
-                            {
-                                "id": 9,
-                                "reply_type": 20,
-                                "parent_id": 2,
-                                "parent_user_id": 1008,
-                                "reply_count": 0,
-                                "praise_count": 0,
-                                "post_id": 1001,
-                                "user_id": 1009,
-                                "content": "666",
-                                "created_at": "2022-01-16T18:20:27.000000Z",
-                                "is_del": 0,
-                                "deleted_at": null,
-                                "updated_at": null
-                            },
-                            {
-                                "id": 10,
-                                "reply_type": 20,
-                                "parent_id": 2,
-                                "parent_user_id": 1009,
-                                "reply_count": 0,
-                                "praise_count": 0,
-                                "post_id": 1001,
-                                "user_id": 1010,
-                                "content": "666",
-                                "created_at": "2022-01-16T18:20:27.000000Z",
-                                "is_del": 0,
-                                "deleted_at": null,
-                                "updated_at": null
-                            }
-                        ],
-                        "sub_reply_pagination": {
-                            "page": 1,
-                            "perpage": 5,
-                            "total_page": 1,
-                            "total_count": 3
-                        }
+                        "first_reply_id": 1,
+                        "user_nickname": "处暑",
+                        "parent_user_name": "白露"
                     },
                     {
                         "id": 3,
-                        "reply_type": 10,
-                        "parent_id": 1001,
-                        "parent_user_id": 1001,
-                        "reply_count": 1,
+                        "reply_type": 20,
+                        "parent_id": 1,
+                        "parent_user_id": 113,
+                        "reply_count": 0,
                         "praise_count": 0,
-                        "post_id": 1001,
-                        "user_id": 1003,
-                        "content": "评论3-第三楼",
-                        "created_at": "2022-01-16T18:16:25.000000Z",
+                        "post_id": 10006,
+                        "user_id": 115,
+                        "content": "怎么讲",
+                        "created_at": "2022-02-02T15:56:39.000000Z",
+                        "updated_at": "2022-02-02T15:57:39.000000Z",
                         "is_del": 0,
                         "deleted_at": null,
-                        "updated_at": null,
-                        "sub_reply_list": [
-                            {
-                                "id": 13,
-                                "reply_type": 20,
-                                "parent_id": 3,
-                                "parent_user_id": 1003,
-                                "reply_count": 0,
-                                "praise_count": 0,
-                                "post_id": 1001,
-                                "user_id": 1015,
-                                "content": "真棒",
-                                "created_at": "2022-01-16T18:20:27.000000Z",
-                                "is_del": 0,
-                                "deleted_at": null,
-                                "updated_at": null
-                            }
-                        ],
-                        "sub_reply_pagination": {
-                            "page": 1,
-                            "perpage": 5,
-                            "total_page": 1,
-                            "total_count": 1
-                        }
-                    },
-                    {
-                        "id": 4,
-                        "reply_type": 10,
-                        "parent_id": 1001,
-                        "parent_user_id": 1001,
-                        "reply_count": 1,
-                        "praise_count": 0,
-                        "post_id": 1001,
-                        "user_id": 1004,
-                        "content": "评论4-第四楼",
-                        "created_at": "2022-01-16T18:17:04.000000Z",
-                        "is_del": 0,
-                        "deleted_at": null,
-                        "updated_at": null,
-                        "sub_reply_list": [
-                            {
-                                "id": 14,
-                                "reply_type": 20,
-                                "parent_id": 4,
-                                "parent_user_id": 1004,
-                                "reply_count": 0,
-                                "praise_count": 0,
-                                "post_id": 1001,
-                                "user_id": 1016,
-                                "content": "是吗？",
-                                "created_at": "2022-01-16T18:20:27.000000Z",
-                                "is_del": 0,
-                                "deleted_at": null,
-                                "updated_at": null
-                            }
-                        ],
-                        "sub_reply_pagination": {
-                            "page": 1,
-                            "perpage": 5,
-                            "total_page": 1,
-                            "total_count": 1
-                        }
+                        "first_reply_id": 1,
+                        "user_nickname": "白露",
+                        "parent_user_name": "立秋"
                     }
                 ],
-                "pagination": {
+                "sub_reply_pagination": {
                     "page": 1,
-                    "perpage": 10,
+                    "perpage": 5,
                     "total_page": 1,
-                    "total_count": 4
+                    "total_count": 2
                 }
             }
+        ],
+        "pagination": {
+            "page": 1,
+            "perpage": 50,
+            "total_page": 1,
+            "total_count": 1
         }
+    }
+}
      */
     public function list(Request $request)
     {
+        $this->validate($request, [
+            'post_id' => 'required',
+        ], [
+            'post_id.*' => '广播ID必传'
+        ]);
         $params = $request->all();
         $res = $this->replyServices->getList($params);
         return $this->buildSucceed($res);
@@ -320,7 +144,17 @@ class ReplyController extends Controller
      */
     public function create(Request $request)
     {
-        
+        $this->validate($request, [
+            'post_id' => 'required',
+            'content' => 'required'
+        ], [
+            'post_id.*' => '广播ID必传',
+            'content.*' => '评论内容必传'
+        ]);
+        $params = $request->only(['post_id', 'content']);
+
+        $operationInfo = $this->getOperationInfo($request);
+        return $this->replyServices->create($params, $operationInfo);
     }
 
     /**
@@ -344,7 +178,19 @@ class ReplyController extends Controller
      */
     public function createSub(Request $request)
     {
+        $this->validate($request, [
+            'post_id' => 'required',
+            'content' => 'required',
+            'reply_id' => 'required',
+        ], [
+            'post_id.*' => '广播ID必传',
+            'content.*' => '评论内容必传',
+            'reply_id.*' => '评论ID必传'
+        ]);
+        $params = $request->only(['post_id', 'content', 'reply_id']);
 
+        $operationInfo = $this->getOperationInfo($request);
+        return $this->replyServices->createSub($params, $operationInfo);
     }
 
     /**
@@ -361,6 +207,16 @@ class ReplyController extends Controller
      */
     public function delete(Request $request)
     {
-        
+        $this->validate($request, [
+            'post_id' => 'required',
+            'reply_id' => 'required',
+        ], [
+            'post_id.*' => '广播ID必传',
+            'reply_id.*' => '评论ID必传'
+        ]);
+        $params = $request->only(['post_id', 'reply_id']);
+
+        $operationInfo = $this->getOperationInfo($request);
+        return $this->replyServices->delete($params, $operationInfo);
     }
 }

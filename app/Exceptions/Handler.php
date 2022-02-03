@@ -56,16 +56,16 @@ class Handler extends ExceptionHandler
         });
 
         // ValidationException提示格式
-        $this->reportable(function (ValidationException $e, $request) {
+        $this->renderable(function (ValidationException $e, $request) {
+            
             $this->logException($request, $e, 'debug');
-
+            
             $allMessage = [];
             $responseData = $e->errors();
-            // json_decode($e->errors(), true);
-
+    
             if ($responseData) {
                 foreach ($responseData as $item) {
-                    array_push($allMessage, implode(',', $item));
+                    $allMessage[] = implode(',', $item);
                 };
             } else {
                 $responseData = 'validation failed';

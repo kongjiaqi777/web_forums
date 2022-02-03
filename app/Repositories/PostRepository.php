@@ -51,18 +51,39 @@ class PostRepository extends BaseRepository
         $page = $params['page'] ?? 1;
         $perpage = $params['perpage'] ?? 20;
 
-        $fields = array_merge($this->postModel->findable, [
+        $fields = [
+            'id',
+            'square_id',
+            'post_type',
+            'creater_id',
+            'title',
+            'content',
+            'top_rule',
+            'photo',
+            'reply_count',
+            'praise_count',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+            'is_del',
             DB::raw('0 as is_praise'),
-        ]);
+        ];
+
         $res = $this->getDataList(
             $this->postModel,
             $fields,
             $params,
             $page,
-            $perpage
+            $perpage,
+            null,
+            [
+                'top_rule' => 'desc',
+                'created_at' => 'desc'
+            ]
         );
 
         $list = $res ['list'] ?? [];
+
         if($list && $isShowPraise && $operatorId) {
             $list = $this->joinPraiseFlag($list, $operatorId);
         }
@@ -124,7 +145,7 @@ class PostRepository extends BaseRepository
      * @param [type] $operationInfo
      * @return void
      */
-    public function updatePost($params, $operationInfo)
+    public function updatePost($params, $operationInfo, $message='更新广播')
     {
         $postId = $params['post_id'] ?? 0;
         $postInfo = $this->postModel->getById($postId);
@@ -139,7 +160,7 @@ class PostRepository extends BaseRepository
             $this->postOpLogModel,
             $params, 
             $operationInfo,
-            '更新广播'
+            $message
         );
     }
 
@@ -210,9 +231,79 @@ class PostRepository extends BaseRepository
      * @param [type] $topType
      * @return void
      */
-    public function setTop($postId, $operationInfo, $topType)
+    public function setTop($postId, $operationInfo)
     {
-        
+        $postInfo = $this->postModel->getById($postId);
+        $squareId = $postInfo['square_id'] ?? 0;
+
+        if (!$squareId) {
+            throw New NoStackException('不符合置顶规则');
+        }
+
+        // 当前广场已经置顶的广播
+        $maxTopRule = $this->postModel
+            ->where('top_rule', '<=', 3)
+            ->where('top_rule', '>', 0)
+            ->where([
+                'is_del' => 0,
+                'square_id' => $squareId
+            ])
+            ->max('top_rule');
+
+        if ($maxTopRule < 3) {
+            // 当前广场置顶数目小于3
+            return $this->updatePost(
+                [
+                    'top_rule' => $maxTopRule + 1,
+                    'post_id' => $postId
+                ],
+                $operationInfo,
+                '广场主设置置顶'
+            );
+        } else if ($maxTopRule == 3) {
+            $updateList = $this->postModel
+            ->where('top_rule', '<=', 3)
+            ->where('top_rule', '>', 0)
+            ->where([
+                'is_del' => 0,
+                'square_id' => $squareId
+            ])
+            ->select(['id', 'top_rule'])
+            ->get();
+
+            $updateIds = array_column($updateList, 'id');
+            if (in_array($postId, $updateIds)) {
+                throw New NoStackException('当前广播已经置顶');
+            }
+
+            $news = [];
+            $originals = [];
+            foreach ($updateList as $updateList) {
+                $id = $updateList['id'] ?? 0;
+                $topRule = $updateList['top_rule'] ?? 0;
+                $news[$id] = ['top_rule' => $topRule - 1];
+                $originals [$id] = ['top_rule' => $topRule];  
+            }
+            return DB::transaction(function () use ($squareId, $postId, $news, $originals, $operationInfo) {
+                $this->postModel
+                    ->where('top_rule', '<=', 3)
+                    ->where('top_rule', '>', 0)
+                    ->where([
+                        'is_del' => 0,
+                        'square_id' => $squareId
+                    ])
+                    ->decrement('top_rule');
+                $this->postOpLogModel->saveUpdateOpLogDatas($news, $originals, $operationInfo, '广场主设置置顶');
+                // oplog
+                return $this->updatePost(['post_id' => $postId, 'top_rule' => 3], $operationInfo, '广场主设置置顶');
+            });
+        }
+    }
+
+    public function adminSetTop()
+    {
+        // 广场置顶=4
+        // 首页置顶=5
     }
 
     /**
@@ -224,14 +315,31 @@ class PostRepository extends BaseRepository
     public function delete($params, $operationInfo)
     {
         $postId = $params['post_id'] ?? 0;
-
-        DB::transaction(function () use ($postId, $operationInfo){
+        $postDetail = $this->postModel->getById($postId);
+        $squareId = $postDetail['square_id'] ?? 0;
+        $currentTopRule = $postDetail['top_rule'] ?? 0;
+        
+        DB::transaction(function () use ($postId, $currentTopRule, $squareId, $operationInfo){
             $this->postModel->where('id',$postId)->update(
                 [
                     'is_del' => 1,
                     'deleted_at' => Carbon::now()->toDateTimeString()
                 ]
             );
+
+            if ($currentTopRule > 0 && $currentTopRule < 3) {
+                // 处理top_rule
+                // top_rule > 当前top_rule并且<=3的post，top_rule均-1
+                $this->postModel
+                    ->where('top_rule', '<=', 3)
+                    ->where('top_rule', '>', $currentTopRule)
+                    ->where([
+                        'is_del' => 0,
+                        'square_id' => $squareId
+                    ])
+                    ->decrement('top_rule');
+            }
+            
 
             $this->postOpLogModel->saveDeleteOpLogDatas([$postId], $operationInfo);
 
@@ -244,6 +352,12 @@ class PostRepository extends BaseRepository
         });
     }
 
+    /**
+     * 查询当前登录用户浏览历史
+     * @param [type] $params 参数，主要包含post_id
+     * @param [type] $operatorId 用户ID
+     * @return void
+     */
     public function browseList($params, $operatorId)
     {
         $page = $params['page'] ?? 1;
@@ -285,6 +399,12 @@ class PostRepository extends BaseRepository
         );
     }
 
+    /**
+     * 添加浏览记录
+     * @param [type] $params
+     * @param [type] $operationInfo
+     * @return void
+     */
     public function addBrowseRecord($params, $operationInfo)
     {
         $insertDate = [
@@ -323,6 +443,12 @@ class PostRepository extends BaseRepository
         
     }
 
+    /**
+     * 添加点赞标识
+     * @param [type] $list
+     * @param [type] $operatorId
+     * @return void
+     */
     private function joinPraiseFlag($list, $operatorId)
     {
         $postIds = array_column($list, 'id');

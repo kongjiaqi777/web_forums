@@ -51,8 +51,9 @@ class SquareFollowModel extends BaseModel
         'is_del',
     ];
 
-    public function square_info()
-    {
-        $this->hasOne(App\Models\Square\SquareModel::class, 'id', 'square_id');
-    }
+    // 可以排序的字段
+    public $sortable = [
+        'id',
+        'created_at'
+    ];
 }

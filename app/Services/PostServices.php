@@ -20,9 +20,10 @@ class PostServices extends BaseServices
      * @param [type] $params
      * @return void
      */
-    public function getList($params)
+    public function getList($params, $isShowPraise, $operatorId)
     {
-        return $this->postRepos->getList($params);
+        $params['is_del'] = 0;
+        return $this->postRepos->getList($params, $isShowPraise, $operatorId);
     }
 
     /**

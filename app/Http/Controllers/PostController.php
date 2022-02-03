@@ -102,10 +102,11 @@ class PostController extends Controller
             'post_type'
         ]);
 
-        // $params ['page'] ?? $params ['page'] = 1;
-        // $params ['perpage'] ?? $params ['perpage'] = 20;
+        $operationInfo = $this->getOperationInfo($request);
 
-        $res = $this->postServices->getList($params);
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+
+        $res = $this->postServices->getList($params, true, $operatorId);
         return $this->buildSucceed($res);
     }
 
@@ -394,39 +395,75 @@ class PostController extends Controller
      * @apiSuccess {Numeric} is_praise      我是否点赞：0未点赞/1已点赞
      * @apiSuccessExample Success-Response
      * {
-     *      "code": 0,
-     *      "msg": "success",
-     *      "info": [
-     *           "list": [
-     *              {
-     *                  "id": 1000,
-     *                  "square_id": 1001,
-     *                  "title": "hello",
-     *                  "content": "hello",
-     *                  "photo": null,
-     *                  "creater_id": 1001,
-     *                  "top_rule": 1,
-     *                  "reply_count": 0,
-     *                  "praise_count": 0,
-     *                  "created_at": "2022-01-15T22:42:33.000000Z",
-     *                  "updated_at": null,
-     *                  "deleted_at": null,
-     *                  "is_del": 0
-     *              }
-     *          ],
-     *          "pagination": {
-     *              "page": 1,
-     *              "perpage": 20,
-     *              "total_page": 1,
-     *              "total_count": 1
-     *          }
-     *      ]
-     * }
+            "code": 0,
+            "msg": "success",
+            "info": [
+                {
+                    "id": 10007,
+                    "square_id": 1003,
+                    "post_type": 10,
+                    "title": "第八条广播",
+                    "content": "广播内容",
+                    "photo": "photoUrl",
+                    "creater_id": 111,
+                    "top_rule": 3,
+                    "reply_count": 0,
+                    "praise_count": 0,
+                    "created_at": "2022-01-28T11:48:00.000000Z",
+                    "updated_at": "2022-01-28T15:45:15.000000Z",
+                    "deleted_at": null,
+                    "is_del": 0
+                },
+                {
+                    "id": 10004,
+                    "square_id": 1003,
+                    "post_type": 10,
+                    "title": "第五条广播",
+                    "content": "广播内容",
+                    "photo": "photoUrl",
+                    "creater_id": 111,
+                    "top_rule": 2,
+                    "reply_count": 0,
+                    "praise_count": 0,
+                    "created_at": "2022-01-28T11:47:46.000000Z",
+                    "updated_at": "2022-01-28T15:45:15.000000Z",
+                    "deleted_at": null,
+                    "is_del": 0
+                },
+                {
+                    "id": 10003,
+                    "square_id": 1003,
+                    "post_type": 10,
+                    "title": "第四条广播",
+                    "content": "广播内容",
+                    "photo": "photoUrl",
+                    "creater_id": 111,
+                    "top_rule": 1,
+                    "reply_count": 0,
+                    "praise_count": 0,
+                    "created_at": "2022-01-28T11:47:42.000000Z",
+                    "updated_at": "2022-01-28T15:45:15.000000Z",
+                    "deleted_at": null,
+                    "is_del": 0
+                }
+            ]
+        }
      */
     public function getTopList(Request $request)
     {
-        $params = $request->all();
+        $this->validate($request, [
+            'square_id' => 'Required',
+        ], [
+            'square_id.*' => '广场ID必传'
+        ]);
+        $params = $request->only([
+            'square_id'
+        ]);
 
+        $operationInfo = $this->getOperationInfo($request);
+        $params['creater_id'] = $operationInfo['operator_id'] ?? 0;
+        $params['top_rule_lte'] = 3;
+        $params['top_rule_gt'] = 0;
         $res = $this->postServices->getAll($params);
         return $this->buildSucceed($res);
     }
@@ -438,8 +475,8 @@ class PostController extends Controller
      * @apiGroup Post
      * @apiPermission 必须登录
      * 
-     * @apiParam {Numeric} post_id 广播ID
      * @apiParam {Numeric} post_id 被置顶的广播ID
+     * 
      * @apiSuccessExample Success-Response
      * {
      *      "code": 0,
@@ -449,9 +486,18 @@ class PostController extends Controller
      */
     public function setTop(Request $request)
     {
-        $params = $request->all();
+        $this->validate($request, [
+            'post_id' => 'required'
+        ], [
+            'post_id.required' => '广播ID必传'
+        ]);
+
+        $params = $request->only([
+            'post_id'
+        ]);
         $operationInfo = $this->getOperationInfo($request);
-        $res = $this->postServices->setTop($params, $operationInfo);
+        $postId = $params['post_id'] ?? 0;
+        $res = $this->postServices->setTop($postId, $operationInfo);
         return $this->buildSucceed($res);
     }
 

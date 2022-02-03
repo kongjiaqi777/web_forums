@@ -20,6 +20,7 @@ class ReplyModel extends BaseModel
         'post_id',
         'user_id',
         'content',
+        'first_reply_id',
     ];
  
     // 可以作为筛选条件的字段
@@ -34,6 +35,26 @@ class ReplyModel extends BaseModel
                 'query_key' => 'parent_user_id',
                 'operator' => '=',
             ],
+            'first_reply_id' => [
+                'query_key' => 'first_reply_id',
+                'operator' => '='
+            ],
+            'post_id' => [
+                'query_key' => 'post_id',
+                'operator' => '='
+            ],
+            'user_id' => [
+                'query_key' => 'user_id',
+                'operator' => '='
+            ],
+            'reply_id' => [
+                'query_key' => 'id',
+                'operator' => '='
+            ],
+            'reply_type' => [
+                'query_key' => 'reply_type',
+                'operator' => '='
+            ],
         ];    
     }
  
@@ -41,6 +62,9 @@ class ReplyModel extends BaseModel
     public $updateable = [
         'reply_count',
         'praise_count',
+        'is_del',
+        'updated_at',
+        'deleted_at',
     ];
 
     // 可以查询到的字段
@@ -58,5 +82,12 @@ class ReplyModel extends BaseModel
         'updated_at',
         'is_del',
         'deleted_at',
+        'first_reply_id',
+    ];
+
+    // 可以排序的字段
+    public $sortable = [
+        'id',
+        'created_at'
     ];
 }

@@ -2,10 +2,9 @@
 
 namespace App\Models\Post;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\BaseModel;
 
-class PraiseModel extends Model
+class PraiseModel extends BaseModel
 {
     // 用来放验证，表字段过滤
     protected $connection = 'mysql';
@@ -46,7 +45,8 @@ class PraiseModel extends Model
 
     // 可以更新的字段
     public $updateable = [
-        'is_del'
+        'is_del',
+        'deleted_at',
     ];
 
     // 可以查询到的字段
@@ -57,5 +57,6 @@ class PraiseModel extends Model
         'created_at',
         'is_del',
         'deleted_at',
+        'praise_type',
     ];
 }

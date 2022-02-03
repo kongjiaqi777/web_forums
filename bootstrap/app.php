@@ -64,6 +64,7 @@ $app->router->group([
     require __DIR__.'/../routes/post.php';
     // 管理端相关接口
     require __DIR__.'/../routes/admin.php';
+    require __DIR__.'/../routes/praise.php';
 });
 
 return $app;

@@ -43,11 +43,18 @@ class BrowseRecordModel extends BaseModel
         'deleted_at',
     ];
  
+    // 可以查询到的字段
     public $findable = [
         'id',
         'user_id',
         'post_id',
         'browsed_at',
         'is_del',
+    ];
+
+    // 可以排序的字段
+    public $sortable = [
+        'id',
+        'browsed_at'
     ];
 }

@@ -46,4 +46,10 @@ class UserFollowModel extends BaseModel
         'created_at',
         'is_del',
     ];
+
+    // 可以排序的字段
+    public $sortable = [
+        'id',
+        'created_at'
+    ];
 }

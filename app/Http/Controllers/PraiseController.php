@@ -26,6 +26,11 @@ class PraiseController extends Controller
      */
     public function createPost(Request $request)
     {
+        $this->validate($request, [
+            'post_id' => 'required|numeric|min:1'
+        ], [
+            'post_id.*' => '广播ID必传'
+        ]);
         $params = $request->all();
         $operationInfo = $this->getOperationInfo($request);
         return $this->praiseServices->createPost($params, $operationInfo);
@@ -43,6 +48,11 @@ class PraiseController extends Controller
      */
     public function cancelPost(Request $request)
     {
+        $this->validate($request, [
+            'post_id' => 'required|numeric|min:1'
+        ], [
+            'post_id.*' => '广播ID必传'
+        ]);
         $params = $request->all();
         $operationInfo = $this->getOperationInfo($request);
         return $this->praiseServices->cancelPost($params, $operationInfo);
@@ -60,6 +70,11 @@ class PraiseController extends Controller
      */
     public function createReply(Request $request)
     {
+        $this->validate($request, [
+            'reply_id' => 'required|numeric|min:1'
+        ], [
+            'reply_id.*' => '回复ID必传'
+        ]);
         $params = $request->all();
         $operationInfo = $this->getOperationInfo($request);
         return $this->praiseServices->createReply($params, $operationInfo);
@@ -77,6 +92,11 @@ class PraiseController extends Controller
      */
     public function cancelReply(Request $request)
     {
+        $this->validate($request, [
+            'reply_id' => 'required|numeric|min:1'
+        ], [
+            'reply_id.*' => '回复ID必传'
+        ]);
         $params = $request->all();
         $operationInfo = $this->getOperationInfo($request);
         return $this->praiseServices->cancelReply($params, $operationInfo);

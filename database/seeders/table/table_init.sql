@@ -185,6 +185,7 @@ CREATE TABLE IF NOT EXISTS `post_op_logs` (
 CREATE TABLE IF NOT EXISTS `post_replys` (
 	`id` INT(11) UNSIGNED AUTO_INCREMENT COMMENT '评论ID',
     `reply_type` TINYINT(3) DEFAULT 10 COMMENT '回复类型:广播评论10/对reply_type=10的评论20/对reply_type=20的评论30',
+    `first_reply_id` INT(11) NOT NULL COMMENT '一级评论ID，用于统计回复数目',
     `parent_id` INT(11) NOT NULL COMMENT '广播评论ID，用于筛选',
     `parent_user_id` INT(11) NOT NULL COMMENT '上级评论用户的ID',
     `reply_count` INT(11) DEFAULT 0 COMMENT '回复数目',
@@ -212,6 +213,7 @@ CREATE TABLE IF NOT EXISTS `post_praises` (
     `praise_type` tinyint(2) NOT NULL DEFAULT 10 COMMENT '点赞类型:广播点赞10/回复点赞20', 
     `user_id` INT(11) NOT NULL COMMENT '操作人ID',
     `created_at` datetime NOT NULL COMMENT '创建时间',
+    `updated_at` datetime ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     `is_del` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否删除:未删除0/已删除1',
     `deleted_at` datetime COMMENT '删除时间',
     PRIMARY KEY (`id`),

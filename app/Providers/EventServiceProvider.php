@@ -25,9 +25,12 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         // 新增RequestListener监听
-        'Illuminate\Http\Request' => [
-            'App\Listeners\RequestListener'
-        ],
+        // Illuminate\Http\Request
+        // \App\Http\Middleware\VerifyMiddleware
+        // 'Illuminate\Foundation\Http\Kernel' 
+        // 'App\Http\Middleware\VerifyMiddleware' => [
+        //     'App\Listeners\RequestListener'
+        // ],
     ];
 
     /**

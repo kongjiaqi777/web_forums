@@ -250,7 +250,7 @@ class SquareRepository extends BaseRepository
                 'deleted_at' => Carbon::now()->toDateTimeString()
             ]);
 
-            $this->squareModel->where('id', $squareId)->decrement('follow_count');
+            $this->squareModel->where('id', $squareId)->where('follow_count', '>', 0)->decrement('follow_count');
             return $res;
         });
     }

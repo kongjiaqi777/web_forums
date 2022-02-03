@@ -47,6 +47,10 @@ class UserModel extends BaseModel
                 'query_key' => 'id',
                 'operator' => '='
             ],
+            'ids' => [
+                'query_key' => 'id',
+                'operator' => 'in'
+            ],
         ];    
     }
  
@@ -81,4 +85,17 @@ class UserModel extends BaseModel
         'deleted_at',
         'is_del',
     ];
+
+    public function getUserNameList($userIds)
+    {
+        $userIds = array_unique($userIds);
+        if ($userIds) {
+            return $this->getAll(
+                ['id' => $userIds],
+                ['id' => 'desc'],
+                ['nickname', 'email', 'id']
+            );
+        }
+        return [];
+    }
 }

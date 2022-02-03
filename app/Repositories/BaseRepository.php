@@ -292,7 +292,7 @@ abstract class BaseRepository
      * @param [type] $leftModels
      * @return void
      */
-    public function getDataList($searchModel, $fields, $conds, $page=1, $perpage=20, $leftModels=null)
+    public function getDataList($searchModel, $fields, $conds, $page=1, $perpage=20, $leftModels=null, $sortInfo = ['id' => 'desc'])
     {
         $searchAble = $searchModel->getSearchAble();
         $condsSearch = array_intersect_key($searchAble, $conds);
@@ -314,17 +314,23 @@ abstract class BaseRepository
         }
 
         if ($condsSearch) {
-            $query = $this->getQueryBuilder($query, $conds, $condsSearch, $fields, $leftTableName . '.');
+            $query = $this->getQueryBuilder($query, $conds, $condsSearch, $fields, $leftTableName . '.', true);
         }
 
         $offset = ($page - 1) * $perpage;
         $pagination = $searchModel->getPaginate($fields, $query, $page, $perpage);
 
-        $list = $query->select($fields)
-            ->offset($offset)
-            ->limit($perpage)
-            ->get()
-            ->all();
+        $query = $query->select($fields)->offset($offset)->limit($perpage);
+
+        if (!empty($sortInfo)) {
+            foreach ($sortInfo as $column => $direction) {
+                if (in_array($column, $searchModel->sortable) && in_array($direction, $searchModel::DIRECTION)) {
+                    $query = $query->orderBy($column, $direction);
+                }
+            }
+        }
+
+        $list = $query->get()->all();
 
         return [
             'list' => $list,

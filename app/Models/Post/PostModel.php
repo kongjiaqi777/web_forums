@@ -50,6 +50,10 @@ class PostModel extends BaseModel
                 'query_key' => 'post_type',
                 'operator' => '='
             ],
+            'is_del' => [
+                'query_key' => 'is_del',
+                'operator' => '='
+            ]
         ];    
     }
  
@@ -65,6 +69,7 @@ class PostModel extends BaseModel
         'deleted_at',
     ];
 
+    // 可以查询的字段
     public $findable = [
         'id',
         'square_id',
@@ -80,5 +85,14 @@ class PostModel extends BaseModel
         'updated_at',
         'deleted_at',
         'is_del',
+        'top_rule_lte',
+        'top_rule_gt'
+    ];
+
+    // 可以排序的字段
+    public $sortable = [
+        'id',
+        'created_at',
+        'top_rule'
     ];
 }
