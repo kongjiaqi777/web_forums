@@ -77,6 +77,10 @@ return [
             'code' => 20,
             'desc' => '评论的评论'
         ],
+        'reply_comment' => [
+            'code' => 30,
+            'desc' => '回复评论'
+        ]
     ],
     // 点赞类型
     'praise_type' => [
@@ -104,9 +108,68 @@ return [
             'desc' => '广场主投诉'
         ]
     ],
-    // 投诉处理状态
-    'complaint_verify_status' => [
+    // 投诉处理
+    'complaint_verify_status_op' => [
+        'reject' => [
+            'code' => 10,
+            'desc' => '驳回'
+        ],
+        'deleted_only' => [
+            'code' => 20,
+            'desc' => '删除帖子或回复'
+        ],
+        'deleted_and_forbidden7days' => [
+            'code' => 30,
+            'desc' => '删除帖子或回复并禁言七天'
+        ],
+        'deleted_and_forbiddenforever' => [
+            'code' => 40,
+            'desc' => '删除帖子或回复并永久禁言'
+        ]
+    ],
 
+    // 投诉状态
+    'complaint_verify_status' => [
+        'undeal' => [
+            'code' => 10,
+            'desc' => '未处理'
+        ],
+        'over' => [
+            'code' => 20,
+            'desc' => '正常'
+        ],
+        'deleted' => [
+            'code' => 30,
+            'desc' => '已删帖'
+        ],
+        'forbidden' => [
+            'code' => 40,
+            'desc' => '禁言中'
+        ],
+        'forbidden_forever' => [
+            'code' => 50,
+            'desc' => '永久禁言'
+        ],
+    ],
+    'owner_complaint_verify_op' => [
+        'reject' => [
+            'code' => 10,
+            'desc' => '驳回'
+        ],
+        'warning' => [
+            'code' => 20,
+            'desc' => '警告广场主'
+        ],
+    ],
+    'owner_complaint_verify_status' => [
+        'over' => [
+            'code' => 10,
+            'desc' => '正常'
+        ],
+        'warning' => [
+            'code' => 20,
+            'desc' => '警告'
+        ]
     ],
     // 广播类型
     'post_type' => [

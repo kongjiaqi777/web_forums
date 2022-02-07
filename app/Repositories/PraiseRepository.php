@@ -26,6 +26,13 @@ class PraiseRepository extends BaseRepository
         $this->replyModel = $replyModel;
     }
 
+    /**
+     * 点赞
+     * @param [type] $params
+     * @param [type] $operationInfo
+     * @param string $message
+     * @return void
+     */
     public function createPraise($params, $operationInfo, $message = '创建点赞记录')
     {
         $params['is_del'] = 0;
@@ -58,6 +65,13 @@ class PraiseRepository extends BaseRepository
         });
     }
 
+    /**
+     * 取消点赞
+     * @param [type] $params
+     * @param [type] $operationInfo
+     * @param string $message
+     * @return void
+     */
     public function cancelPraise($params, $operationInfo, $message = '取消点赞记录')
     {
         $params['is_del'] = 0;
@@ -94,13 +108,4 @@ class PraiseRepository extends BaseRepository
             return $res;
         });
     }
-
-    // public function getPraiseDetail()
-    // {
-    //     'post_id',
-    //     'user_id',
-    //     'praise_type',
-    //     'reply_id',
-    //     $this->praiseModel->
-    // }
 }

@@ -23,4 +23,14 @@ class UserServices extends BaseServices
     {
         
     }
+
+    public function getById($userId)
+    {
+        return $this->userRepos->getById($userId);
+    }
+
+    public function update($params, $operationInfo)
+    {
+        return $this->userRepos->update($params, $operationInfo, '用户修改标签');
+    }
 }

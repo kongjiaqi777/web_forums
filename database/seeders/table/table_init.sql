@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 	`id` INT(11) UNSIGNED AUTO_INCREMENT COMMENT '用户ID',
     `source_id` INT(11) UNSIGNED NOT NULL COMMENT '用户来源网站ID',
 	`nickname` VARCHAR(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户昵称',
-    `avatar` VARCHAR(256) COMMENT '头像',
+    `avatar`  text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT '头像',
     `status` TINYINT(3) DEFAULT 10 COMMENT '用户状态:10正常/20禁言',
     `is_auth` TINYINT(1) DEFAULT 0 COMMENT '实名认证状态:否0/是1',
     `email` VARCHAR(256) NOT NULL COMMENT '邮箱账号',

@@ -300,10 +300,40 @@ class PostRepository extends BaseRepository
         }
     }
 
-    public function adminSetTop()
+    public function adminSetTop($params, $operationInfo)
     {
-        // 广场置顶=4
-        // 首页置顶=5
+        $homePageTop = $params['homepage_top'] ?? 0;
+        $postId = $params ['post_id'] ?? 0;
+
+        if ($homePageTop) {
+            // 首页置顶=5
+            $topRule = 5;
+            $topRuleCheck = $this->postModel
+                ->where('top_rule', $topRule)
+                ->where('is_del', 0)
+                ->first();
+        } else {
+            // 广场置顶=4
+            $topRule = 4;
+            $postInfo = $this->postModel->getById($postId);
+            $squareId = $postInfo['square_id'] ?? 0;
+            if (empty($squareId)) {
+                throw New NoStackException('当前广播没有所属广场，无法设置广场置顶');
+            }
+            $topRuleCheck = $this->postModel
+                ->where('top_rule', $topRule)
+                ->where('is_del', 0)
+                ->where('square_id', $squareId)
+                ->first();
+
+        }
+
+        return DB::transaction(function () use ($postId, $topRule, $topRuleCheck, $operationInfo) {
+            if ($topRuleCheck) {
+                $this->updatePost(['post_id' => $topRuleCheck['id'], 'top_rule' => 0], $operationInfo, '管理员设置置顶');
+            }
+            return $this->updatePost(['post_id' => $postId, 'top_rule' => $topRule], $operationInfo, '管理员设置置顶');
+        });
     }
 
     /**

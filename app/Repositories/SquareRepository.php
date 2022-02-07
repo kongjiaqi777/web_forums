@@ -158,15 +158,27 @@ class SquareRepository extends BaseRepository
             throw New NoStackException('广场不存在');
         }
 
-        $this->commonUpdate(
-            $squareId,
-            $this->squareModel,
-            $this->squareOpLogModel,
-            $params,
-            $operationInfo,
-            $message,
-            $operationTypeSpec
-        );
+        DB::transaction(function () use ($squareId, $params, $operationInfo, $message, $operationTypeSpec) {
+            $this->commonUpdate(
+                $squareId,
+                $this->squareModel,
+                $this->squareOpLogModel,
+                $params,
+                $operationInfo,
+                $message,
+                $operationTypeSpec
+            );
+
+            if ($operationTypeSpec == 'delete') {
+                $this->postModel
+                    ->where('square_id', $squareId)
+                    ->where('is_del', 0)->update([
+                        'is_del' => 1,
+                        'deleted_at' => Carbon::now()->toDateTimeString()
+                    ]);
+            }
+    
+        });
 
         return $this->squareModel->getById($squareId);
     }

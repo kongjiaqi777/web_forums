@@ -93,7 +93,7 @@ class UserModel extends BaseModel
             return $this->getAll(
                 ['id' => $userIds],
                 ['id' => 'desc'],
-                ['nickname', 'email', 'id']
+                ['nickname', 'email', 'id', 'avatar']
             );
         }
         return [];

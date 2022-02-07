@@ -53,5 +53,8 @@ $router->group(['prefix' => 'v1/reply', 'middleware' => 'api'], function () use 
 
     // 删除广播评论
     $router->post('delete', ['uses' => 'ReplyController@delete']);
+
+    // 查看某一楼的全部回复
+    $router->get('sub_list', ['uses' => 'ReplyController@getSubList']);
 });
 

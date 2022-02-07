@@ -4,9 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Services\Admin\PostServices;
 
 class AdminPostController extends Controller
 {
+    private $postServices;
+
+    public function __construct(PostServices $postServices)
+    {
+        $this->postServices = $postServices;
+    }
+
     /**
      * @api {get} /v1/admin/post/list 管理端广播列表
      * @apiVersion 1.0.0
@@ -67,9 +75,11 @@ class AdminPostController extends Controller
      *      ]
      * }
      */
-    public function list()
+    public function list(Request $request)
     {
-
+        $params = $request->all();
+        $res = $this->postServices->getList($params);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -114,9 +124,11 @@ class AdminPostController extends Controller
      *              }
      * }
      */
-    public function detail()
+    public function detail(Request $request)
     {
-
+        $params = $request->all();
+        $res = $this->postServices->detail($params);
+        return $this->buildSucceed($res);
     }
 
      /**
@@ -135,9 +147,12 @@ class AdminPostController extends Controller
      *      "info": 1003
      *  }
      */
-    public function setTop()
+    public function setTop(Request $request)
     {
-
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->postServices->setTop($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -157,9 +172,12 @@ class AdminPostController extends Controller
      *      "info": 1003
      *  }
      */
-    public function deletePost()
+    public function deletePost(Request $request)
     {
-
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->postServices->delete($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -179,9 +197,12 @@ class AdminPostController extends Controller
      *      "info": 1003
      *  }
      */
-    public function deleteReply()
+    public function deleteReply(Request $request)
     {
-
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->postServices->deleteReply($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -241,6 +262,8 @@ class AdminPostController extends Controller
      */
     public function suggest(Request $request)
     {
-
+        $params = $request->all();
+        $res = $this->postServices->suggest($params);
+        return $this->buildSucceed($res);
     }
 }

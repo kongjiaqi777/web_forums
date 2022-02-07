@@ -101,7 +101,7 @@ class UserController extends Controller
      */
     public function getUserInfoByToken(Request $request)
     {
-
+        
     }
 
     /**
@@ -139,7 +139,17 @@ class UserController extends Controller
      */
     public function updateLabel(Request $request)
     {
-
+        $this->validate($request, [
+            'id' => 'required',
+            'label' => 'required'
+        ], [
+            'id.*' => '用户ID必传',
+            'label.*' => '标签必传'
+        ]);
+        $params = $request->only(['id', 'label']);
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->userServices->update($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -313,8 +323,17 @@ class UserController extends Controller
      *      }
      *  }
      */
-    public function getUserInfoById()
+    public function getUserInfoById(Request $request)
     {
+        $this->validate($request, [
+            'id' => 'required',
+        ], [
+            'id.*' => '用户ID必传'
+        ]);
+        $params = $request->only('id');
+        $userId = $params ['id'] ?? 0;
 
+        $res = $this->userServices->getById($userId);
+        return $this->buildSucceed($res);
     }
 }

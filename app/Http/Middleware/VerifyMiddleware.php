@@ -16,7 +16,7 @@ class VerifyMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        $defaultUserId = 114;
+        $defaultUserId = rand(100, 124);
 
         //支持ajax跨域请求
         header('content-type:application:json;charset=utf8');
