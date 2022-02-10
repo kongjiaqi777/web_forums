@@ -3,9 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\MessageServices;
 
 class MessageController extends Controller
 {
+    private $messageServices;
+
+    public function __construct(MessageServices $messageServices)
+    {
+        $this->messageServices = $messageServices;
+    }
+
     /**
      * @api {get} /v1/message/list 我的消息列表
      * @apiVersion 1.0.0
@@ -20,10 +28,44 @@ class MessageController extends Controller
      * @apiSuccess {String} url 跳转链接
      * @apiSuccess {Boolean} is_read 是否已读：0否/1是
      * @apiSuccess {DateTime} created_at 收信时间
+     *
+     * @apiSuccessExample Success-Response
+     * {
+    "code": 0,
+    "msg": "success",
+    "info": {
+        "list": [
+            {
+                "id": 2,
+                "template_id": 69,
+                "user_id": 118,
+                "msg_type": 10,
+                "msg_body": "您的《留学广场》广场创建申请已通过",
+                "msg_title": "广场创建",
+                "url": null,
+                "is_read": 0,
+                "created_at": "2022-02-09T11:14:44.000000Z",
+                "updated_at": "2022-02-09T11:14:44.000000Z",
+                "is_del": 0,
+                "deleted_at": null
+            }
+        ],
+        "pagination": {
+            "page": 1,
+            "perpage": 20,
+            "total_page": 1,
+            "total_count": 1
+        }
+    }
+}
      */ 
     public function myMessageList(Request $request)
     {
-
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        $params ['user_id'] = $operationInfo['operator_id'];
+        $res = $this->messageServices->myMessageList($params);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -42,7 +84,38 @@ class MessageController extends Controller
      * @apiSuccess {String} url 跳转链接
      * @apiSuccess {Boolean} is_read 是否已读：0否/1是
      * @apiSuccess {DateTime} created_at 收信时间
+     *
+     * @apiSuccessExample Success-Response
+     * {
+    "code": 0,
+    "msg": "success",
+    "info": {
+        "id": 2,
+        "template_id": 69,
+        "user_id": 118,
+        "msg_type": 10,
+        "msg_body": "您的《留学广场》广场创建申请已通过",
+        "msg_title": "广场创建",
+        "url": null,
+        "is_read": 0,
+        "created_at": "2022-02-09T11:14:44.000000Z",
+        "updated_at": "2022-02-09T11:14:44.000000Z",
+        "is_del": 0,
+        "deleted_at": null
+    }
+}
      */ 
+    public function detail(Request $request)
+    {
+        $this->validate($request,[
+            'message_id' => 'required'
+        ], [
+            'message_id.*' => '消息ID必传'
+        ]);
+        $params = $request->all();
+        $res = $this->messageServices->detail($params);
+        return $this->buildSucceed($res);
+    }
 
     /**
      * @api {post} /v1/message/read 读消息
@@ -53,5 +126,17 @@ class MessageController extends Controller
      *
      * @apiParam {Numeric} message_id 消息ID
      */
+    public function read(Request $request)
+    {
+        $this->validate($request,[
+            'message_id' => 'required'
+        ], [
+            'message_id.*' => '消息ID必传'
+        ]);
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->messageServices->read($params, $operationInfo);
+        return $this->buildSucceed($res);
+    }
     
 }

@@ -12,6 +12,7 @@ use App\Models\User\UserModel;
 use DB;
 use Carbon\Carbon;
 use App\Libs\UtilLib;
+use App\Libs\MessageLib;
 
 
 class SquareRepository extends BaseRepository
@@ -147,9 +148,12 @@ class SquareRepository extends BaseRepository
      * 更新广场信息
      * @param [array] $params 更新信息
      * @param [array] $operationInfo 操作人信息
+     * @param string $message 更新的备注
+     * @param string $operationTypeSpec 更新还是删除
+     * @param string $sendMessage 是否发消息，消息的msgcode
      * @return array 更新之后的信息
      */
-    public function updateSquare($params, $operationInfo, $message = '更新广场', $operationTypeSpec='update')
+    public function updateSquare($params, $operationInfo, $message = '更新广场', $operationTypeSpec='update', $sendMessage=null)
     {
         $squareId = $params['square_id'] ?? 0;
 
@@ -179,6 +183,31 @@ class SquareRepository extends BaseRepository
             }
     
         });
+
+        if ($sendMessage) {
+            $userList = [$squareInfo['creater_id']];
+            if ($sendMessage == config('display.msg_type.switch_notice.code')) {
+                // 切换广场主的时候消息发给广场关注人
+                $userList = $this->squareFollowModel->getAll(
+                    [
+                        'square_id' => $squareId,
+                        'is_del' => 0,
+                        'created_at' => Carbon::now()->toDateTimeString()
+                    ], [
+                        'id' => 'desc'
+                    ], [
+                        'follow_user_id'
+                    ]
+                );
+            } 
+            MessageLib::sendMessage(
+                $sendMessage,
+                $userList,
+                [
+                    'square_id' => $squareId
+                ]
+            );
+        }
 
         return $this->squareModel->getById($squareId);
     }

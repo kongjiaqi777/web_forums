@@ -181,5 +181,111 @@ return [
             'code' => 20,
             'desc' => '个人广播'
         ],
+    ],
+    'msg_type' => [
+        'square_approve' => [
+            'code' => 10,
+            'desc' => '广场审核通过'
+        ],
+        'square_reject' => [
+            'code' => 11,
+            'desc' => '广场审核驳回'
+        ],
+        'complaint_reject' => [
+            'code' => 12,
+            'desc' => '投诉驳回'
+        ],
+        'complaint_deal' => [
+            'code' => 13,
+            'desc' => '处理投诉'
+        ],
+        'complaint_post_delete' => [
+            'code' => 14,
+            'desc' => '后台删帖'
+        ],
+        'complaint_post_forbidden' => [
+            'code' => 15,
+            'desc' => '后台禁言七天'
+        ],
+        'complaint_post_forbidden_forever' => [
+            'code' => 16,
+            'desc' => '后台永久禁言'
+        ],
+        'complaint_reply_delete' => [
+            'code' => 17,
+            'desc' => '后台删回复'
+        ],
+        'complaint_reply_forbidden' => [
+            'code' => 18,
+            'desc' => '后台禁言七天'
+        ],
+        'complaint_reply_forbidden_forever' => [
+            'code' => 19,
+            'desc' => '后台永久禁言'
+        ],
+        'post_praise' => [
+            'code' => 20,
+            'desc' => '广播被点赞'
+        ],
+        'reply_praise' => [
+            'code' => 21,
+            'desc' => '回复被点赞'
+        ],
+        'post_reply' => [
+            'code' => 22,
+            'desc' => '广播被回复'
+        ],
+        'reply_reply' => [
+            'code' => 23,
+            'desc' => '回复被回复'
+        ],
+        'follow' => [
+            'code' => 24,
+            'desc' => '被关注' 
+        ],
+        'square_top' => [
+            'code' => 25,
+            'desc' => '后台广场置顶'
+        ],
+        'homepage_top' => [
+            'code' => 26,
+            'desc' => '后台首页置顶'
+        ],
+        'owner_top' => [
+            'code' => 27,
+            'desc' => '广场主置顶'
+        ],
+        'admin_delete_post' => [
+            'code' => 28,
+            'desc' => '后台删广播'
+        ],
+        'owner_delete_post' => [
+            'code' => 29,
+            'desc' => '广场主删广播'
+        ],
+        'admin_delete_reply' => [
+            'code' => 30,
+            'desc' => '后台删回复'
+        ],
+        'owner_delete_reply' => [
+            'code' => 31,
+            'desc' => '广场主删回复'
+        ],
+        'switch_approve' => [
+            'code' => 32,
+            'desc' => '卸任通过'
+        ],
+        'switch_reject' => [
+            'code' => 33,
+            'desc' => '卸任驳回'
+        ],
+        'switch_notice' => [
+            'code' => 34,
+            'desc' => '通知用户广场主变更'
+        ],
+        'owner_warning' => [
+            'code' => 35,
+            'desc' => '通知广场主被投诉'
+        ],
     ]
 ];

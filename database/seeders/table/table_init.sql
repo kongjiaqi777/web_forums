@@ -267,7 +267,7 @@ CREATE TABLE IF NOT EXISTS `complaints_op_logs` (
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `system_message_template` (
     `id` INT(11) UNSIGNED AUTO_INCREMENT COMMENT '模版ID',
-    `msg_type` TINYINT(5) DEFAULT 10 NOT NULL COMMENT '消息类型',
+    `msg_type` int(11) DEFAULT 10 NOT NULL COMMENT '消息类型',
     `msg_body` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消息内容',
     `msg_title` VARCHAR(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '消息标题',
     `url` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci COMMENT '跳转链接URL',

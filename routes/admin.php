@@ -59,6 +59,11 @@ $router->group(['prefix' => 'v1/admin/post', 'middleware' => 'admin'], function 
 
 // 管理端用户-投诉相关路由
 $router->group(['prefix' => 'v1/admin/complaint', 'middleware' => 'admin'], function () use ($router) {
+    $router->get('post_list', ['uses' => 'AdminComplaintController@getPostComplaintList']);
+    $router->get('user_list', ['uses' => 'AdminComplaintController@getUserComplaintList']);
+    $router->get('detail', ['uses' => 'AdminComplaintController@detail']);
+    $router->post('deal', ['uses' => 'AdminComplaintController@deal']);
+
 });
 
 // 管理端用户-用户管理相关路由

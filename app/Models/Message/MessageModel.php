@@ -44,9 +44,26 @@ class MessageModel extends BaseModel
  
     // 可以更新的字段
     public $updateable = [
+        'is_read',
+        'is_del',
+        'updated_at',
+        'deleted_at',
     ];
 
     // 可以查询到的字段
     public $findable = [
+        'id',
+        'user_id',
+        'msg_type',
+        'msg_body',
+        'msg_title',
+        'url',
+        'is_read',
+        'created_at',
+    ];
+
+    public $sortable = [
+        'id',
+        'created_at'
     ];
 }

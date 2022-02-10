@@ -30,4 +30,21 @@ $router->group(['prefix' => 'v1/common'], function () use ($router) {
     $router->get('config', ['uses' => 'ConfigController@getConfigList']);
 });
 
+$router->group(['prefix' => 'v1/message', 'middleware' => 'api'], function () use ($router) {
+    // 消息列表
+    $router->get('list', ['uses' => 'MessageController@myMessageList']);
+    // 消息详情
+    $router->get('detail', ['uses' => 'MessageController@detail']);
+    // 标记已读
+    $router->post('read', ['uses' => 'MessageController@read']);
+
+});
+
+$router->group(['prefix' => 'v1/complaint', 'middleware' => 'api'], function () use ($router) {
+
+    $router->get('detail', ['uses' => 'ComplaintController@detail']);
+
+    $router->post('create', ['uses' => 'ComplaintController@create']);
+});
+
 

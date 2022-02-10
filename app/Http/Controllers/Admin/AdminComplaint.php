@@ -4,9 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Services\Admin\ComplaintServices;
 
 class AdminComplaintController extends Controller
 {
+    private $complaintServices;
+
+    public function __construct(ComplaintServices $complaintServices)
+    {
+        $this->complaintServices = $complaintServices;
+    }
+
     /**
      * @api {get} /v1/admin/complaint/post_list 管理端广播/评论投诉列表
      * @apiVersion 1.0.0
@@ -38,7 +46,9 @@ class AdminComplaintController extends Controller
      */
     public function getPostComplaintList(Request $request)
     {
-
+        $params = $request->all();
+        $res = $this->complaintServices->getList($params);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -70,9 +80,11 @@ class AdminComplaintController extends Controller
      * @apiSuccess {Numeric} verify_status 投诉审核状态
      * @apiSuccess {String} verify_reason 审核理由
      */
-    public function getUserComplaintList()
+    public function getUserComplaintList(Request $request)
     {
-
+        $params = $request->all();
+        $res = $this->complaintServices->getList($params);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -88,11 +100,14 @@ class AdminComplaintController extends Controller
      */
     public function deal(Request $request)
     {
-
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->complaintServices->deal($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 
     /**
-     * @api {post} /v1/admin/complaint/detail 管理端投诉详情
+     * @api {get} /v1/admin/complaint/detail 管理端投诉详情
      * @apiVersion 1.0.0
      * @apiName 管理端投诉详情
      * @apiGroup AdminComplaint
@@ -104,5 +119,10 @@ class AdminComplaintController extends Controller
      * @apiSuccess {String} content 投诉内容
      * @apiSuccess {String} photo 投诉图片URL
      */
-
+    public function detail(Request $request)
+    {
+        $params = $request->all();
+        $res = $this->complaintServices->detail($params);
+        return $this->buildSucceed($res);
+    }
 }

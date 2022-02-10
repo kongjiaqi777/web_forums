@@ -21,6 +21,7 @@ class ComplaintServices extends BaseServices
 
     public function create($params, $operationInfo)
     {
+        $params['user_id'] = $operationInfo['operator_id'];
         return $this->complaintRepos->create($params, $operationInfo);
     }
 }

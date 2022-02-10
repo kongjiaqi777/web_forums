@@ -82,8 +82,10 @@ class SquareServices extends BaseServices
      */
     public function doApprove($params, $operationInfo)
     {
+
         $params['verify_status'] = config('display.square_verify_status.approved.code');
-        return $this->squareRepos->updateSquare($params, $operationInfo, '管理员审核通过');
+        $msgCode = config('display.msg_type.square_approve.code');
+        return $this->squareRepos->updateSquare($params, $operationInfo, '管理员审核通过', $msgCode);
     }
 
     /**
@@ -95,7 +97,8 @@ class SquareServices extends BaseServices
     public function doReject($params, $operationInfo)
     {
         $params['verify_status'] = config('display.square_verify_status.rejected.code');
-        return $this->squareRepos->updateSquare($params, $operationInfo, '管理员审核驳回');
+        $msgCode = config('display.msg_type.square_reject.code');
+        return $this->squareRepos->updateSquare($params, $operationInfo, '管理员审核驳回', $msgCode);
     }
 
     /**
@@ -122,7 +125,9 @@ class SquareServices extends BaseServices
         if ($squareInfo != config('display.square_verify_status.dismissed.code')) {
             throw New NoStackException('广场状态不合理，无法操作');
         }
-        return $this->squareRepos->updateSquare($params, $operationInfo, '管理员更换广场主');
+        $msgCode = config('display.msg_type.switch_notice.code');
+
+        return $this->squareRepos->updateSquare($params, $operationInfo, '管理员更换广场主', $msgCode);
     }
 
     /**
