@@ -51,6 +51,9 @@ $router->group(['prefix' => 'v1/admin/square', 'middleware' => 'admin'], functio
 
     // 模糊搜索
     $router->get('suggest', ['uses' => 'Admin\AdminSquareController@suggest']);
+
+    // 驳回更换广场主申请
+    $router->post('reject_switch', ['uses' => 'Admin\AdminSquareController@rejectSwitch']);
 });
 
 // 管理端用户-广播相关路由
@@ -59,10 +62,10 @@ $router->group(['prefix' => 'v1/admin/post', 'middleware' => 'admin'], function 
 
 // 管理端用户-投诉相关路由
 $router->group(['prefix' => 'v1/admin/complaint', 'middleware' => 'admin'], function () use ($router) {
-    $router->get('post_list', ['uses' => 'AdminComplaintController@getPostComplaintList']);
-    $router->get('user_list', ['uses' => 'AdminComplaintController@getUserComplaintList']);
-    $router->get('detail', ['uses' => 'AdminComplaintController@detail']);
-    $router->post('deal', ['uses' => 'AdminComplaintController@deal']);
+    $router->get('post_list', ['uses' => 'Admin\AdminComplaintController@getPostComplaintList']);
+    $router->get('user_list', ['uses' => 'Admin\AdminComplaintController@getUserComplaintList']);
+    $router->get('detail', ['uses' => 'Admin\AdminComplaintController@detail']);
+    $router->post('deal', ['uses' => 'Admin\AdminComplaintController@deal']);
 
 });
 

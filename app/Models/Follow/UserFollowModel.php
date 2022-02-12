@@ -16,6 +16,9 @@ class UserFollowModel extends BaseModel
     public $fillable = [
         'user_id',
         'follow_user_id',
+        'is_mutual',
+        'created_at',
+        'updated_at',
     ];
  
     // 可以作为筛选条件的字段
@@ -37,6 +40,8 @@ class UserFollowModel extends BaseModel
     public $updateable = [
         'is_del',
         'deleted_at',
+        'is_mutual',
+        'updated_at',
     ];
 
     public $findable = [
@@ -45,6 +50,7 @@ class UserFollowModel extends BaseModel
         'user_id',
         'created_at',
         'is_del',
+        'is_mutual',
     ];
 
     // 可以排序的字段

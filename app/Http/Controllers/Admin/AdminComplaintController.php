@@ -25,7 +25,7 @@ class AdminComplaintController extends Controller
      * @apiParam {Numeric} [user_id] 投诉人账号
      * @apiParam {Numeric} [post_id] 广播ID
      * @apiParam {Numeric} [reply_id] 评论ID
-     * @apiParam {Numeric} [complaint_type] 投诉类型:广播投诉10/评论投诉20
+     * @apiParam {Numeric} [complaint_type] 投诉类型:广播投诉10/评论投诉20/广场主投诉30
      * @apiParam {Numeric} [verify_status] 状态
      * @apiParam {DateTime} [created_start] 创建开始时间
      * @apiParam {DateTime} [created_end] 创建结束时间

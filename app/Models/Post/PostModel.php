@@ -20,6 +20,8 @@ class PostModel extends BaseModel
         'photo',
         'creater_id',
         'post_type',
+        'created_at',
+        'updated_at',
     ];
  
     // 可以作为筛选条件的字段

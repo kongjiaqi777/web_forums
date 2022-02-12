@@ -73,12 +73,9 @@ class SquareController extends Controller
             'name.max' => '模糊搜索关键字最长38个字符'
         ]);
 
-        $params ['page'] ?? $params ['page'] = 1;
-        $params ['perpage'] ?? $params ['perpage'] = 20;
-
-        $params = $request->only(['page', 'perpage', 'name', 'operator_id']);
-        
-        $operatorId = $params['operator_id'] ?? 0;
+        $params = $request->only(['page', 'perpage', 'name']);
+        $operationInfo = $this->getOperationInfo($request);
+        $operatorId = $operationInfo['operator_id'] ?? 0;
         $res = $this->squareServices->suggestList($params, true, $operatorId);
         return $this->buildSucceed($res);
     }
@@ -135,12 +132,13 @@ class SquareController extends Controller
             'square_id.required' => '广场ID必传',
             'square_id.numeric' => '广场ID格式不正确'
         ]);
-        $params = $request->only(['square_id', 'operator_id']);
+        $params = $request->only(['square_id']);
 
         $squareId = $params['square_id'] ?? 0;
-        $userId = $params['operator_id'] ?? 0;
+        $operationInfo = $this->getOperationInfo($request);
+        $operatorId = $operationInfo['operator_id'] ?? 0;
 
-        $res = $this->squareServices->getDetail($squareId, $userId);
+        $res = $this->squareServices->getDetail($squareId, $operatorId);
         return $this->buildSucceed($res);
     }
 
@@ -209,15 +207,11 @@ class SquareController extends Controller
      */
     public function myFollowList(Request $request)
     {
-        $params = $request->only(['page', 'perpage', 'operator_id']);
+        $params = $request->only(['page', 'perpage']);
 
         $operationInfo = $this->getOperationInfo($request);
-
-        $params ['page'] ?? $params ['page'] = 1;
-        $params ['perpage'] ?? $params ['perpage'] = 20;
-
         $userId = $operationInfo['operator_id'] ?? 0;
-        
+
         $res = $this->squareServices->myFollowList($params, $userId);
         return $this->buildSucceed($res);
     }
@@ -262,10 +256,10 @@ class SquareController extends Controller
             'name.label' => '请输入广场标签'
         ]);
         
-        $params = $request->only(['name', 'avatar', 'label', 'operator_id']);
-
-        $params ['creater_id'] = $params['operator_id'];
+        $params = $request->only(['name', 'avatar', 'label']);
         $operationInfo = $this->getOperationInfo($request);
+
+        $params ['creater_id'] = $operationInfo['operator_id'];
         $res = $this->squareServices->createSquare($params, $operationInfo);
         return $this->buildSucceed($res);
     }
@@ -448,9 +442,7 @@ class SquareController extends Controller
      */
     public function applyRelieve(Request $request)
     {
-        $params = $request->only([
-            'square_id'
-        ]);
+        $params = $request->only(['square_id']);
         $operationInfo = $this->getOperationInfo($request);
         $params['verify_status'] = config('display.square_verify_status.apply_relieve.code');
         $res = $this->squareServices->updateSquare($params, $operationInfo);

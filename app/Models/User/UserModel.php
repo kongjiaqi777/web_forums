@@ -2,6 +2,7 @@
 
 namespace App\Models\User;
 
+use App\Exceptions\NoStackException;
 use App\Models\BaseModel;
 
 class UserModel extends BaseModel
@@ -21,6 +22,8 @@ class UserModel extends BaseModel
         'is_auth',
         'source_id',
         'email',
+        'created_at',
+        'updated_at',
     ];
  
     // 可以作为筛选条件的字段
@@ -86,6 +89,11 @@ class UserModel extends BaseModel
         'is_del',
     ];
 
+    /**
+     * 根据用户ID获取昵称列表
+     * @param [type] $userIds
+     * @return void
+     */
     public function getUserNameList($userIds)
     {
         $userIds = array_unique($userIds);
@@ -97,5 +105,33 @@ class UserModel extends BaseModel
             );
         }
         return [];
+    }
+
+    /**
+     * 字段自增1
+     * @param [type] $userId
+     * @param [type] $fieldName
+     * @return void
+     */
+    public function incrementField($userId, $fieldName)
+    {
+        if (!in_array($fieldName, $this->updateable)) {
+            throw New NoStackException('不支持修改的字段');
+        }
+        return $this->where('id', $userId)->increment($fieldName);
+    }
+
+    /**
+     * 字段自减1
+     * @param [type] $userId
+     * @param [type] $fieldName
+     * @return void
+     */
+    public function decrementField($userId, $fieldName)
+    {
+        if (!in_array($fieldName, $this->updateable)) {
+            throw New NoStackException('不支持修改的字段');
+        }
+        return $this->where('id', $userId)->where($fieldName, '>', 0)->decrement($fieldName);
     }
 }

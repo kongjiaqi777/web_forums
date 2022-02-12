@@ -152,10 +152,6 @@ class AdminSquareController extends Controller
     public function list(Request $request)
     {
         $params = $request->all();
-
-        $params ['page'] ?? $params ['page'] = 1;
-        $params ['perpage'] ?? $params ['perpage'] = 20;
-
         $res = $this->squareServices->getList($params);
         return $this->buildSucceed($res);
     }
@@ -216,10 +212,6 @@ class AdminSquareController extends Controller
     public function suggest(Request $request)
     {
         $params = $request->all();
-
-        $params ['page'] ?? $params ['page'] = 1;
-        $params ['perpage'] ?? $params ['perpage'] = 20;
-
         $res = $this->squareServices->suggest($params);
         return $this->buildSucceed($res);
     }
@@ -414,7 +406,7 @@ class AdminSquareController extends Controller
     /**
      * @api {post} /v1/admin/square/switch 管理端更换广场主
      * @apiVersion 1.0.0
-     * @apiName 管理端广场审核驳回
+     * @apiName 管理端更换广场主
      * @apiGroup AdminSquare
      * @apiPermission 必须登录
      *
@@ -436,6 +428,30 @@ class AdminSquareController extends Controller
         ]);
         $operationInfo = $this->getOperationInfo($request);
         $res = $this->squareServices->doSwitch($params, $operationInfo);
+        return $this->buildSucceed($res);
+    }
+
+    /**
+     * @api {post} /v1/admin/square/reject_switch 管理端更换广场主申请驳回
+     * @apiVersion 1.0.0
+     * @apiName 管理端更换广场主申请驳回
+     * @apiGroup AdminSquare
+     * @apiPermission 必须登录
+     *
+     * @apiParam {Numeric} square_id    广场ID
+     */
+    public function rejectSwitch(Request $request)
+    {
+        $this->validate($request, [
+            'square_id' => 'required|numeric|min:1',
+        ], [
+            'square_id.*' => '广场ID参数不合法',
+        ]);
+        $params = $request->only([
+            'square_id'
+        ]);
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->squareServices->rejectSwitch($params, $operationInfo);
         return $this->buildSucceed($res);
     }
 }

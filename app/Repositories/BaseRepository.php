@@ -337,7 +337,6 @@ abstract class BaseRepository
             'pagination' => $pagination
         ];
 
-        // return $searchModel->overwritePagination($query, $page, $perpage, $fields);
     }
 
     /**
@@ -350,31 +349,37 @@ abstract class BaseRepository
      * @param string  $message             提示信息
      * @return void
      */
-    public function commonCreate($insertModel, $insertData, $insertOpLogModel, $operationInfo, $message='', $isNeedOpLog=true)
+    public function commonCreate($insertModel, $insertData, $insertOpLogModel, $operationInfo, $message='')
     {
         $fillable = array_fill_keys($insertModel->getFillable(), 1);
         $insertInfo = $this->prepareCreate($insertData, $fillable);
 
-        $res = DB::transaction(function () use ($insertModel, $insertOpLogModel, $insertInfo, $operationInfo, $isNeedOpLog, $message) {
+        $res = DB::transaction(function () use ($insertModel, $insertOpLogModel, $insertInfo, $operationInfo, $message) {
             try{
                 $insertId = $insertModel->insertGetId($insertInfo);
-                if ($isNeedOpLog) {
-                    $insertOpLogModel->saveCreateOpLogDatas(
-                        [
-                            $insertId => $insertInfo
-                        ],
-                        $operationInfo,
-                        $message
-                    );
-                }
+                $insertOpLogModel->saveCreateOpLogDatas(
+                    [
+                        $insertId => $insertInfo
+                    ],
+                    $operationInfo,
+                    $message
+                );
                 return $insertId;
             } catch (\Exception $e) {
-                Log::info(sprintf($message.'失败[Params][%s][Code][%s][Message][%s]',json_encode($insertInfo), $e->getCode(), $e->getMessage()));
+                Log::error(sprintf($message.'失败[Params][%s][Code][%s][Message][%s]',json_encode($insertInfo), $e->getCode(), $e->getMessage()));
                 throw new BaseException($message.'失败');
             }
             
         });
         return $res;
+    }
+
+    public function commonCreateNoLog($insertModel, $insertData)
+    {
+        $fillable = array_fill_keys($insertModel->getFillable(), 1);
+        $insertInfo = $this->prepareCreate($insertData, $fillable);
+
+        return $insertModel->insertGetId($insertInfo);
     }
 
     /**

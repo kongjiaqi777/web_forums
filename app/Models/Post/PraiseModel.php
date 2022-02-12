@@ -18,6 +18,8 @@ class PraiseModel extends BaseModel
         'user_id',
         'praise_type',
         'reply_id',
+        'created_at',
+        'updated_at',
     ];
 
     // 可以作为筛选条件的字段
@@ -58,5 +60,6 @@ class PraiseModel extends BaseModel
         'is_del',
         'deleted_at',
         'praise_type',
+        'reply_id',
     ];
 }

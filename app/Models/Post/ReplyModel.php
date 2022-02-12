@@ -21,6 +21,8 @@ class ReplyModel extends BaseModel
         'user_id',
         'content',
         'first_reply_id',
+        'created_at',
+        'updated_at',
     ];
  
     // 可以作为筛选条件的字段

@@ -81,16 +81,6 @@ class SquareRepository extends BaseRepository
     }
 
     /**
-     * 广场列表-不分页
-     * @param [array] $params 筛选条件
-     * @return array
-     */
-    // public function getAll($params)
-    // {
-    //     return $this->squareModel->getAll($params);
-    // }
-
-    /**
      * 根据广场ID获取广场详情
      * @param [numeric] $squareId
      * @param [boolean] $isJoinPostCount 是否查询广场下广播数目
@@ -149,11 +139,10 @@ class SquareRepository extends BaseRepository
      * @param [array] $params 更新信息
      * @param [array] $operationInfo 操作人信息
      * @param string $message 更新的备注
-     * @param string $operationTypeSpec 更新还是删除
-     * @param string $sendMessage 是否发消息，消息的msgcode
+     * @param string $sendMessage 消息的msgcode
      * @return array 更新之后的信息
      */
-    public function updateSquare($params, $operationInfo, $message = '更新广场', $operationTypeSpec='update', $sendMessage=null)
+    public function updateSquare($params, $operationInfo, $message = '更新广场', $sendMessage=null)
     {
         $squareId = $params['square_id'] ?? 0;
 
@@ -162,54 +151,105 @@ class SquareRepository extends BaseRepository
             throw New NoStackException('广场不存在');
         }
 
-        DB::transaction(function () use ($squareId, $params, $operationInfo, $message, $operationTypeSpec) {
-            $this->commonUpdate(
-                $squareId,
-                $this->squareModel,
-                $this->squareOpLogModel,
-                $params,
-                $operationInfo,
-                $message,
-                $operationTypeSpec
-            );
+        DB::transaction(function () use ($squareId, $params, $operationInfo, $message, $operationTypeSpec, $sendMessage, $squareInfo) {
+            try {
+                // 更新广场
+                $this->commonUpdate(
+                    $squareId,
+                    $this->squareModel,
+                    $this->squareOpLogModel,
+                    $params,
+                    $operationInfo,
+                    $message,
+                    'update'
+                );
 
-            if ($operationTypeSpec == 'delete') {
-                $this->postModel
-                    ->where('square_id', $squareId)
-                    ->where('is_del', 0)->update([
-                        'is_del' => 1,
-                        'deleted_at' => Carbon::now()->toDateTimeString()
-                    ]);
+                // 发消息
+                if ($sendMessage) {
+                    $userList = [$squareInfo['creater_id']];
+                    if ($sendMessage == config('display.msg_type.switch_approve.code')) {
+                        // 切换广场主的时候消息发给广场关注人和广场主
+                        $followUser = $this->squareFollowModel->getAll(
+                            [
+                                'square_id' => $squareId,
+                                'is_del' => 0,
+                                'created_at' => Carbon::now()->toDateTimeString()
+                            ], [
+                                'id' => 'desc'
+                            ], [
+                                'follow_user_id'
+                            ]
+                        );
+                        MessageLib::sendMessage(
+                            config('display.msg_type.switch_notice.code'),
+                            $followUser,
+                            [
+                                'square_id' => $squareId,
+                                'user_id' => $params['user_id']
+                            ]
+                        );
+                    }
+
+                    MessageLib::sendMessage(
+                        $sendMessage,
+                        $userList,
+                        [
+                            'square_id' => $squareId
+                        ]
+                    );
+                }
+            } catch (\Exception $e) {
+                Log::error(sprintf('更新广场失败[Param][%s][Code][%s][Message][%s]', json_encode($params), $e->getCode(), $e->getMessage()));
+                throw New NoStackException('更新广场信息失败');
             }
-    
         });
+        return $this->squareModel->getById($squareId);
+    }
 
-        if ($sendMessage) {
-            $userList = [$squareInfo['creater_id']];
-            if ($sendMessage == config('display.msg_type.switch_notice.code')) {
-                // 切换广场主的时候消息发给广场关注人
-                $userList = $this->squareFollowModel->getAll(
+    /**
+     * 删除广场
+     * @param [type] $params
+     * @param [type] $operationInfo
+     * @return void
+     */
+    public function deleteSquare($params, $operationInfo)
+    {
+        $squareId = $params['square_id'] ?? 0;
+        return DB::transaction(function () use ($squareId, $operationInfo) {
+            try {
+                // 删除广场
+                $updateData = [
+                    'is_del' => 1,
+                    'deleted_at' => Carbon::now()->toDateTimeString(),
+                    'verify_status' => config('display.square_verify_status.dismissed.code')
+                ];
+
+                $this->commonUpdate(
+                    $squareId,
+                    $this->squareModel,
+                    $this->squareOpLogModel,
+                    $updateData,
+                    $operationInfo,
+                    '删除广场',
+                    'delete',
+                );
+
+                // 删除广场时删除广场下全部广播
+                $this->postModel->updateByCondition(
                     [
                         'square_id' => $squareId,
-                        'is_del' => 0,
-                        'created_at' => Carbon::now()->toDateTimeString()
+                        'is_del' => 0
                     ], [
-                        'id' => 'desc'
-                    ], [
-                        'follow_user_id'
-                    ]
+                        'is_del' => 1,
+                        'deleted_at' => Carbon::now()->toDateTimeString()
+                    ],
+                    false
                 );
-            } 
-            MessageLib::sendMessage(
-                $sendMessage,
-                $userList,
-                [
-                    'square_id' => $squareId
-                ]
-            );
-        }
-
-        return $this->squareModel->getById($squareId);
+            } catch (\Exception $e) {
+                Log::error(sprintf('删除广场失败[SquareId][%s][Code][%s][Message][%s]', $squareId, $e->getCode(), $e->getMessage()));
+                throw New NoStackException('删除广场信息失败');
+            }
+        });
     }
 
     /**

@@ -21,6 +21,8 @@ class SquareModel extends BaseModel
         'verify_status',
         'verify_reason',
         'follow_count',
+        'created_at',
+        'updated_at',
     ];
  
     // 可以作为筛选条件的字段

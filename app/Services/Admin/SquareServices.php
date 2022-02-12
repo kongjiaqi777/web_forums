@@ -125,8 +125,8 @@ class SquareServices extends BaseServices
         if ($squareInfo != config('display.square_verify_status.dismissed.code')) {
             throw New NoStackException('广场状态不合理，无法操作');
         }
-        $msgCode = config('display.msg_type.switch_notice.code');
 
+        $msgCode = config('display.msg_type.switch_approve.code');
         return $this->squareRepos->updateSquare($params, $operationInfo, '管理员更换广场主', $msgCode);
     }
 
@@ -149,9 +149,19 @@ class SquareServices extends BaseServices
      */
     public function delete($params, $operationInfo)
     {
-        $params['is_del'] = 1;
-        $params['deleted_at'] = Carbon::now()->toDateTimeString();
-        $params['verify_status'] = config('display.square_verify_status.dismissed.code');
-        return $this->squareRepos->updateSquare($params, $operationInfo, '管理员解散广场', 'delete');
+        return $this->squareRepos->deleteSquare($params, $operationInfo, '管理员解散广场');
+    }
+
+    /**
+     * 驳回更换广场主申请
+     * @param [type] $params
+     * @param [type] $operationInfo
+     * @return void
+     */
+    public function rejectSwitch($params, $operationInfo)
+    {
+        $params['verify_status'] = config('display.square_verify_status.approved.code');
+        $msgCode = config('display.msg_type.switch_reject.code');
+        return $this->squareRepos->updateSquare($params, $operationInfo, '管理员驳回更换广场主申请', $msgCode);
     }
 }

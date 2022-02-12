@@ -40,28 +40,28 @@ class UserController extends Controller
      *
      * @apiSuccessExample Success-Response
      *  {
-    "code": 0,
-    "msg": "success",
-    "info": {
-        "list": [
-            {
-                "id": 118,
-                "nickname": "霜降",
-                "label": "test",
-                "avatar": null,
-                "email": "test18@123.com",
-                "is_mutual": 0,
-                "is_follow": 0
+            "code": 0,
+            "msg": "success",
+            "info": {
+                "list": [
+                    {
+                        "id": 118,
+                        "nickname": "霜降",
+                        "label": "test",
+                        "avatar": null,
+                        "email": "test18@123.com",
+                        "is_mutual": 0,
+                        "is_follow": 0
+                    }
+                ],
+                "pagination": {
+                    "page": 1,
+                    "perpage": 20,
+                    "total_page": 1,
+                    "total_count": 1
+                }
             }
-        ],
-        "pagination": {
-            "page": 1,
-            "perpage": 20,
-            "total_page": 1,
-            "total_count": 1
         }
-    }
-}
      */
     public function suggestUser(Request $request)
     {
@@ -159,40 +159,75 @@ class UserController extends Controller
      * @apiGroup User
      * @apiPermission 需要登录
      *
-     * @apiSuccess {Numeric} id 用户ID
-     * @apiSuccess {String} email 邮件信息
+     * @apiSuccess {Numeric} id 关注记录ID
+     * @apiSuccess {Numeric} user_id 用户ID
      * @apiSuccess {String} nickname 昵称
      * @apiSuccess {String} avatar 头像
      * @apiSuccess {String} label 个人简介
      * @apiSuccess {Boolean} is_mutual 是否互相关注:1是/0否
      *
      * @apiSuccessExample Success-Response
-     *  {
+     * {
     "code": 0,
     "msg": "success",
     "info": {
         "list": [
             {
-                "id": 118,
-                "nickname": "霜降",
-                "label": "test",
+                "id": 5,
+                "user_id": 117,
+                "is_mutual": 0,
+                "nickname": "寒露",
                 "avatar": null,
-                "email": "test18@123.com",
-                "is_mutual": 0
+                "label": "test"
+            },
+            {
+                "id": 4,
+                "user_id": 115,
+                "is_mutual": 0,
+                "nickname": "白露",
+                "avatar": null,
+                "label": "test"
+            },
+            {
+                "id": 3,
+                "user_id": 114,
+                "is_mutual": 0,
+                "nickname": "处暑",
+                "avatar": null,
+                "label": "test"
+            },
+            {
+                "id": 2,
+                "user_id": 112,
+                "is_mutual": 0,
+                "nickname": "大暑",
+                "avatar": null,
+                "label": "test"
+            },
+            {
+                "id": 1,
+                "user_id": 111,
+                "is_mutual": 0,
+                "nickname": "小暑",
+                "avatar": null,
+                "label": "test"
             }
         ],
         "pagination": {
             "page": 1,
             "perpage": 20,
             "total_page": 1,
-            "total_count": 1
+            "total_count": 5
         }
     }
 }
      */
     public function myFollowUserList(Request $request)
     {
-        $params = $request->all();
+        $params = $request->only(['page', 'perpage']);
+        $operationInfo = $this->getOperationInfo($request);
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+        $params ['user_id'] = $operatorId;
         $res = $this->userServices->myFollowUserList($params);
         return $this->buildSucceed($res);
     }
@@ -220,7 +255,15 @@ class UserController extends Controller
      */
     public function setFollowUser(Request $request)
     {
-
+        $this->validate($request, [
+            'follow_user_id' => 'required',
+        ], [
+            'follow_user_id.*' => '用户ID必传'
+        ]);
+        $params = $request->only(['follow_user_id']);
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->userServices->setFollowUser($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -246,7 +289,15 @@ class UserController extends Controller
      */
     public function cancelFollowUser(Request $request)
     {
-
+        $this->validate($request, [
+            'follow_user_id' => 'required',
+        ], [
+            'follow_user_id.*' => '用户ID必传'
+        ]);
+        $params = $request->only(['follow_user_id']);
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->userServices->cancelFollowUser($params, $operationInfo);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -256,40 +307,45 @@ class UserController extends Controller
      * @apiGroup User
      * @apiPermission 需要登录
      *
-     * @apiSuccess {Numeric} id 用户ID
-     * @apiSuccess {String} email 邮件信息
+     * @apiSuccess {Numeric} id 关注记录ID
+     * @apiSuccess {Numeric} user_id 用户ID
      * @apiSuccess {String} nickname 昵称
      * @apiSuccess {String} avatar 头像
      * @apiSuccess {String} label 个人简介
      * @apiSuccess {Boolean} is_mutual 是否互相关注:1是/0否
      *
      * @apiSuccessExample Success-Response
-     *  {
-    "code": 0,
-    "msg": "success",
-    "info": {
-        "list": [
-            {
-                "id": 118,
-                "nickname": "霜降",
-                "label": "test",
-                "avatar": null,
-                "email": "test18@123.com",
-                "is_mutual": 0
+     * {
+            "code": 0,
+            "msg": "success",
+            "info": {
+                "list": [
+                    {
+                        "id": 4,
+                        "user_id": 118,
+                        "is_mutual": 0,
+                        "nickname": "霜降",
+                        "avatar": null,
+                        "label": "test"
+                    }
+                ],
+                "pagination": {
+                    "page": 1,
+                    "perpage": 20,
+                    "total_page": 1,
+                    "total_count": 1
+                }
             }
-        ],
-        "pagination": {
-            "page": 1,
-            "perpage": 20,
-            "total_page": 1,
-            "total_count": 1
         }
-    }
-}
      */
-    public function myFansUserList()
+    public function myFansUserList(Request $request)
     {
-
+        $params = $request->only(['page', 'perpage']);
+        $operationInfo = $this->getOperationInfo($request);
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+        $params ['follow_user_id'] = $operatorId;
+        $res = $this->userServices->myFansUserList($params);
+        return $this->buildSucceed($res);
     }
 
     /**

@@ -16,6 +16,8 @@ class SquareFollowModel extends BaseModel
     public $fillable = [
         'square_id',
         'follow_user_id',
+        'created_at',
+        'updated_at',
     ];
  
     // 可以作为筛选条件的字段

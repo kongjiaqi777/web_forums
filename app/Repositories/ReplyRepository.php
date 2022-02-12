@@ -119,13 +119,9 @@ class ReplyRepository extends BaseRepository
         $params ['user_id'] = $operationInfo['operator_id'] ?? 0;
         return DB::transaction(function () use ($params, $operationInfo, $message, $isIncrementParent) {
             $postId = $params['post_id'] ?? 0;
-            $res = $this->commonCreate(
+            $res = $this->commonCreateNoLog(
                 $this->replyModel,
-                $params,
-                null,
-                $operationInfo,
-                $message,
-                false
+                $params
             );
             $this->postModel->where('id', $postId)->increment('reply_count');
             if ($isIncrementParent) {

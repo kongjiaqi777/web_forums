@@ -164,10 +164,6 @@ class BaseModel extends Model
             throw new DatabaseException('Query cannot be null.');
         }
 
-        // if ($fields != ['*'] && !in_array('id', $fields)) {
-        //     array_push($fields, 'id');
-        // }
-
         $count = $query->distinct()->count($fields);
 
         $offset = $page > 1 ? ($page - 1) * $perpage : 0;

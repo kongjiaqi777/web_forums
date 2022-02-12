@@ -9,6 +9,8 @@ use App\Models\Post\PostModel;
 use App\Models\Post\ReplyModel;
 use Carbon\Carbon;
 use DB;
+use App\Libs\MessageLib;
+use Log;
 
 class PraiseRepository extends BaseRepository
 {
@@ -43,25 +45,46 @@ class PraiseRepository extends BaseRepository
         }
 
         return DB::transaction(function () use ($params, $operationInfo, $message) {
-            $postId = $params ['post_id'] ?? 0;
-            $replyId = $params ['reply_id'] ?? 0;
-            $praiseType = $params['praise_type'] ?? 0;
+            try {
+                $postId = $params ['post_id'] ?? 0;
+                $replyId = $params ['reply_id'] ?? 0;
+                $praiseType = $params['praise_type'] ?? 0;
 
-            $res = $this->commonCreate(
-                $this->praiseModel,
-                $params,
-                null,
-                $operationInfo,
-                $message,
-                false
-            );
+                $res = $this->commonCreateNoLog(
+                    $this->praiseModel,
+                    $params
+                );
 
-            if ($praiseType == config('display.praise_type.post_type.code')) {
-                $this->postModel->where('id', $postId)->increment('praise_count');
-            } else {
-                $this->replyModel->where('id', $replyId)->increment('praise_count');
+                if ($praiseType == config('display.praise_type.post_type.code')) {
+                    $this->postModel->where('id', $postId)->increment('praise_count');
+                    // 发消息
+                    $postInfo = $this->postModel->getById($postId);
+                    MessageLib::sendMessage(
+                        config('display.msg_type.post_praise.code'),
+                        [$postInfo ['creater_id']],
+                        [
+                            'post_id' => $postId,
+                            'user_id' => $operationInfo['operator_id'] ?? 0
+                        ]
+                    );
+                } else {
+                    // 发消息
+                    $this->replyModel->where('id', $replyId)->increment('praise_count');
+                    $replyInfo = $this->replyModel->getById($replyId);
+                    MessageLib::sendMessage(
+                        config('display.msg_type.reply_praise.code'),
+                        [$replyInfo ['user_id']],
+                        [
+                            'reply_id' => $replyId,
+                            'user_id' => $operationInfo['operator_id'] ?? 0
+                        ]
+                    );
+                }
+                return $res;
+            } catch (\Exception $e) {
+                Log::error(sprintf($message . '失败[Params][%s][Code][%s][Message][%s]',json_encode($params), $e->getCode(), $e->getMessage()));
+                throw New NoStackException('点赞失败');
             }
-            return $res;
         });
     }
 

@@ -61,7 +61,7 @@ class MessageController extends Controller
      */ 
     public function myMessageList(Request $request)
     {
-        $params = $request->all();
+        $params = $request->only(['page', 'perpage']);
         $operationInfo = $this->getOperationInfo($request);
         $params ['user_id'] = $operationInfo['operator_id'];
         $res = $this->messageServices->myMessageList($params);
@@ -112,7 +112,7 @@ class MessageController extends Controller
         ], [
             'message_id.*' => '消息ID必传'
         ]);
-        $params = $request->all();
+        $params = $request->only(['message_id']);
         $res = $this->messageServices->detail($params);
         return $this->buildSucceed($res);
     }
@@ -133,7 +133,7 @@ class MessageController extends Controller
         ], [
             'message_id.*' => '消息ID必传'
         ]);
-        $params = $request->all();
+        $params = $request->only(['message_id']);
         $operationInfo = $this->getOperationInfo($request);
         $res = $this->messageServices->read($params, $operationInfo);
         return $this->buildSucceed($res);

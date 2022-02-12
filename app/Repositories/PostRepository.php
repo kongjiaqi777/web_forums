@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Exceptions\NoStackException;
+use App\Libs\MessageLib;
 use App\Repositories\BaseRepository;
 use App\Models\Post\PostModel;
 use App\Models\Post\PostOpLogModel;
@@ -225,7 +226,7 @@ class PostRepository extends BaseRepository
     }
 
     /**
-     * 设置置顶
+     * 广场主设置置顶
      * @param [type] $postId
      * @param [type] $operationInfo
      * @param [type] $topType
@@ -235,8 +236,7 @@ class PostRepository extends BaseRepository
     {
         $postInfo = $this->postModel->getById($postId);
         $squareId = $postInfo['square_id'] ?? 0;
-
-        if (!$squareId) {
+        if (!$squareId ) {
             throw New NoStackException('不符合置顶规则');
         }
 
@@ -252,14 +252,26 @@ class PostRepository extends BaseRepository
 
         if ($maxTopRule < 3) {
             // 当前广场置顶数目小于3
-            return $this->updatePost(
-                [
-                    'top_rule' => $maxTopRule + 1,
-                    'post_id' => $postId
-                ],
-                $operationInfo,
-                '广场主设置置顶'
-            );
+            return DB::transaction(function () use ($maxTopRule, $postId, $postInfo, $squareId, $operationInfo) {
+                // 发消息
+                MessageLib::sendMessage(
+                    config('display.msg_type.owner_top.code'),
+                    [$postInfo['creater_id']],
+                    [
+                        'post_id' => $postId,
+                        'square_id' => $squareId
+                    ]
+                );
+                return $this->updatePost(
+                    [
+                        'top_rule' => $maxTopRule + 1,
+                        'post_id' => $postId
+                    ],
+                    $operationInfo,
+                    '广场主设置置顶'
+                );
+            });
+
         } else if ($maxTopRule == 3) {
             $updateList = $this->postModel
             ->where('top_rule', '<=', 3)
@@ -284,27 +296,47 @@ class PostRepository extends BaseRepository
                 $news[$id] = ['top_rule' => $topRule - 1];
                 $originals [$id] = ['top_rule' => $topRule];  
             }
-            return DB::transaction(function () use ($squareId, $postId, $news, $originals, $operationInfo) {
-                $this->postModel
-                    ->where('top_rule', '<=', 3)
-                    ->where('top_rule', '>', 0)
-                    ->where([
-                        'is_del' => 0,
-                        'square_id' => $squareId
-                    ])
-                    ->decrement('top_rule');
-                $this->postOpLogModel->saveUpdateOpLogDatas($news, $originals, $operationInfo, '广场主设置置顶');
-                // oplog
-                return $this->updatePost(['post_id' => $postId, 'top_rule' => 3], $operationInfo, '广场主设置置顶');
+            return DB::transaction(function () use ($squareId, $postId, $news, $originals, $operationInfo, $postInfo) {
+                try {
+                    $this->postModel
+                        ->where('top_rule', '<=', 3)
+                        ->where('top_rule', '>', 0)
+                        ->where([
+                            'is_del' => 0,
+                            'square_id' => $squareId
+                        ])
+                        ->decrement('top_rule');
+                    // oplog
+                    $this->postOpLogModel->saveUpdateOpLogDatas($news, $originals, $operationInfo, '广场主设置置顶');
+                    // 发消息
+                    MessageLib::sendMessage(
+                        config('display.msg_type.owner_top.code'),
+                        [$postInfo['creater_id']],
+                        [
+                            'post_id' => $postId,
+                            'square_id' => $squareId
+                        ]
+                    );
+
+                    return $this->updatePost(['post_id' => $postId, 'top_rule' => 3], $operationInfo, '广场主设置置顶');
+                } catch (\Exception $e) {
+                    throw New NoStackException('置顶失败');
+                }
             });
         }
     }
 
+    /**
+     * 管理员设置置顶
+     * @param [type] $params
+     * @param [type] $operationInfo
+     * @return void
+     */
     public function adminSetTop($params, $operationInfo)
     {
         $homePageTop = $params['homepage_top'] ?? 0;
         $postId = $params ['post_id'] ?? 0;
-
+        $postInfo = $this->postModel->getById($postId);
         if ($homePageTop) {
             // 首页置顶=5
             $topRule = 5;
@@ -312,6 +344,7 @@ class PostRepository extends BaseRepository
                 ->where('top_rule', $topRule)
                 ->where('is_del', 0)
                 ->first();
+            $msgCode =  config('display.msg_type.homepage_top.code');
         } else {
             // 广场置顶=4
             $topRule = 4;
@@ -325,13 +358,23 @@ class PostRepository extends BaseRepository
                 ->where('is_del', 0)
                 ->where('square_id', $squareId)
                 ->first();
-
+            $msgCode =  config('display.msg_type.square_top.code');
         }
 
-        return DB::transaction(function () use ($postId, $topRule, $topRuleCheck, $operationInfo) {
+        return DB::transaction(function () use ($postId, $topRule, $topRuleCheck, $operationInfo, $msgCode, $postInfo) {
             if ($topRuleCheck) {
                 $this->updatePost(['post_id' => $topRuleCheck['id'], 'top_rule' => 0], $operationInfo, '管理员设置置顶');
             }
+
+            // 发消息
+            MessageLib::sendMessage(
+                $msgCode,
+                [$postInfo['creater_id']],
+                [
+                    'post_id' => $postId,
+                    'square_id' => $postInfo['square_id']
+                ]
+            );
             return $this->updatePost(['post_id' => $postId, 'top_rule' => $topRule], $operationInfo, '管理员设置置顶');
         });
     }
@@ -461,13 +504,9 @@ class PostRepository extends BaseRepository
                 false
             );
         } else {
-            return $this->commonCreate(
+            return $this->commonCreateNoLog(
                 $this->browseRecordModel,
-                array_merge($insertDate, $time),
-                null,
-                $operationInfo,
-                '浏览广播',
-                false
+                array_merge($insertDate, $time)
             );
         }
         
