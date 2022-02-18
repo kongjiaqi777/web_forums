@@ -104,25 +104,25 @@ class SquareController extends Controller
      * @apiSuccessExample Success-Response
      *
      *  {
-    "code": 0,
-    "msg": "success",
-    "info": {
-        "id": 1004,
-        "name": "股票广场",
-        "creater_id": 118,
-        "avatar": "hhhhh",
-        "label": "这是一个分享交流股票心得的广场。想一夜暴富吗？",
-        "verify_status": 20,
-        "verify_reason": null,
-        "follow_count": 5,
-        "created_at": "2022-01-20T07:59:23.000000Z",
-        "updated_at": "2022-01-26T14:58:25.000000Z",
-        "deleted_at": null,
-        "is_del": 0,
-        "post_count": 0,
-        "is_follow": 1
-    }
-}
+            "code": 0,
+            "msg": "success",
+            "info": {
+                "id": 1004,
+                "name": "股票广场",
+                "creater_id": 118,
+                "avatar": "hhhhh",
+                "label": "这是一个分享交流股票心得的广场。想一夜暴富吗？",
+                "verify_status": 20,
+                "verify_reason": null,
+                "follow_count": 5,
+                "created_at": "2022-01-20T07:59:23.000000Z",
+                "updated_at": "2022-01-26T14:58:25.000000Z",
+                "deleted_at": null,
+                "is_del": 0,
+                "post_count": 0,
+                "is_follow": 1
+            }
+        }
      */
     public function detail(Request $request)
     {
@@ -160,49 +160,49 @@ class SquareController extends Controller
      * @apiSuccessExample Success-Response
      *
      *  {
-    "code": 0,
-    "msg": "success",
-    "info": {
-        "list": [
-            {
-                "id": 1004,
-                "name": "股票广场",
-                "creater_id": 118,
-                "avatar": "hhhhh",
-                "label": "aaa",
-                "verify_status": 20,
-                "verify_reason": null,
-                "follow_count": 5,
-                "created_at": "2022-01-20T07:59:23.000000Z",
-                "updated_at": "2022-01-20T13:58:08.000000Z",
-                "deleted_at": null,
-                "is_del": 0,
-                "square_id": 1004
-            },
-            {
-                "id": 1000,
-                "name": "广场3",
-                "creater_id": 1001,
-                "avatar": "hhhhh",
-                "label": "aaa",
-                "verify_status": 20,
-                "verify_reason": null,
-                "follow_count": 0,
-                "created_at": "2022-01-19T01:43:58.000000Z",
-                "updated_at": "2022-01-26T14:42:25.000000Z",
-                "deleted_at": null,
-                "is_del": 0,
-                "square_id": 1000
+            "code": 0,
+            "msg": "success",
+            "info": {
+                "list": [
+                    {
+                        "id": 1004,
+                        "name": "股票广场",
+                        "creater_id": 118,
+                        "avatar": "hhhhh",
+                        "label": "aaa",
+                        "verify_status": 20,
+                        "verify_reason": null,
+                        "follow_count": 5,
+                        "created_at": "2022-01-20T07:59:23.000000Z",
+                        "updated_at": "2022-01-20T13:58:08.000000Z",
+                        "deleted_at": null,
+                        "is_del": 0,
+                        "square_id": 1004
+                    },
+                    {
+                        "id": 1000,
+                        "name": "广场3",
+                        "creater_id": 1001,
+                        "avatar": "hhhhh",
+                        "label": "aaa",
+                        "verify_status": 20,
+                        "verify_reason": null,
+                        "follow_count": 0,
+                        "created_at": "2022-01-19T01:43:58.000000Z",
+                        "updated_at": "2022-01-26T14:42:25.000000Z",
+                        "deleted_at": null,
+                        "is_del": 0,
+                        "square_id": 1000
+                    }
+                ],
+                "pagination": {
+                    "page": 1,
+                    "perpage": 20,
+                    "total_page": 1,
+                    "total_count": 2
+                }
             }
-        ],
-        "pagination": {
-            "page": 1,
-            "perpage": 20,
-            "total_page": 1,
-            "total_count": 2
         }
-    }
-}
      *
      */
     public function myFollowList(Request $request)
@@ -216,7 +216,6 @@ class SquareController extends Controller
         return $this->buildSucceed($res);
     }
 
-  
     /**
      * @api {post} /v1/square/create 创建广场
      * @apiVersion 1.0.0
@@ -247,13 +246,15 @@ class SquareController extends Controller
     public function create(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required',
+            'name' => 'required|unique:App\Models\Square\SquareModel,name|max:20',
             'avatar' => 'required',
-            'label' => 'required',
+            'label' => 'required|string|max:200',
         ], [
-            'name.require' => '请输入广场名称',
-            'name.avatar' => '请输入广场头像',
-            'name.label' => '请输入广场标签'
+            'name.required' => '请输入广场名称',
+            'name.unique' => '广场名称重复',
+            'name.max' => '最长20个汉字',
+            'avatar.*' => '请输入广场头像',
+            'label.*' => '请输入广场标签'
         ]);
         
         $params = $request->only(['name', 'avatar', 'label']);
@@ -272,7 +273,6 @@ class SquareController extends Controller
      * @apiPermission 需要登录
      *
      * @apiParam {Numeric} square_id    广场ID
-     * @apiParam {String}  name        广场名称
      * @apiParam {String}  avatar      广场头像
      * @apiParam {String}  label       广场简介
      * 
@@ -312,20 +312,17 @@ class SquareController extends Controller
     {
         $this->validate($request, [
             'square_id' => 'required|numeric',
-            'name' => 'required',
             'avatar' => 'required',
             'label' => 'required',
         ], [
             'square_id.required' => '请输入广场ID',
             'square_id.numeric' => '广场ID的格式不正确',
-            'name.require' => '请输入广场名称',
-            'name.avatar' => '请输入广场头像',
-            'name.label' => '请输入广场标签'
+            'avatar.required' => '请输入广场头像',
+            'label.required' => '请输入广场标签'
         ]);
 
         $params = $request->only([
             'square_id',
-            'name',
             'label',
             'avatar'
         ]);
@@ -444,8 +441,7 @@ class SquareController extends Controller
     {
         $params = $request->only(['square_id']);
         $operationInfo = $this->getOperationInfo($request);
-        $params['verify_status'] = config('display.square_verify_status.apply_relieve.code');
-        $res = $this->squareServices->updateSquare($params, $operationInfo);
+        $res = $this->squareServices->applyRelieve($params, $operationInfo);
         return $this->buildSucceed($res);
     }
 }

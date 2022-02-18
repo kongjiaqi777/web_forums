@@ -126,6 +126,11 @@ class AdminPostController extends Controller
      */
     public function detail(Request $request)
     {
+        $this->validate($request, [
+            'post_id' => 'required'
+        ], [
+            'post_id.*' => '需要广播ID'
+        ]);
         $params = $request->all();
         $res = $this->postServices->detail($params);
         return $this->buildSucceed($res);
@@ -149,7 +154,12 @@ class AdminPostController extends Controller
      */
     public function setTop(Request $request)
     {
-        $params = $request->all();
+        $this->validate($request, [
+            'post_id' => 'required'
+        ], [
+            'post_id.*' => '需要广播ID'
+        ]);
+        $params = $request->only(['post_id', 'homepage_top']);
         $operationInfo = $this->getOperationInfo($request);
         $res = $this->postServices->setTop($params, $operationInfo);
         return $this->buildSucceed($res);
@@ -174,6 +184,11 @@ class AdminPostController extends Controller
      */
     public function deletePost(Request $request)
     {
+        $this->validate($request, [
+            'post_id' => 'required'
+        ], [
+            'post_id.*' => '需要广播ID'
+        ]);
         $params = $request->all();
         $operationInfo = $this->getOperationInfo($request);
         $res = $this->postServices->delete($params, $operationInfo);
@@ -183,13 +198,13 @@ class AdminPostController extends Controller
     /**
      * @api {post} /v1/admin/post/delete_reply 管理端删除评论
      * @apiVersion 1.0.0
-     * @apiName 管理端删除广播
+     * @apiName 管理端删除评论
      * @apiGroup AdminPost
      * @apiPermission 必须登录
      *
-     * @apiParam {Numeric} post_id 广播ID
+     * @apiParam {Numeric} reply_id 回复ID
      *
-     * @apiParam {Numeric} post_id 被删除的广播ID
+     * @apiParam {Numeric} reply_id 被删除的回复ID
      * @apiSuccessExample Success-Response
      * {
      *      "code": 0,
@@ -199,6 +214,11 @@ class AdminPostController extends Controller
      */
     public function deleteReply(Request $request)
     {
+        $this->validate($request, [
+            'reply_id' => 'required'
+        ], [
+            'reply_id.*' => '需要回复ID'
+        ]);
         $params = $request->all();
         $operationInfo = $this->getOperationInfo($request);
         $res = $this->postServices->deleteReply($params, $operationInfo);
@@ -262,7 +282,20 @@ class AdminPostController extends Controller
      */
     public function suggest(Request $request)
     {
-        $params = $request->all();
+        $this->validate($request, [
+            'name' => 'required|max:38|string',
+        ], [
+            'name.required' => '请输入查询关键字',
+            'name.max' => '最多支持输入38个字符',
+            'name.string' => '仅支持字符串查询'
+        ]);
+
+        $params = $request->only([
+            'page',
+            'perpage',
+            'name'
+        ]);
+
         $res = $this->postServices->suggest($params);
         return $this->buildSucceed($res);
     }

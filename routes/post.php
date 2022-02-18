@@ -31,13 +31,16 @@ $router->group(['prefix' => 'v1/post', 'middleware' => 'api'], function () use (
     $router->get('detail', ['uses' => 'PostController@detail']);
 
     // 添加浏览记录
-    $router->post('add_record', ['uses' => 'PostController@addBrowseRecord']);
+    $router->post('add_browse', ['uses' => 'PostController@addBrowseRecord']);
 
     // 浏览历史
     $router->get('browse_list', ['uses' => 'PostController@browseList']);
 
     // 查看广场内置顶的广播列表
     $router->get('top_list', ['uses' => 'PostController@getTopList']);
+
+    // 我的广播列表
+    $router->get('my_list', ['uses' => 'PostController@getMyPostList']);
 });
 
 
@@ -56,5 +59,8 @@ $router->group(['prefix' => 'v1/reply', 'middleware' => 'api'], function () use 
 
     // 查看某一楼的全部回复
     $router->get('sub_list', ['uses' => 'ReplyController@getSubList']);
+
+    // 查看我的回复列表
+    $router->get('my_list', ['uses' => 'ReplyController@getMyReplyList']);
 });
 

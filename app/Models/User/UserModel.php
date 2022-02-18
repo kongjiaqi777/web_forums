@@ -4,6 +4,9 @@ namespace App\Models\User;
 
 use App\Exceptions\NoStackException;
 use App\Models\BaseModel;
+use Carbon\Carbon;
+use App\Libs\UtilLib;
+use Log;
 
 class UserModel extends BaseModel
 {
@@ -66,9 +69,9 @@ class UserModel extends BaseModel
         'is_auth',
         'email',
         'follows_count',
-        'posts_count',
         'fans_count',
         'is_del',
+        'forbidden_end',
     ];
 
     public $findable = [
@@ -81,12 +84,12 @@ class UserModel extends BaseModel
         'source_id',
         'email',
         'follows_count',
-        'posts_count',
         'fans_count',
         'created_at',
         'updated_at',
         'deleted_at',
         'is_del',
+        'forbidden_end_lte',
     ];
 
     /**
@@ -133,5 +136,38 @@ class UserModel extends BaseModel
             throw New NoStackException('不支持修改的字段');
         }
         return $this->where('id', $userId)->where($fieldName, '>', 0)->decrement($fieldName);
+    }
+
+    /**
+     * 根据source网站用户信息更新或创建用户
+     * @param [type] $userSourceInfo
+     * @return void
+     */
+    public function setUserBySourceInfo($userSourceInfo)
+    {
+        $sourceId = $userSourceInfo['user_id'] ?? 0;
+        $userInfo = $this->getFirstByCondition(['source_id' => $sourceId]);
+        
+        $insertData = [
+            'email' => $userSourceInfo['email'] ?? '',
+            'avatar' => $userSourceInfo['icon'] ?? '',
+            'nickname' => $userSourceInfo['nickname'] ?? '',
+            'source_id' => $sourceId,
+            'is_auth' => $userSourceInfo['is_auth'] ?? 0
+        ];
+
+        if (empty($userInfo)) {
+            $insertData ['created_at'] = CarBon::now()->toDateTimeString();
+            $userId = $this->insertGetId($insertData);
+            return $this->getById($userId);
+        } else {
+            $diffData = UtilLib::getDiffData($userInfo, $insertData);
+            $userId = $userInfo['id'] ?? 0;
+            if ($diffData) {
+                $this->updateByCondition($diffData, ['id' => $userId]);
+                return $this->getById($userId);
+            }
+            return $this->getById($userId);
+        }
     }
 }

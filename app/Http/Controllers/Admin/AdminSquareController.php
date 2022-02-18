@@ -285,11 +285,11 @@ class AdminSquareController extends Controller
      * @apiParam {String}  label       广场简介
      * 
      * @apiParamExample Request Example
-     * {
-        "square_id": 1007,
-        "name": "闲人说车",
-        "label": "车辆爱好者，互相交流"
-    }
+        * {
+            "square_id": 1007,
+            "name": "闲人说车",
+            "label": "车辆爱好者，互相交流"
+        }
      * @apiSuccess {Numeric} id          广场ID
      * @apiSuccess {Numeric} creater_id  创建人ID
      * @apiSuccess {String}  name        广场名称

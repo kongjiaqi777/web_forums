@@ -42,9 +42,9 @@ class PostServices extends BaseServices
      * @param [type] $params
      * @return void
      */
-    public function detailPost($params)
+    public function detailPost($params, $joinPraiseFlag, $operatorId)
     {
-        return $this->postRepos->detailPost($params);
+        return $this->postRepos->detailPost($params, $joinPraiseFlag, $operatorId);
     }
 
     /**
@@ -52,9 +52,9 @@ class PostServices extends BaseServices
      * @param [type] $params
      * @return void
      */
-    public function suggest($params)
+    public function suggest($params, $isShowPraise, $operatorId)
     {
-        return $this->postRepos->suggest($params);
+        return $this->postRepos->suggest($params, $isShowPraise, $operatorId);
     }
 
     /**
@@ -75,7 +75,10 @@ class PostServices extends BaseServices
      */
     public function getAll($params)
     {
-        return $this->postRepos->getAll($params);
+        return $this->postRepos->getAll($params, [
+            'top_rule' => 'desc',
+            'created_at' => 'desc'
+        ]);
     }
 
     /**
@@ -97,7 +100,8 @@ class PostServices extends BaseServices
      */
     public function delete($params, $operationInfo)
     {
-        return $this->postRepos->delete($params, $operationInfo);
+        $msgType = config('display.msg_type.owner_delete_post.code');
+        return $this->postRepos->delete($params, $operationInfo, $msgType);
     }
 
     /**

@@ -13,6 +13,7 @@ class ReplyController extends Controller
     {
         $this->replyServices = $replyServices;
     }
+
     /**
      * @api {post} /v1/reply/list 评论列表
      * @apiVersion 1.0.0
@@ -40,80 +41,80 @@ class ReplyController extends Controller
      * @apiSuccess {Array} sub_reply_pagination 本条评论下的回复列表分页数据，默认展示五条，当sub_reply_pagination.total_count>5的时候，需要额外请求展示更多的评论回复
      * @apiSuccessExample Success-Response
      * {
-    "code": 0,
-    "msg": "success",
-    "info": {
-        "list": [
-            {
-                "id": 1,
-                "reply_type": 10,
-                "parent_id": 0,
-                "parent_user_id": 0,
-                "reply_count": 1,
-                "praise_count": 0,
-                "post_id": 10006,
-                "user_id": 113,
-                "content": "说得好",
-                "created_at": "2022-02-01T14:28:28.000000Z",
-                "updated_at": "2022-02-02T15:59:02.000000Z",
-                "is_del": 0,
-                "deleted_at": null,
-                "first_reply_id": 0,
-                "user_nickname": "立秋",
-                "sub_reply_list": [
+            "code": 0,
+            "msg": "success",
+            "info": {
+                "list": [
                     {
-                        "id": 4,
-                        "reply_type": 20,
-                        "parent_id": 3,
-                        "parent_user_id": 115,
-                        "reply_count": 0,
+                        "id": 1,
+                        "reply_type": 10,
+                        "parent_id": 0,
+                        "parent_user_id": 0,
+                        "reply_count": 1,
                         "praise_count": 0,
                         "post_id": 10006,
-                        "user_id": 114,
-                        "content": "并不赞同",
-                        "created_at": "2022-02-02T15:59:02.000000Z",
+                        "user_id": 113,
+                        "content": "说得好",
+                        "created_at": "2022-02-01T14:28:28.000000Z",
                         "updated_at": "2022-02-02T15:59:02.000000Z",
                         "is_del": 0,
                         "deleted_at": null,
-                        "first_reply_id": 1,
-                        "user_nickname": "处暑",
-                        "parent_user_name": "白露"
-                    },
-                    {
-                        "id": 3,
-                        "reply_type": 20,
-                        "parent_id": 1,
-                        "parent_user_id": 113,
-                        "reply_count": 0,
-                        "praise_count": 0,
-                        "post_id": 10006,
-                        "user_id": 115,
-                        "content": "怎么讲",
-                        "created_at": "2022-02-02T15:56:39.000000Z",
-                        "updated_at": "2022-02-02T15:57:39.000000Z",
-                        "is_del": 0,
-                        "deleted_at": null,
-                        "first_reply_id": 1,
-                        "user_nickname": "白露",
-                        "parent_user_name": "立秋"
+                        "first_reply_id": 0,
+                        "user_nickname": "立秋",
+                        "sub_reply_list": [
+                            {
+                                "id": 4,
+                                "reply_type": 20,
+                                "parent_id": 3,
+                                "parent_user_id": 115,
+                                "reply_count": 0,
+                                "praise_count": 0,
+                                "post_id": 10006,
+                                "user_id": 114,
+                                "content": "并不赞同",
+                                "created_at": "2022-02-02T15:59:02.000000Z",
+                                "updated_at": "2022-02-02T15:59:02.000000Z",
+                                "is_del": 0,
+                                "deleted_at": null,
+                                "first_reply_id": 1,
+                                "user_nickname": "处暑",
+                                "parent_user_name": "白露"
+                            },
+                            {
+                                "id": 3,
+                                "reply_type": 20,
+                                "parent_id": 1,
+                                "parent_user_id": 113,
+                                "reply_count": 0,
+                                "praise_count": 0,
+                                "post_id": 10006,
+                                "user_id": 115,
+                                "content": "怎么讲",
+                                "created_at": "2022-02-02T15:56:39.000000Z",
+                                "updated_at": "2022-02-02T15:57:39.000000Z",
+                                "is_del": 0,
+                                "deleted_at": null,
+                                "first_reply_id": 1,
+                                "user_nickname": "白露",
+                                "parent_user_name": "立秋"
+                            }
+                        ],
+                        "sub_reply_pagination": {
+                            "page": 1,
+                            "perpage": 5,
+                            "total_page": 1,
+                            "total_count": 2
+                        }
                     }
                 ],
-                "sub_reply_pagination": {
+                "pagination": {
                     "page": 1,
-                    "perpage": 5,
+                    "perpage": 50,
                     "total_page": 1,
-                    "total_count": 2
+                    "total_count": 1
                 }
             }
-        ],
-        "pagination": {
-            "page": 1,
-            "perpage": 50,
-            "total_page": 1,
-            "total_count": 1
         }
-    }
-}
      */
     public function list(Request $request)
     {
@@ -205,10 +206,10 @@ class ReplyController extends Controller
      * @apiParam {Numeric} reply_id 评论ID
      * @apiSuccessExample Success-Response
      * {
-    "code": 0,
-    "msg": "success",
-    "info": 1
-}
+        "code": 0,
+        "msg": "success",
+        "info": 1
+    }
      *
      */
     public function delete(Request $request)
@@ -246,127 +247,127 @@ class ReplyController extends Controller
      * @apiSuccess {Numeric} praise_count 本条评论点赞数目
      * @apiSuccessExample Success-Response
      * {
-    "code": 0,
-    "msg": "success",
-    "info": {
-        "list": [
-            {
-                "id": 19,
-                "reply_type": 20,
-                "parent_id": 18,
-                "parent_user_id": 100,
-                "reply_count": 0,
-                "praise_count": 0,
-                "post_id": 10007,
-                "user_id": 105,
-                "content": "确实很好",
-                "created_at": "2022-02-03T10:32:02.000000Z",
-                "updated_at": "2022-02-03T10:32:02.000000Z",
-                "is_del": 0,
-                "deleted_at": null,
-                "first_reply_id": 18,
-                "user_nickname": "清明",
-                "parent_user_name": "立春"
-            },
-            {
-                "id": 20,
-                "reply_type": 30,
-                "parent_id": 19,
-                "parent_user_id": 105,
-                "reply_count": 0,
-                "praise_count": 0,
-                "post_id": 10007,
-                "user_id": 101,
-                "content": "我也觉得",
-                "created_at": "2022-02-03T11:42:32.000000Z",
-                "updated_at": "2022-02-03T11:42:32.000000Z",
-                "is_del": 0,
-                "deleted_at": null,
-                "first_reply_id": 18,
-                "user_nickname": "雨水",
-                "parent_user_name": "清明"
-            },
-            {
-                "id": 21,
-                "reply_type": 20,
-                "parent_id": 18,
-                "parent_user_id": 100,
-                "reply_count": 0,
-                "praise_count": 0,
-                "post_id": 10007,
-                "user_id": 120,
-                "content": "再多些就好了",
-                "created_at": "2022-02-03T11:43:44.000000Z",
-                "updated_at": "2022-02-03T11:43:44.000000Z",
-                "is_del": 0,
-                "deleted_at": null,
-                "first_reply_id": 18,
-                "user_nickname": "小雪",
-                "parent_user_name": "立春"
-            },
-            {
-                "id": 22,
-                "reply_type": 20,
-                "parent_id": 18,
-                "parent_user_id": 100,
-                "reply_count": 0,
-                "praise_count": 0,
-                "post_id": 10007,
-                "user_id": 100,
-                "content": "我也这么想的",
-                "created_at": "2022-02-03T11:43:54.000000Z",
-                "updated_at": "2022-02-03T11:43:54.000000Z",
-                "is_del": 0,
-                "deleted_at": null,
-                "first_reply_id": 18,
-                "user_nickname": "立春",
-                "parent_user_name": "立春"
-            },
-            {
-                "id": 23,
-                "reply_type": 30,
-                "parent_id": 21,
-                "parent_user_id": 120,
-                "reply_count": 0,
-                "praise_count": 0,
-                "post_id": 10007,
-                "user_id": 109,
-                "content": "这是什么",
-                "created_at": "2022-02-03T11:44:45.000000Z",
-                "updated_at": "2022-02-03T11:44:45.000000Z",
-                "is_del": 0,
-                "deleted_at": null,
-                "first_reply_id": 18,
-                "user_nickname": "芒种",
-                "parent_user_name": "小雪"
-            },
-            {
-                "id": 24,
-                "reply_type": 30,
-                "parent_id": 23,
-                "parent_user_id": 109,
-                "reply_count": 0,
-                "praise_count": 0,
-                "post_id": 10007,
-                "user_id": 108,
-                "content": "杠精走开",
-                "created_at": "2022-02-03T11:45:00.000000Z",
-                "updated_at": "2022-02-03T11:45:00.000000Z",
-                "is_del": 0,
-                "deleted_at": null,
-                "first_reply_id": 18,
-                "user_nickname": "小满",
-                "parent_user_name": "芒种"
+            "code": 0,
+            "msg": "success",
+            "info": {
+                "list": [
+                    {
+                        "id": 19,
+                        "reply_type": 20,
+                        "parent_id": 18,
+                        "parent_user_id": 100,
+                        "reply_count": 0,
+                        "praise_count": 0,
+                        "post_id": 10007,
+                        "user_id": 105,
+                        "content": "确实很好",
+                        "created_at": "2022-02-03T10:32:02.000000Z",
+                        "updated_at": "2022-02-03T10:32:02.000000Z",
+                        "is_del": 0,
+                        "deleted_at": null,
+                        "first_reply_id": 18,
+                        "user_nickname": "清明",
+                        "parent_user_name": "立春"
+                    },
+                    {
+                        "id": 20,
+                        "reply_type": 30,
+                        "parent_id": 19,
+                        "parent_user_id": 105,
+                        "reply_count": 0,
+                        "praise_count": 0,
+                        "post_id": 10007,
+                        "user_id": 101,
+                        "content": "我也觉得",
+                        "created_at": "2022-02-03T11:42:32.000000Z",
+                        "updated_at": "2022-02-03T11:42:32.000000Z",
+                        "is_del": 0,
+                        "deleted_at": null,
+                        "first_reply_id": 18,
+                        "user_nickname": "雨水",
+                        "parent_user_name": "清明"
+                    },
+                    {
+                        "id": 21,
+                        "reply_type": 20,
+                        "parent_id": 18,
+                        "parent_user_id": 100,
+                        "reply_count": 0,
+                        "praise_count": 0,
+                        "post_id": 10007,
+                        "user_id": 120,
+                        "content": "再多些就好了",
+                        "created_at": "2022-02-03T11:43:44.000000Z",
+                        "updated_at": "2022-02-03T11:43:44.000000Z",
+                        "is_del": 0,
+                        "deleted_at": null,
+                        "first_reply_id": 18,
+                        "user_nickname": "小雪",
+                        "parent_user_name": "立春"
+                    },
+                    {
+                        "id": 22,
+                        "reply_type": 20,
+                        "parent_id": 18,
+                        "parent_user_id": 100,
+                        "reply_count": 0,
+                        "praise_count": 0,
+                        "post_id": 10007,
+                        "user_id": 100,
+                        "content": "我也这么想的",
+                        "created_at": "2022-02-03T11:43:54.000000Z",
+                        "updated_at": "2022-02-03T11:43:54.000000Z",
+                        "is_del": 0,
+                        "deleted_at": null,
+                        "first_reply_id": 18,
+                        "user_nickname": "立春",
+                        "parent_user_name": "立春"
+                    },
+                    {
+                        "id": 23,
+                        "reply_type": 30,
+                        "parent_id": 21,
+                        "parent_user_id": 120,
+                        "reply_count": 0,
+                        "praise_count": 0,
+                        "post_id": 10007,
+                        "user_id": 109,
+                        "content": "这是什么",
+                        "created_at": "2022-02-03T11:44:45.000000Z",
+                        "updated_at": "2022-02-03T11:44:45.000000Z",
+                        "is_del": 0,
+                        "deleted_at": null,
+                        "first_reply_id": 18,
+                        "user_nickname": "芒种",
+                        "parent_user_name": "小雪"
+                    },
+                    {
+                        "id": 24,
+                        "reply_type": 30,
+                        "parent_id": 23,
+                        "parent_user_id": 109,
+                        "reply_count": 0,
+                        "praise_count": 0,
+                        "post_id": 10007,
+                        "user_id": 108,
+                        "content": "杠精走开",
+                        "created_at": "2022-02-03T11:45:00.000000Z",
+                        "updated_at": "2022-02-03T11:45:00.000000Z",
+                        "is_del": 0,
+                        "deleted_at": null,
+                        "first_reply_id": 18,
+                        "user_nickname": "小满",
+                        "parent_user_name": "芒种"
+                    }
+                ],
+                "pagination": {
+                    "page": 1,
+                    "perpage": 50,
+                    "total_page": 1,
+                    "total_count": 6
+                }
             }
-        ],
-        "pagination": {
-            "page": 1,
-            "perpage": 50,
-            "total_page": 1,
-            "total_count": 6
         }
-    }
-}
      */
     public function getSubList(Request $request)
     {
@@ -377,6 +378,51 @@ class ReplyController extends Controller
         ]);
         $params = $request->all();
         $res = $this->replyServices->getSubList($params);
+        return $this->buildSucceed($res);
+    }
+
+    /**
+     * @api {get} /v1/reply/my_list 我的评论列表
+     * @apiVersion 1.0.0
+     * @apiName 我的评论列表
+     * @apiGroup PostReply
+     *
+     * @apiPermission 必须登录
+     *
+     * @apiSuccess {Numeric} id 评论ID
+     * @apiSuccess {String} content 评论内容
+     * @apiSuccess {DateTime} created_at 评论时间
+     * @apiSuccess {Numeric} post_id 广播ID
+     * @apiSuccess {Strinf} title 广播标题
+     * @apiSuccessExample Success-Response
+     * {
+            "code": 0,
+            "msg": "success",
+            "info": {
+                "list": [
+                    {
+                        "id": 35,
+                        "post_id": 10015,
+                        "content": "什么消息",
+                        "created_at": "2022-02-16T14:08:38.000000Z",
+                        "title": "近期股票行情"
+                    }
+                ],
+                "pagination": {
+                    "page": 1,
+                    "perpage": 20,
+                    "total_page": 1,
+                    "total_count": 1
+                }
+            }
+        }
+     */
+    public function getMyReplyList(Request $request)
+    {
+        $params = $request->only(['page', 'perpage']);
+        $operationInfo = $this->getOperationInfo($request);
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+        $res = $this->replyServices->getMyReplyList($params, $operatorId);
         return $this->buildSucceed($res);
     }
 }

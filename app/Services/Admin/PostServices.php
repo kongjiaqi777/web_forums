@@ -58,7 +58,8 @@ class PostServices extends BaseServices
      */
     public function delete($params, $operationInfo)
     {
-        return $this->postRepos->delete($params, $operationInfo);
+        $msgType = config('display.msg_type.admin_delete_post.code');
+        return $this->postRepos->delete($params, $operationInfo, $msgType);
     }
 
     /**

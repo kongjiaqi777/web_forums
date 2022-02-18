@@ -19,7 +19,7 @@ class MessageLib
     public static function sendMessage($msgType, $userIds, $replaceParams)
     {
         if (empty($msgType) || empty($userIds)) {
-            throw New NoStackException('参数错误');
+            return;
         }
 
         $templateModel = new MessageTemplateModel();
@@ -107,6 +107,9 @@ class MessageLib
         $squareId = $params['square_id'] ?? 0;
         $squareInfo = $squareModel->getById($squareId);
         $squareName = $squareInfo['name'] ?? '';
+        if (strlen($squareName) > 30) {
+            $squareName = substr($squareName, 0, 30);
+        }
         return str_replace('{{square_name}}', '《'.$squareName.'》', $msgBody);
     }
 

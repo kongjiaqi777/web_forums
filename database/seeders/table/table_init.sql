@@ -1,5 +1,6 @@
 -- ----------------------------
 -- Records of users
+-- `posts_count` INT(8) UNSIGNED DEFAULT 0 COMMENT '发广播数目',
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `users` (
 	`id` INT(11) UNSIGNED AUTO_INCREMENT COMMENT '用户ID',
@@ -11,9 +12,9 @@ CREATE TABLE IF NOT EXISTS `users` (
     `email` VARCHAR(256) NOT NULL COMMENT '邮箱账号',
     `label` VARCHAR(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '标签',
     `follows_count` INT(8) UNSIGNED DEFAULT 0 COMMENT '关注人数目',
-    `posts_count` INT(8) UNSIGNED DEFAULT 0 COMMENT '发广播数目',
     `fans_count` INT(8) UNSIGNED DEFAULT 0 COMMENT '粉丝数目',
 	`is_del` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '是否删除:未删除0/已删除1',
+    `forbidden_end` DATETIME COMMENT '禁言结束时间',
 	`created_at` DATETIME NOT NULL COMMENT '创建时间',
 	`updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     `deleted_at` DATETIME COMMENT '删除时间',
@@ -39,17 +40,6 @@ CREATE TABLE IF NOT EXISTS `user_op_logs` (
     PRIMARY KEY (`id`),
     KEY `user_idx` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_UNICODE_CI COMMENT '用户信息操作日志表';
-
--- ----------------------------
--- Records of user login log
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `user_login_logs` (
-    `id` INT(11) UNSIGNED AUTO_INCREMENT COMMENT 'ID',
-    `user_id` INT(11) NOT NULL COMMENT '用户ID',
-    `request_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '请求信息',
-    `created_at` datetime NOT NULL COMMENT '创建时间',
-    PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=UTF8 COLLATE=UTF8_UNICODE_CI COMMENT '用户登陆日志表';
 
 -- ----------------------------
 -- Records of user followers
@@ -323,6 +313,7 @@ CREATE TABLE IF NOT EXISTS `admin_users` (
 	`id` INT(11) UNSIGNED AUTO_INCREMENT COMMENT '用户ID',
 	`nickname` VARCHAR(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户昵称',
     `email` VARCHAR(256) NOT NULL COMMENT '邮箱账号',
+    `password` VARCHAR(256) NOT NULL COMMENT '密码',
 	`is_del` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '是否删除:未删除0/已删除1',
 	`created_at` DATETIME NOT NULL COMMENT '创建时间',
 	`updated_at` DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',

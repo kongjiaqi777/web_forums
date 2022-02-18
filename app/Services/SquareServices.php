@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\NoStackException;
 use App\Repositories\SquareRepository;
 
 class SquareServices extends BaseServices
@@ -33,6 +34,15 @@ class SquareServices extends BaseServices
      */
     public function updateSquare($params, $operationInfo)
     {
+        $squareId = $params['square_id'] ?? 0;
+        $squareInfo = $this->squareRepos->getById($squareId);
+
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+
+        if ($operatorId != $squareInfo['creater_id']) {
+            throw New NoStackException('只有广场主可以修改广场信息');
+        }
+
         return $this->squareRepos->updateSquare($params, $operationInfo);
     }
 
@@ -77,5 +87,26 @@ class SquareServices extends BaseServices
     public function myFollowList($params, $operatorId)
     {
         return $this->squareRepos->myFollowList($params, $operatorId);
+    }
+
+    /**
+     * 申请卸任广场主
+     * @param [type] $params
+     * @param [type] $operationInfo
+     * @return void
+     */
+    public function applyRelieve($params, $operationInfo)
+    {
+        $squareId = $params['square_id'] ?? 0;
+        $squareInfo = $this->squareRepos->getById($squareId);
+
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+
+        if ($operatorId != $squareInfo['creater_id']) {
+            throw New NoStackException('只有广场主可以申请卸任');
+        }
+
+        $params['verify_status'] = config('display.square_verify_status.apply_relieve.code');
+        return $this->squareRepos->updateSquare($params, $operationInfo);
     }
 }

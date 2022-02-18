@@ -134,7 +134,7 @@ class FollowRepository extends BaseRepository
                     config('display.msg_type.follow.code'),
                     [$followUserId],
                     [
-                        'user_id' => $followUserId
+                        'user_id' => $userId
                     ]
                 );
 

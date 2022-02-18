@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Services\BaseServices;
 use App\Repositories\UserRepository;
 use App\Repositories\FollowRepository;
+use App\Exceptions\NoStackException;
+
 
 class UserServices extends BaseServices
 {
@@ -90,5 +92,18 @@ class UserServices extends BaseServices
     public function cancelFollowUser($params, $operationInfo)
     {
         return $this->followRepos->cancelFollowUser($params, $operationInfo);
+    }
+
+    /**
+     * 登出
+     * @param [type] $token
+     * @return void
+     */
+    public function logout($token)
+    {
+        if (empty($token)) {
+            throw New NoStackException('token为空');
+        }
+        return $this->userRepos->deleteToken($token);
     }
 }

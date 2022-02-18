@@ -8,26 +8,31 @@ use App\Repositories\BaseRepository;
 use App\Models\Post\ReplyModel;
 use App\Models\Post\PostModel;
 use App\Models\User\UserModel;
+use App\Models\Square\SquareModel;
 use App\Libs\UtilLib;
 use Carbon\Carbon;
 use DB;
 use Exception;
 use Log;
+use App\Libs\MessageLib;
 
 class ReplyRepository extends BaseRepository
 {
     private $replyModel;
     private $postModel;
     private $userModel;
+    private $squareModel;
     
     public function __construct(
         ReplyModel $replyModel,
         PostModel $postModel,
-        UserModel $userModel
+        UserModel $userModel,
+        SquareModel $squareModel
     ) {
         $this->replyModel = $replyModel;
         $this->postModel = $postModel;
         $this->userModel = $userModel;
+        $this->squareModel = $squareModel;
     }
 
     /**
@@ -110,25 +115,48 @@ class ReplyRepository extends BaseRepository
      * 创建评论
      * @param [type] $params
      * @param [type] $operationInfo
-     * @param [type] $message
      * @param bool $isIncrementParent
+     * @param string $msgCode
      * @return void
      */
-    public function create($params, $operationInfo, $message, $isIncrementParent=false)
+    public function create($params, $operationInfo, $isIncrementParent=false, $msgCode=null, $messageUsers)
     {
         $params ['user_id'] = $operationInfo['operator_id'] ?? 0;
-        return DB::transaction(function () use ($params, $operationInfo, $message, $isIncrementParent) {
-            $postId = $params['post_id'] ?? 0;
-            $res = $this->commonCreateNoLog(
-                $this->replyModel,
-                $params
-            );
-            $this->postModel->where('id', $postId)->increment('reply_count');
-            if ($isIncrementParent) {
-                $replyId = $params ['first_reply_id'] ?? 0;
-                $this->replyModel->where('id', $replyId)->increment('reply_count');
-            }
-            return $res;
+
+        return DB::transaction(function () use ($params, $operationInfo, $isIncrementParent, $msgCode, $messageUsers) {
+            try {
+                // add reply without log
+                $postId = $params['post_id'] ?? 0;
+                $replyId = $this->commonCreateNoLog(
+                    $this->replyModel,
+                    $params
+                );
+                // post reply_count+1 
+                $this->postModel->where('id', $postId)->increment('reply_count');
+                if ($isIncrementParent) {
+                    $firstReplyId = $params ['first_reply_id'] ?? 0;
+                    // sub_reply reply reply_count+1
+                    $this->replyModel->where('id', $firstReplyId)->increment('reply_count');
+                }
+
+                // add message
+                if ($msgCode && $messageUsers) {
+                    MessageLib::sendMessage(
+                        $msgCode,
+                        $messageUsers,
+                        [
+                            'user_id' => $params ['user_id'],
+                            'post_id' => $postId,
+                            'reply_id' => $params['reply_id'] ?? 0
+                        ]
+                    );
+                }
+                return $replyId;
+            } catch (\Exception $e) {
+                Log::error(sprintf('添加回复失败[Param][%s][Code][%s][Message][%s][OperationInfo][%s]', json_encode($params), $e->getCode(), $e->getMessage(), json_encode($operationInfo)));
+                throw New NoStackException('添加回复失败');
+            } 
+            
         });
     }
 
@@ -141,16 +169,42 @@ class ReplyRepository extends BaseRepository
     public function delete($params, $operationInfo)
     {
         $replyId = $params ['reply_id'] ?? 0;
-
         $replyInfo = $this->replyModel->getById($replyId);
+        $postId = $replyInfo['post_id'] ?? 0;
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+        $replyCreaterId = $replyInfo['user_id'] ?? 0;
 
-        if (empty($replyId)) {
+        if (empty($replyInfo) || $replyInfo['is_del'] == 1) {
             throw New NoStackException('回复信息不存在');
         }
 
+        $operatorType = $operationInfo['operator_type'] ?? 0;
+        if ($operatorType == 10) {
+            // 是否是回复创建人
+            $isReplyCreater = ($operatorId == $replyCreaterId) ? 1 : 0;
+
+            // 是否是广播创建人
+            $postInfo = $this->postModel->getById($postId);
+            $postCreaterId = $postInfo['creater_id'] ?? 0;
+            $isPostCreater = ($operatorId == $postCreaterId) ? 1 : 0;
+    
+            // 是否是关注度>1000的广场创建人
+            $isSquareCreater = 0;
+            $squareId = $postInfo['square_id'] ?? 0;
+            if ($squareId) {
+                $squareInfo = $this->squareModel->getById($squareId);
+                $squareCreaterId = $squareInfo['creater_id'] ?? 0;
+                if ($squareInfo['follow_count'] >= 1000 && $operatorId == $squareCreaterId) {
+                    $isSquareCreater = 1;
+                }
+            }
+
+            if (!($isReplyCreater || $isPostCreater || $isSquareCreater)) {
+                throw New NoStackException('当前用户没有删除权限');
+            }
+        }
+
         $replyType = $replyInfo['reply_type'] ?? 0;
-        $postId = $replyInfo['post_id'] ?? 0;
-        
         return DB::transaction(function () use ($replyId, $postId, $replyType) {
             try {
                 $postDecrement = 1;
@@ -244,5 +298,37 @@ class ReplyRepository extends BaseRepository
         }
         $subRes ['list'] = $subList;
         return $subRes;
+    }
+
+    public function getMyReplyList($params, $operatorId)
+    {
+        $page = $params['page'] ?? 1;
+        $perpage = $params['perpage'] ?? 20;
+
+        $leftModels = [
+            [
+                'table_name' => 'posts',
+                'left' => 'posts.id',
+                'right' => 'post_replys.post_id',
+            ]
+        ];
+
+        return $this->getDataList(
+            $this->replyModel,
+            [
+                'post_replys.id',
+                'post_replys.post_id',
+                'post_replys.content',
+                'post_replys.created_at',
+                'posts.title',
+            ], [
+                'is_del' => 0,
+                'user_id' => $operatorId
+            ],
+            $page,
+            $perpage,
+            $leftModels,
+            ['post_replys.created_at' => 'desc']
+        );
     }
 }

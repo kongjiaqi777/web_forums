@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Redis;
 use App\Services\UserServices;
 
 class UserController extends Controller
@@ -101,7 +101,10 @@ class UserController extends Controller
      */
     public function getUserInfoByToken(Request $request)
     {
-        
+        $operationInfo = $this->getOperationInfo($request);
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+        $res = $this->userServices->getById($operatorId);
+        return $this->buildSucceed($res);
     }
 
     /**
@@ -140,14 +143,15 @@ class UserController extends Controller
     public function updateLabel(Request $request)
     {
         $this->validate($request, [
-            'id' => 'required',
             'label' => 'required'
         ], [
-            'id.*' => '用户ID必传',
             'label.*' => '标签必传'
         ]);
-        $params = $request->only(['id', 'label']);
+        $params = $request->only(['label']);
+       
         $operationInfo = $this->getOperationInfo($request);
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+        $params['id'] = $operatorId;
         $res = $this->userServices->update($params, $operationInfo);
         return $this->buildSucceed($res);
     }
@@ -391,5 +395,19 @@ class UserController extends Controller
 
         $res = $this->userServices->getById($userId);
         return $this->buildSucceed($res);
+    }
+
+    /**
+     * @api {post} /v1/user/logout 普通用户登出(清理本地token信息，重新登录可以触发用户信息同步)
+     * @apiVersion 1.0.0
+     * @apiName LogOut
+     * @apiGroup User
+     *
+     * @apiParam {String} token
+     */
+    public function logout(Request $request)
+    {
+        $token = $request->header('token');
+        return $this->userServices->logout($token);
     }
 }

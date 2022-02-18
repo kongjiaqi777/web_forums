@@ -5,15 +5,19 @@ namespace App\Services;
 use App\Exceptions\NoStackException;
 use App\Services\BaseServices;
 use App\Repositories\ReplyRepository;
+use App\Repositories\PostRepository;
 
 class ReplyServices extends BaseServices
 {
     private $replyRepos;
+    private $postRepos;
 
     public function __construct(
-        ReplyRepository $replyRepos
+        ReplyRepository $replyRepos,
+        PostRepository $postRepos
     ) {
         $this->replyRepos = $replyRepos;
+        $this->postRepos = $postRepos;
     }
 
     /**
@@ -34,8 +38,11 @@ class ReplyServices extends BaseServices
      */
     public function create($params, $operationInfo)
     {
-        $params ['reply_type'] = config('display.reply_type.post.code');;
-        return $this->replyRepos->create($params, $operationInfo, '添加广播评论');
+        $params ['reply_type'] = config('display.reply_type.post.code');
+        $msgCode = config('display.msg_type.post_reply.code');
+        $postInfo = $this->postRepos->getById($params['post_id']);
+        $messageUsers = [$postInfo['creater_id']];
+        return $this->replyRepos->create($params, $operationInfo, false, $msgCode, $messageUsers);
     }
 
     /**
@@ -61,13 +68,15 @@ class ReplyServices extends BaseServices
             $params ['reply_type'] = config('display.reply_type.reply.code');
         } else {
             $params ['first_reply_id'] = $replyInfo['first_reply_id'];
-            $params ['reply_type'] = config('display.reply_type.reply_comment.code');;
+            $params ['reply_type'] = config('display.reply_type.reply_comment.code');
         }
 
         $params ['user_id'] = $operationInfo['operator_id'] ?? 0;
         $params ['parent_id'] = $replyId;
         $params ['parent_user_id'] = $replyInfo['user_id'];
-        return $this->replyRepos->create($params, $operationInfo, '回复广播评论', true);
+        $msgCode = config('display.msg_type.reply_reply.code');
+        $messageUsers = [$replyInfo['user_id']];
+        return $this->replyRepos->create($params, $operationInfo, true, $msgCode, $messageUsers);
     }
 
     /**
@@ -89,5 +98,10 @@ class ReplyServices extends BaseServices
     public function getSubList($params)
     {
         return $this->replyRepos->getSubList($params);
+    }
+
+    public function getMyReplyList($params, $operatorId)
+    {
+        return $this->replyRepos->getMyReplyList($params, $operatorId);
     }
 }

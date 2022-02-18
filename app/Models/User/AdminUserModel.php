@@ -14,6 +14,7 @@ class AdminUserModel extends BaseModel
 
     // 可以插入表的字段
     public $fillable = [
+        'password',
         'nickname',
         'email',
         'created_at',
@@ -39,5 +40,7 @@ class AdminUserModel extends BaseModel
     public $findable = [
         'nickname',
         'email',
+        'password',
+        'id',
     ];
 }

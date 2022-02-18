@@ -162,12 +162,16 @@ return [
         ],
     ],
     'owner_complaint_verify_status' => [
-        'over' => [
+        'undeal' => [
             'code' => 10,
+            'desc' => '未处理'
+        ],
+        'over' => [
+            'code' => 60,
             'desc' => '正常'
         ],
         'warning' => [
-            'code' => 20,
+            'code' => 70,
             'desc' => '警告'
         ]
     ],

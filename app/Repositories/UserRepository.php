@@ -7,6 +7,11 @@ use App\Models\User\UserModel;
 use App\Models\User\AdminUserModel;
 use App\Models\User\UserOpLogModel;
 use DB;
+use App\Exceptions\NoStackException;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Hash;
+
 
 class UserRepository extends BaseRepository
 {
@@ -107,5 +112,74 @@ class UserRepository extends BaseRepository
             $operationInfo,
             $message
         );
+    }
+
+    /**
+     * 验证管理端用户登录
+     * @param [type] $email
+     * @param [type] $password
+     * @return void
+     */
+    public function checkAdminUserAuth($email, $password)
+    {
+        $user = $this->adminUserModel->getFirstByCondition(['email' => $email]);
+        if (empty($user)) {
+            throw new NoStackException('用户不存在！');
+        }
+
+        $dbPassword = $user['password'] ?? '';
+        if (\password_verify($password, $dbPassword)) {
+            $user = Arr::except($user, ['password']);
+            return $user;
+        } else {
+            throw New NoStackException('密码不正确！');
+        }
+    }
+
+    /**
+     * 设置token
+     * @param [type] $userId 用户ID
+     * @param [type] $email  邮箱
+     * @param [type] $password 密码
+     * @param [type] $userName 用户名
+     * @param [type] $operatorType 用户类型
+     * @return void
+     */
+    public function setToken($userId, $email, $password, $userName, $operatorType)
+    {
+
+        $key = md5($email. $password . $userId . $operatorType);
+       
+        $content = [
+            'user_id' => $userId,
+            'nickname' => $userName,
+            'email' => $email
+        ];
+        $value = json_encode($content);
+        Redis::set($key, $value);
+        Redis::expire($key, intval(env('SESSION_EXPIRE', 86400)));
+        return $key;
+    }
+
+    /**
+     * 删除token
+     * @param [type] $token
+     * @return void
+     */
+    public function deleteToken($token)
+    {
+        $data = Redis::del($token);
+        return $data;
+    }
+
+    /**
+     * 管理端用户注册
+     * @param [type] $params
+     * @return void
+     */
+    public function adminSignUp($params)
+    {
+        $params ['password'] = Hash::make($params['password']);
+        return $this->commonCreateNoLog($this->adminUserModel, $params);
     }
 }

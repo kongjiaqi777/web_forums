@@ -103,7 +103,6 @@ class PostController extends Controller
         ]);
 
         $operationInfo = $this->getOperationInfo($request);
-
         $operatorId = $operationInfo['operator_id'] ?? 0;
 
         $res = $this->postServices->getList($params, true, $operatorId);
@@ -181,13 +180,16 @@ class PostController extends Controller
      */
     public function getMyPostList(Request $request)
     {
-        $params = $request->all();
-        $operationInfo = $this->getOperationInfo($request);
-        $params ['page'] ?? $params ['page'] = 1;
-        $params ['perpage'] ?? $params ['perpage'] = 20;
-        $params ['creater_id'] = $operationInfo['operator_id'];
+        $params = $request->only([
+            'page',
+            'perpage',
+            'post_type',
+        ]);
 
-        $res = $this->postServices->getList($params);
+        $operationInfo = $this->getOperationInfo($request);
+        $params ['creater_id'] = $operationInfo['operator_id'] ?? 0;
+
+        $res = $this->postServices->getList($params, true, $params['creater_id']);
         return $this->buildSucceed($res);
     }
 
@@ -248,12 +250,24 @@ class PostController extends Controller
      */
     public function suggest(Request $request)
     {
-        $params = $request->all();
+        $this->validate($request, [
+            'name' => 'required|max:38|string',
+        ], [
+            'name.required' => '请输入查询关键字',
+            'name.max' => '最多支持输入38个字符',
+            'name.string' => '仅支持字符串查询'
+        ]);
 
-        $params ['page'] ?? $params ['page'] = 1;
-        $params ['perpage'] ?? $params ['perpage'] = 20;
+        $params = $request->only([
+            'page',
+            'perpage',
+            'name',
+        ]);
 
-        $res = $this->postServices->suggest($params);
+        $operationInfo = $this->getOperationInfo($request);
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+
+        $res = $this->postServices->suggest($params, true, $operatorId);
         return $this->buildSucceed($res);
     }
 
@@ -264,10 +278,11 @@ class PostController extends Controller
      * @apiGroup Post
      * @apiPermission 必须登录
      *
-     * @apiName {Numeric} square_id  所属广场ID
-     * @apiName {String} title       标题
-     * @apiName {String} content     内容
-     * @apiName {String} photo       图片
+     * @apiParam {Numeric} [square_id]  所属广场ID
+     * @apiParam {Numeric} post_type   广播类型：config里面的post_type
+     * @apiParam {String} title       标题
+     * @apiParam {String} content     内容
+     * @apiParam {String} photo       图片
      *
      * @apiParamExample Request-Example
      * {
@@ -294,7 +309,30 @@ class PostController extends Controller
      */
     public function create(Request $request)
     {
-        $params = $request->all();
+        $postTypes = data_get(config('display.post_type'), '*.code');
+
+        $this->validate($request, [
+            'post_type' => 'required|in:' . implode(',', $postTypes),
+            'square_id' => 'required_if:square_type,10',
+            'title' => 'required',
+            'content' => 'required',
+            'photo' => 'required',
+        ], [
+            'post_type.*' => '广播类型必传',
+            'square_id.*' => '广场广播必传广场ID',
+            'title.*' => '广播标题必传',
+            'content.*' => '广播内容必传',
+            'photo.*' => '广播图片必传'
+        ]);
+
+        $params = $request->only([
+            'post_type',
+            'square_id',
+            'title',
+            'content',
+            'photo',
+        ]);
+
         $operationInfo = $this->getOperationInfo($request);
         $params ['creater_id'] = $operationInfo['operator_id'] ?? 0;
         $res = $this->postServices->createPost($params, $operationInfo);
@@ -365,7 +403,25 @@ class PostController extends Controller
      */
     public function update(Request $request)
     {
-        $params = $request->all();
+        $this->validate($request, [
+            'post_id' => 'required',
+            'title' => 'required',
+            'content' => 'required',
+            'photo' => 'required',
+        ], [
+            'post_id.*' => '需要广播ID',
+            'title.*' => '广播标题必传',
+            'content.*' => '广播内容必传',
+            'photo.*' => '广播图片必传'
+        ]);
+
+        $params = $request->only([
+            'post_id',
+            'title',
+            'content',
+            'photo',
+        ]);
+
         $operationInfo = $this->getOperationInfo($request);
         $res = $this->postServices->updatePost($params, $operationInfo);
         return $this->buildSucceed($res);
@@ -452,18 +508,18 @@ class PostController extends Controller
     public function getTopList(Request $request)
     {
         $this->validate($request, [
-            'square_id' => 'Required',
+            'square_id' => 'required',
         ], [
             'square_id.*' => '广场ID必传'
         ]);
+
         $params = $request->only([
             'square_id'
         ]);
 
-        $operationInfo = $this->getOperationInfo($request);
-        $params['creater_id'] = $operationInfo['operator_id'] ?? 0;
         $params['top_rule_lte'] = 3;
         $params['top_rule_gt'] = 0;
+        $params['is_del'] = 0;
         $res = $this->postServices->getAll($params);
         return $this->buildSucceed($res);
     }
@@ -520,6 +576,11 @@ class PostController extends Controller
      */
     public function delete(Request $request)
     {
+        $this->validate($request, [
+            'post_id' => 'required'
+        ], [
+            'post_id.*' => '需要广播ID'
+        ]);
         $params = $request->all();
         $operationInfo = $this->getOperationInfo($request);
         $res = $this->postServices->delete($params, $operationInfo);
@@ -549,30 +610,39 @@ class PostController extends Controller
      * @apiSuccess {Numeric} is_praise      我是否点赞：0未点赞/1已点赞
      * @apiSuccessExample Success-Response
      * {
-    "code": 0,
-    "msg": "success",
-    "info": {
-        "id": 10000,
-        "square_id": 1003,
-        "post_type": 10,
-        "title": "第一个广播",
-        "content": "广播内容",
-        "photo": "photoUrl",
-        "creater_id": 111,
-        "top_rule": 0,
-        "reply_count": 0,
-        "praise_count": 0,
-        "created_at": "2022-01-27T15:30:56.000000Z",
-        "updated_at": "2022-01-27T15:30:56.000000Z",
-        "deleted_at": null,
-        "is_del": 0
-    }
-}
+            "code": 0,
+            "msg": "success",
+            "info": {
+                "id": 10000,
+                "square_id": 1003,
+                "post_type": 10,
+                "title": "第一个广播",
+                "content": "广播内容",
+                "photo": "photoUrl",
+                "creater_id": 111,
+                "top_rule": 0,
+                "reply_count": 0,
+                "praise_count": 0,
+                "created_at": "2022-01-27T15:30:56.000000Z",
+                "updated_at": "2022-01-27T15:30:56.000000Z",
+                "deleted_at": null,
+                "is_del": 0
+            }
+        }
      */
     public function detail(Request $request)
     {
-        $params = $request->all();
-        $res = $this->postServices->detailPost($params);
+        $this->validate($request, [
+            'post_id' => 'required'
+        ], [
+            'post_id.*' => '需要广播ID'
+        ]);
+        $params = $request->only(['post_id']);
+
+        $operationInfo = $this->getOperationInfo($request);
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+
+        $res = $this->postServices->detailPost($params, true, $operatorId);
         return $this->buildSucceed($res);
     }
 
@@ -631,7 +701,10 @@ class PostController extends Controller
      */
     public function browseList(Request $request)
     {
-        $params = $request->all();
+        $params = $request->only([
+            'page',
+            'perpage'
+        ]);
         $operationInfo = $this->getOperationInfo($request);
         $operatorId = $operationInfo['operator_id'] ?? 0;
         $res = $this->postServices->browseList($params, $operatorId);
@@ -649,10 +722,10 @@ class PostController extends Controller
      *
      * @apiSuccessExample Success-Response
      * {
-    "code": 0,
-    "msg": "success",
-    "info": 1
-}
+            "code": 0,
+            "msg": "success",
+            "info": 1
+        }
      */
     public function addBrowseRecord(Request $request)
     {

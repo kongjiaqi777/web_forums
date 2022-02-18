@@ -47,7 +47,7 @@ class AdminComplaintController extends Controller
     public function getPostComplaintList(Request $request)
     {
         $params = $request->all();
-        $res = $this->complaintServices->getList($params);
+        $res = $this->complaintServices->getPostComplaintList($params);
         return $this->buildSucceed($res);
     }
 
@@ -61,7 +61,6 @@ class AdminComplaintController extends Controller
      * @apiParam {Numeric} [user_id] 投诉人账号
      * @apiParam {Numeric} [post_id] 广播ID
      * @apiParam {Numeric} [reply_id] 评论ID
-     * @apiParam {Numeric} [complaint_type] 投诉类型:广播投诉10/评论投诉20/广场主投诉30
      * @apiParam {Numeric} [verify_status] 状态
      * @apiParam {DateTime} [created_start] 创建开始时间
      * @apiParam {DateTime} [created_end] 创建结束时间
@@ -83,26 +82,74 @@ class AdminComplaintController extends Controller
     public function getUserComplaintList(Request $request)
     {
         $params = $request->all();
-        $res = $this->complaintServices->getList($params);
+        $res = $this->complaintServices->getUserComplaintList($params);
         return $this->buildSucceed($res);
     }
 
     /**
-     * @api {post} /v1/admin/complaint/deal 管理端处理投诉
+     * @api {post} /v1/admin/complaint/deal_post 管理端处理广播类型投诉
      * @apiVersion 1.0.0
-     * @apiName 管理端处理投诉
+     * @apiName 管理端处理广播类型投诉
      * @apiGroup AdminComplaint
      * @apiPermission 必须登录
      *
      * @apiParam {Numeric} complaint_id 投诉ID
-     * @apiParam {Numeric} verify_status 投诉状态
+     * @apiParam {Numeric} verify_status 投诉状态 code=complaint_verify_status_op
      * @apiParam {String}  [verify_reason] 投诉处理原因
      */
-    public function deal(Request $request)
+    public function dealPost(Request $request)
     {
-        $params = $request->all();
+        $verifyStatusOpCodes = data_get(config('display.complaint_verify_status_op'), '*.code');
+        $this->validate($request, [
+            'complaint_id' => 'required',
+            'verify_status' => 'required|numeric|in:'.implode(',', $verifyStatusOpCodes),
+        ], [
+            'complaint_id.*' => '投诉ID必传',
+            'verify_status.required' => '投诉处理类型必传',
+            'verify_status.numeric' => '投诉处理类型错误',
+            'verify_status.in' => '投诉处理类型取值范围有误'
+        ]);
+        $params = $request->only([
+            'complaint_id',
+            'verify_status',
+            'verify_reason',
+        ]);
         $operationInfo = $this->getOperationInfo($request);
-        $res = $this->complaintServices->deal($params, $operationInfo);
+        $res = $this->complaintServices->dealPost($params, $operationInfo);
+        return $this->buildSucceed($res);
+    }
+
+    /**
+     * @api {post} /v1/admin/complaint/deal_square_owner 管理端处理广场主投诉
+     * @apiVersion 1.0.0
+     * @apiName 管理端处理广场主投诉
+     * @apiGroup AdminComplaint
+     * @apiPermission 必须登录
+     *
+     * @apiParam {Numeric} complaint_id 投诉ID
+     * @apiParam {Numeric} verify_status 投诉状态 code=owner_complaint_verify_op
+     * @apiParam {String}  [verify_reason] 投诉处理原因
+     */
+    public function dealSquareOwner(Request $request)
+    {
+        $verifyStatusOpCodes = data_get(config('display.owner_complaint_verify_op'), '*.code');
+
+        $this->validate($request, [
+            'complaint_id' => 'required',
+            'verify_status' => 'required|numeric|in:'.implode(',', $verifyStatusOpCodes),
+        ], [
+            'complaint_id.*' => '投诉ID必传',
+            'verify_status.required' => '投诉处理类型必传',
+            'verify_status.numeric' => '投诉处理类型错误',
+            'verify_status.in' => '投诉处理类型取值范围有误',
+        ]);
+        $params = $request->only([
+            'complaint_id',
+            'verify_status',
+            'verify_reason',
+        ]);
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->complaintServices->dealSquareOwner($params, $operationInfo);
         return $this->buildSucceed($res);
     }
 
@@ -121,7 +168,12 @@ class AdminComplaintController extends Controller
      */
     public function detail(Request $request)
     {
-        $params = $request->all();
+        $this->validate($request, [
+            'complaint_id' => 'required',
+        ], [
+            'complaint_id.*' => '投诉ID必传'
+        ]);
+        $params = $request->only(['complaint_id']);
         $res = $this->complaintServices->detail($params);
         return $this->buildSucceed($res);
     }

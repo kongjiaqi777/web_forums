@@ -12,18 +12,15 @@
 */
 
 // 管理端用户-登录相关路由
-$router->group(['prefix' => 'v1/admin/user', 'middleware' => 'admin'], function () use ($router) {
+$router->group(['prefix' => 'v1/admin/user'], function () use ($router) {
     // 登录
-    $router->post('login', ['uses' => 'AdminUserController@login']);
+    $router->post('login', ['uses' => 'Admin\AdminUserController@login']);
 
     // 登出
-    $router->post('logout', ['uses' => 'AdminUserController@logout']);
+    $router->post('logout', ['uses' => 'Admin\AdminUserController@logout']);
 
     // 添加管理端用户
-    $router->post('add', ['uses' => 'AdminUserController@addAdminUser']);
-    
-    // 管理端用户列表
-    $router->get('list', ['uses' => 'AdminUserController@list']);
+    $router->post('signup', ['uses' => 'Admin\AdminUserController@signup']);
 });
 
 // 管理端用户-广场相关路由
@@ -58,15 +55,39 @@ $router->group(['prefix' => 'v1/admin/square', 'middleware' => 'admin'], functio
 
 // 管理端用户-广播相关路由
 $router->group(['prefix' => 'v1/admin/post', 'middleware' => 'admin'], function () use ($router) {
+    // 列表
+    $router->get('list', ['uses' => 'Admin\AdminPostController@list']);
+
+    // 详情
+    $router->get('detail', ['uses' => 'Admin\AdminPostController@detail']);
+
+    // 设置置顶
+    $router->post('set_top', ['uses' => 'Admin\AdminPostController@setTop']);
+
+    // 删除广播
+    $router->post('delete_post', ['uses' => 'Admin\AdminPostController@deletePost']);
+
+    // 删除回复
+    $router->post('delete_reply', ['uses' => 'Admin\AdminPostController@deleteReply']);
+
+    // 模糊搜索
+    $router->get('suggest', ['uses' => 'Admin\AdminPostController@suggest']);
 });
 
 // 管理端用户-投诉相关路由
 $router->group(['prefix' => 'v1/admin/complaint', 'middleware' => 'admin'], function () use ($router) {
+    // 广播投诉列表
     $router->get('post_list', ['uses' => 'Admin\AdminComplaintController@getPostComplaintList']);
+    
+    // 广场主投诉列表
     $router->get('user_list', ['uses' => 'Admin\AdminComplaintController@getUserComplaintList']);
+    
+    // 投诉详情
     $router->get('detail', ['uses' => 'Admin\AdminComplaintController@detail']);
-    $router->post('deal', ['uses' => 'Admin\AdminComplaintController@deal']);
+    
+    // 处理广播投诉
+    $router->post('deal_post', ['uses' => 'Admin\AdminComplaintController@dealPost']);
 
+    // 处理广场主投诉
+    $router->post('deal_square_owner', ['uses' => 'Admin\AdminComplaintController@dealSquareOwner']);
 });
-
-// 管理端用户-用户管理相关路由

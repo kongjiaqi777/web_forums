@@ -122,7 +122,7 @@ class SquareServices extends BaseServices
         $squareId = $params['square_id'] ?? 0;
         $squareInfo = $this->squareRepos->detail($squareId);
 
-        if ($squareInfo != config('display.square_verify_status.dismissed.code')) {
+        if ($squareInfo['verify_status'] != config('display.square_verify_status.apply_relieve.code')) {
             throw New NoStackException('广场状态不合理，无法操作');
         }
 

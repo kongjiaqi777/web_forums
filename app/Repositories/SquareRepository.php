@@ -13,6 +13,7 @@ use DB;
 use Carbon\Carbon;
 use App\Libs\UtilLib;
 use App\Libs\MessageLib;
+use Log;
 
 
 class SquareRepository extends BaseRepository
@@ -125,6 +126,17 @@ class SquareRepository extends BaseRepository
      */
     public function createSquare($params, $operationInfo)
     {
+        $operatorType = $operationInfo['operator_type'] ?? 0;
+        if ($operatorType == 10) {
+            $operatorId = $operationInfo['operator_id'] ?? 0;
+            $userInfo = $this->userModel->getById($operatorId);
+
+            $isAuth = $userInfo['is_auth'] ?? 0;
+            if ($isAuth != 1) {
+                throw New NoStackException('认证状态不正确，请认证后重新登录！');
+            }
+        }
+
         return $this->commonCreate(
             $this->squareModel,
             $params,
@@ -151,43 +163,27 @@ class SquareRepository extends BaseRepository
             throw New NoStackException('广场不存在');
         }
 
-        DB::transaction(function () use ($squareId, $params, $operationInfo, $message, $operationTypeSpec, $sendMessage, $squareInfo) {
+        DB::transaction(function () use ($squareId, $params, $operationInfo, $message, $sendMessage, $squareInfo) {
             try {
-                // 更新广场
-                $this->commonUpdate(
-                    $squareId,
-                    $this->squareModel,
-                    $this->squareOpLogModel,
-                    $params,
-                    $operationInfo,
-                    $message,
-                    'update'
-                );
-
                 // 发消息
                 if ($sendMessage) {
                     $userList = [$squareInfo['creater_id']];
                     if ($sendMessage == config('display.msg_type.switch_approve.code')) {
                         // 切换广场主的时候消息发给广场关注人和广场主
-                        $followUser = $this->squareFollowModel->getAll(
-                            [
-                                'square_id' => $squareId,
-                                'is_del' => 0,
-                                'created_at' => Carbon::now()->toDateTimeString()
-                            ], [
-                                'id' => 'desc'
-                            ], [
-                                'follow_user_id'
-                            ]
-                        );
-                        MessageLib::sendMessage(
-                            config('display.msg_type.switch_notice.code'),
-                            $followUser,
-                            [
-                                'square_id' => $squareId,
-                                'user_id' => $params['user_id']
-                            ]
-                        );
+                        $followUser = $this->squareFollowModel->where('square_id',$squareId)
+                            ->where('is_del', 0)
+                            ->pluck('follow_user_id');
+
+                        if ($followUser) {
+                            MessageLib::sendMessage(
+                                config('display.msg_type.switch_notice.code'),
+                                $followUser,
+                                [
+                                    'square_id' => $squareId,
+                                    'user_id' => $params['creater_id']
+                                ]
+                            );
+                        }
                     }
 
                     MessageLib::sendMessage(
@@ -198,6 +194,17 @@ class SquareRepository extends BaseRepository
                         ]
                     );
                 }
+
+                // 更新广场
+                $this->commonUpdate(
+                    $squareId,
+                    $this->squareModel,
+                    $this->squareOpLogModel,
+                    $params,
+                    $operationInfo,
+                    $message,
+                    'update'
+                );
             } catch (\Exception $e) {
                 Log::error(sprintf('更新广场失败[Param][%s][Code][%s][Message][%s]', json_encode($params), $e->getCode(), $e->getMessage()));
                 throw New NoStackException('更新广场信息失败');
@@ -523,5 +530,10 @@ class SquareRepository extends BaseRepository
             }
         }
         return $list;
+    }
+
+    public function getById($squareId)
+    {
+        return $this->squareModel->getById($squareId);
     }
 }

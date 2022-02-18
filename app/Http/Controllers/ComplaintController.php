@@ -27,7 +27,6 @@ class ComplaintController extends Controller
      * @apiSuccess {Numeric} reply_id 评论ID
      * @apiSuccess {Numeric} square_id 广场ID
      * @apiSuccess {Numeric} complaint_user_id 被投诉人
-     * @apiSuccess {String}  complaint_user_email 被投诉人账号
      * @apiSuccess {Numeric} complaint_type 投诉类型:广播投诉10/评论投诉20
      * @apiSuccess {String} content 投诉内容
      * @apiSuccess {String} photo 投诉图片URL
@@ -36,7 +35,13 @@ class ComplaintController extends Controller
      */
     public function detail(Request $request)
     {
-        $params = $request->all();
+        $this->validate($request, [
+            'complaint_id' => 'required',
+        ], [
+            'complaint_id.*' => '投诉ID必传'
+        ]);
+
+        $params = $request->only(['complaint_id']);
         $detail = $this->complaintServices->detail($params);
         return $this->buildSucceed($detail);
     }
@@ -80,7 +85,33 @@ class ComplaintController extends Controller
      */
     public function create(Request $request)
     {
-        $params = $request->all();
+        $complaintTypes = data_get(config('display.complaint_type'), '*.code');
+        $this->validate($request, [
+            'complaint_user_id' => 'required|numeric|min:1',
+            'complaint_type' => 'required|numeric|in:'.implode(',', $complaintTypes),
+            'post_id' => 'required_if:complaint_type,10',
+            'reply_id' => 'required_if:complaint_type,20',
+            'square_id' => 'required_if:complaint_type,30',
+            'content' => 'required|string',
+            'photo' => 'string',
+        ], [
+            'complaint_user_id.*' => '被投诉用户ID必传',
+            'complaint_type.*' => '投诉类型必传',
+            'post_id.*' => '广播ID必传',
+            'reply_id.*' => '回复ID必传',
+            'square_id.*' => '广场ID必传',
+            'content.*' => '内容必传',
+            'photo.*' => '投诉图片格式不正确',
+        ]);
+        $params = $request->only([
+            'post_id',
+            'reply_id',
+            'square_id',
+            'complaint_type',
+            'complaint_user_id',
+            'content',
+            'photo',
+        ]);
         $operationInfo = $this->getOperationInfo($request);
         $detail = $this->complaintServices->create($params, $operationInfo);
         return $this->buildSucceed($detail);

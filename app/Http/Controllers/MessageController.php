@@ -31,39 +31,39 @@ class MessageController extends Controller
      *
      * @apiSuccessExample Success-Response
      * {
-    "code": 0,
-    "msg": "success",
-    "info": {
-        "list": [
-            {
-                "id": 2,
-                "template_id": 69,
-                "user_id": 118,
-                "msg_type": 10,
-                "msg_body": "您的《留学广场》广场创建申请已通过",
-                "msg_title": "广场创建",
-                "url": null,
-                "is_read": 0,
-                "created_at": "2022-02-09T11:14:44.000000Z",
-                "updated_at": "2022-02-09T11:14:44.000000Z",
-                "is_del": 0,
-                "deleted_at": null
+            "code": 0,
+            "msg": "success",
+            "info": {
+                "list": [
+                    {
+                        "id": 2,
+                        "template_id": 69,
+                        "user_id": 118,
+                        "msg_type": 10,
+                        "msg_body": "您的《留学广场》广场创建申请已通过",
+                        "msg_title": "广场创建",
+                        "url": null,
+                        "is_read": 0,
+                        "created_at": "2022-02-09T11:14:44.000000Z",
+                        "updated_at": "2022-02-09T11:14:44.000000Z",
+                        "is_del": 0,
+                        "deleted_at": null
+                    }
+                ],
+                "pagination": {
+                    "page": 1,
+                    "perpage": 20,
+                    "total_page": 1,
+                    "total_count": 1
+                }
             }
-        ],
-        "pagination": {
-            "page": 1,
-            "perpage": 20,
-            "total_page": 1,
-            "total_count": 1
         }
-    }
-}
      */ 
     public function myMessageList(Request $request)
     {
         $params = $request->only(['page', 'perpage']);
         $operationInfo = $this->getOperationInfo($request);
-        $params ['user_id'] = $operationInfo['operator_id'];
+        $params ['user_id'] = $operationInfo['operator_id'] ?? 0;
         $res = $this->messageServices->myMessageList($params);
         return $this->buildSucceed($res);
     }
