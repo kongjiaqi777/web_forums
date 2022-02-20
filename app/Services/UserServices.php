@@ -2,13 +2,12 @@
 
 namespace App\Services;
 
-use App\Services\BaseServices;
 use App\Repositories\UserRepository;
 use App\Repositories\FollowRepository;
 use App\Exceptions\NoStackException;
 
 
-class UserServices extends BaseServices
+class UserServices
 {
     private $userRepos;
     private $followRepos;

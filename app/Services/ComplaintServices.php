@@ -2,10 +2,9 @@
 
 namespace App\Services;
 
-use App\Services\BaseServices;
 use App\Repositories\ComplaintRepository;
 
-class ComplaintServices extends BaseServices
+class ComplaintServices
 {
     private $complaintRepos;
 

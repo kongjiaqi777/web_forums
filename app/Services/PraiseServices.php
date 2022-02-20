@@ -2,12 +2,11 @@
 
 namespace App\Services;
 
-use App\Services\BaseServices;
 use App\Repositories\PraiseRepository;
 use App\Repositories\ReplyRepository;
 use Illuminate\Support\Arr;
 
-class PraiseServices extends BaseServices
+class PraiseServices
 {
     private $praiseRepos;
     private $replyRepos;

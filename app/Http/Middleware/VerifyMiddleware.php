@@ -42,7 +42,7 @@ class VerifyMiddleware
             throw new NoStackException('登录失效，请重新登录', -2);
         }
 
-        $dbToken = Redis::get($requestToken);
+        $dbToken = Redis::get('web_forums' . $requestToken);
         if (empty($dbToken)) {
             $userSourceInfo = $this->verifyToken($requestToken);
 
@@ -112,7 +112,7 @@ class VerifyMiddleware
     public function setRedis($token, $userInfo)
     {
         $value = json_encode($userInfo);
-        Redis::set($token, $value);
+        Redis::set('web_forums' . $token, $value);
         Redis::expire($token, intval(env('SESSION_EXPIRE', 86400)));
     }
 

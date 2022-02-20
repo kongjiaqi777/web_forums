@@ -77,3 +77,6 @@ Linux定时任务
 
 
 
+./configure --prefix=/usr/local/php7.3 --with-config-file-path=/usr/local/php7.3/etc --with-curl --with-freetype-dir --with-gd --with-gettext --with-iconv-dir --with-kerberos --with-libdir=lib64 --with-libxml-dir --with-mysqli --with-openssl --with-pcre-regex --with-pear --with-png-dir --with-jpeg-dir --with-xmlrpc --with-xsl --with-zlib --with-openssl --enable-fpm --enable-bcmath --enable-libxml --enable-inline-optimization --enable-mbregex --enable-opcache --enable-pcntl --enable-shmop --enable-soap --enable-sockets --enable-sysvsem --enable-xml --enable-zip --enable-mbstring --with-mcrypt --enable-mysqlnd --with-pdo-mysql=mysqlnd --disable-fileinfo
+
+ 

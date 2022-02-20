@@ -2,10 +2,9 @@
 
 namespace App\Services;
 
-use App\Services\BaseServices;
 use App\Repositories\MessageRepository;
 
-class MessageServices extends BaseServices
+class MessageServices
 {
     private $messageRepos;
 

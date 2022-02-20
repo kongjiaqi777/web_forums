@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Exceptions\DatabaseException;
 use App\Exceptions\NoStackException;
 use Carbon\Carbon;
-use function FastRoute\TestFixtures\empty_options_cached;
 use Illuminate\Database\Eloquent\Model;
 use Log;
 use Illuminate\Support\Arr;
@@ -158,6 +157,14 @@ class BaseModel extends Model
         return $this->overwritePagination($query, $page, $perpage);
     }
 
+    /**
+     * 构建分页
+     * @param [type] $query
+     * @param int $page
+     * @param int $perpage
+     * @param array $fields
+     * @return void
+     */
     public function overwritePagination($query, $page = 1, $perpage = 50, $fields = ['*'])
     {
         if (empty($query)) {
@@ -281,8 +288,12 @@ class BaseModel extends Model
         return $this->insert($values);
     }
 
-
-
+    /**
+     * 根据ID获取一条数据
+     * @param [type] $id
+     * @param string $select
+     * @return void
+     */
     public function getById($id, $select = '*')
     {
         $result = $this->query()->selectRaw($select)->where('id', $id)->first();
@@ -331,6 +342,15 @@ class BaseModel extends Model
         return $data;
     }
 
+    /**
+     * 获取分页变量
+     * @param [type] $fields
+     * @param [type] $query
+     * @param [type] $page
+     * @param [type] $perPage
+     * @param bool $withItems
+     * @return void
+     */
     public function getPaginate($fields, $query, $page, $perPage, $withItems = false)
     {
         if ($perPage && $page) {
@@ -374,44 +394,5 @@ class BaseModel extends Model
     public function getUpdateable()
     {
         return $this->updateable;
-    }
-
-    /*
-    * 更新list
-    */
-    public function getUpdateListSql($news)
-    {
-        $updateSqls = [];
-        if ($news) {
-            $updateAt = ',updated_at=' . "'" . Carbon::now()->toDateTimeString() . "'";
-            foreach ($news as $id => $data) {
-                $updateSqls[$id] = 'update ' . $this->table . ' set ';
-                $setKeys = [];
-                foreach ($data as $newKey => $newValue) {
-                    if (is_string($newValue)) {
-                        $setKeys[] = $newKey . '=' . "'" . $newValue . "'";
-                    } else {
-                        $setKeys[] = $newKey . '=' . $newValue;
-                    }
-                }
-                $updateSqls[$id] .= implode(',', $setKeys) . $updateAt . ' where id=' . $id;
-            }
-        }
-        return $updateSqls;
-    }
-
-    /*
-    *  删除list
-    */
-    public function getDeleteListSql($ids)
-    {
-        $deleteSqls = [];
-        if ($ids) {
-            $updateAt = ' updated_at=' . "'" . Carbon::now()->toDateTimeString() . "'";
-            foreach ($ids as $id) {
-                $deleteSqls[$id] = 'update ' . $this->table . ' set is_del=1,' . $updateAt . ' where id=' . $id;
-            }
-        }
-        return $deleteSqls;
     }
 }

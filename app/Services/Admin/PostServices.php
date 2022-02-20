@@ -2,11 +2,10 @@
 
 namespace App\Services\Admin;
 
-use App\Services\BaseServices;
 use App\Repositories\PostRepository;
 use App\Repositories\ReplyRepository;
 
-class PostServices extends BaseServices
+class PostServices
 {
     private $postRepos;
     private $replyRepos;

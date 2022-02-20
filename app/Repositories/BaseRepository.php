@@ -12,20 +12,6 @@ use Illuminate\Support\Arr;
 
 abstract class BaseRepository
 {
-    public function formatOri($oriList, $keyFormat = 'id')
-    {
-        $list = [];
-        if (!empty($oriList)) {
-            foreach ($oriList as $oriValue) {
-                $keyVal = Arr::get($oriValue, $keyFormat);
-                if ($keyVal) {
-                    $list[$keyVal] = $oriValue;
-                }
-            }
-        }
-        return $list;
-    }
-
     /*
      * 过滤查询
      * $model-Model名称
@@ -40,10 +26,15 @@ abstract class BaseRepository
         return $this->getQuery($query, $conds, $condsSearch, $table_prefix, $skipOrder);
     }
 
-    /*
+    /**
      * 查询筛选方法
-     * 
-    */
+     * @param [type] $query
+     * @param [type] $conds
+     * @param [type] $condsSearch
+     * @param string $table_prefix
+     * @param bool $skipOrder
+     * @return void
+     */
     protected function getQuery($query, $conds, $condsSearch, $table_prefix = '', $skipOrder = false)
     {
         if ($query && $conds && $condsSearch) {
@@ -96,9 +87,12 @@ abstract class BaseRepository
         return $query;
     }
 
-    /*
-    * 对比待更新的数据和原始数据，只保留有更改的字段,不考虑未传字段的情况
-    */
+    /**
+     * 对比待更新的数据和原始数据，只保留有更改的字段,不考虑未传字段的情况
+     * @param [type] $new
+     * @param [type] $original
+     * @return void
+     */
     public function getUpdateData($new, $original)
     {
         $result = [];
@@ -118,7 +112,7 @@ abstract class BaseRepository
     }
 
     /**
-     * Undocumented function
+     * create方法之前的字段处理
      *
      * @param [type] $data
      * @param [type] $fillable
@@ -145,7 +139,7 @@ abstract class BaseRepository
     }
 
     /**
-     * Undocumented function
+     * update方法之前的字段处理
      *
      * @param [type] $data
      * @param [type] $updateable
@@ -170,119 +164,7 @@ abstract class BaseRepository
     }
 
     /**
-     * Undocumented function
-     *
-     * @param [type] $info
-     * @return void
-     */
-    protected function filterEmpty($info)
-    {
-        if (is_array($info) && !empty($info)) {
-            $info = array_filter($info, function ($item) {
-                if (is_null($item)) {
-                    return false;
-                } elseif (is_string($item) && strlen($item) < 1) {
-                    return false;
-                }
-                return true;
-            });
-        }
-        return $info;
-    }
-
-    //将需要保存时使用数据库默认值的字段，unset 前端传过来的空字符串
-    /**
-     * Undocumented function
-     *
-     * @param [type] $input
-     * @param [type] $keys
-     * @return void
-     */
-    public function unsetKeysNeedDefault($input, $keys)
-    {
-        if ($input && $keys) {
-            foreach ($keys as $key) {
-                if (array_key_exists($key, $input)) {
-                    $itemVal = Arr::get($input, $key);
-                    if ($itemVal === '') {
-                        unset($input[$key]);
-                    }
-                }
-            }
-        }
-        return $input;
-    }
-
-    /**
-     * Undocumented function
-     *
-     * @param [type] $inputArrs
-     * @param [type] $model
-     * @param [type] $searchKey
-     * @param [type] $searchId
-     * @param array $jsonable
-     * @return void
-     */
-    public function diffUpdateData($inputArrs, $model, $searchKey, $searchId, $jsonable=[])
-    {
-        $return = [];
-        $idForDelete = [];
-        $dataForInsert = [];
-        $dataForUpdate = [];
-
-        $fillable = array_fill_keys($model->getFillable(), 1);
-        $updateable = array_fill_keys($model->getUpdateable(), 1);
-
-        $oriArrs = $model->where($searchKey, $searchId)->where('is_del', 0)->get();
-        if (empty($oriArrs)) {
-            $dataForInsert = $inputArrs;
-        } else {
-            // 待删除Id
-            $newIds = array_column($inputArrs, 'id');
-            $oriIds = array_column($oriArrs, 'id');
-
-            $idForDelete = array_diff($oriIds, $newIds);
-            if ($idForDelete) {
-                Arr::set($return, 'deleteIds', $idForDelete);
-            }
-
-            foreach ($inputArrs as $newData) {
-                $newId = Arr::get($newData, 'id', 0);
-                if ($newId) {
-                    $dataForUpdate [] = $this->prepareUpdate($newData, $updateable, $jsonable);
-                } else {
-                    $dataForInsert [] = $this->prepareCreate($newData, $fillable, $jsonable);
-                }
-            }
-        }
-
-        return [
-            'idForDelete' => $idForDelete,
-            'dataForUpdate' => $dataForUpdate,
-            'dataForInsert' => $dataForInsert
-        ];
-    }
-
-    /**
-     * Undocumented function
-     *
-     * @param [type] $params
-     * @param [type] $model
-     * @param [type] $oriInfo
-     * @return void
-     */
-    public function getUpdateDiff($params, $model, $oriInfo)
-    {
-        // 准备数据
-        $updateable = array_fill_keys($model->getUpdateable(), 1);
-        $updateInfo = $this->prepareUpdate($params, $updateable);
-        $originalInfo = $this->prepareUpdate($oriInfo, $updateable);
-        $updateInfoForUp = $this->getUpdateData($updateInfo, $originalInfo);
-        return $updateInfoForUp;
-    }
-
-    /**
-     * Undocumented function
+     * 通过查询方法
      *
      * @param [type] $searchModel
      * @param [type] $fields
@@ -340,7 +222,7 @@ abstract class BaseRepository
     }
 
     /**
-     * 通用创建
+     * 通用创建，有OpLog
      *
      * @param object  $insertModel         创建Model
      * @param array   $insertData          插入的数据
@@ -374,6 +256,12 @@ abstract class BaseRepository
         return $res;
     }
 
+    /**
+     * 通用创建，无OpLog
+     * @param [type] $insertModel
+     * @param [type] $insertData
+     * @return void
+     */
     public function commonCreateNoLog($insertModel, $insertData)
     {
         $fillable = array_fill_keys($insertModel->getFillable(), 1);
