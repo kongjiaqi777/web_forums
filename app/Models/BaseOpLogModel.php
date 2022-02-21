@@ -13,6 +13,13 @@ class BaseOpLogModel extends BaseModel
     protected $idKey = 'id';
     protected $opConfigKey = 'common.operation_type';
 
+    /**
+     * 创建日志
+     * @param [type] $datas
+     * @param [type] $operationInfo
+     * @param string $comment
+     * @return void
+     */
     public function saveCreateOpLogDatas($datas, $operationInfo, $comment = '')
     {
         $logs = $this->getCreateOpLogDatas($datas, $operationInfo, $comment);
@@ -39,6 +46,15 @@ class BaseOpLogModel extends BaseModel
         return $logs;
     }
 
+    /**
+     * 更新日志
+     * @param [type] $news
+     * @param [type] $originals
+     * @param [type] $operationInfo
+     * @param string $comment
+     * @param string $operationTypeSpec
+     * @return void
+     */
     public function saveUpdateOpLogDatas($news, $originals, $operationInfo, $comment = '', $operationTypeSpec = 'update')
     {
         $logs = $this->getUpdateOpLogDatas($news, $originals, $operationInfo, $comment, $operationTypeSpec);
@@ -66,6 +82,13 @@ class BaseOpLogModel extends BaseModel
         return $logs;
     }
 
+    /**
+     * 删除日志
+     * @param [type] $ids
+     * @param [type] $operationInfo
+     * @param string $comment
+     * @return void
+     */
     public function saveDeleteOpLogDatas($ids, $operationInfo, $comment = '')
     {
         $logs =$this->getDeleteOpLogDatas($ids, $operationInfo, $comment);
@@ -86,35 +109,6 @@ class BaseOpLogModel extends BaseModel
                     'after_change' => json_encode($after),
                     'comment' => $comment,
                     'created_at' => Carbon::now()->toDateTimeString()
-                ], $operationInfo);
-            }
-        }
-        return $logs;
-    }
-   
-    //操作日志，不区分什么操作
-    public function saveActionOpLogDatas($ids, $operationInfo, $beforeAndAfter, $comment = '')
-    {
-        $logs = $this->getActionOpLogDatas($ids, $operationInfo, $beforeAndAfter, $comment);
-        return $this->insert($logs);
-    }
-
-    public function getActionOpLogDatas($ids, $operationInfo, $beforeAndAfter, $configOpType = 'update', $comment = '')
-    {
-        $logs = [];
-        if ($ids && $operationInfo) {
-            $before = Arr::get($beforeAndAfter, 'before', []);
-            $after = Arr::get($beforeAndAfter, 'after', []);
-            $createdAt = Carbon::now()->toDateTimeString();
-            
-            foreach ($ids as $id) {
-                $logs[] = array_merge([
-                    'operation_type' => config($this->opConfigKey . '.'. $configOpType .'.code'),
-                    $this->idKey => $id,
-                    'before_change' => json_encode($before),
-                    'after_change' => json_encode($after),
-                    'comment' => $comment,
-                    'created_at' => $createdAt
                 ], $operationInfo);
             }
         }

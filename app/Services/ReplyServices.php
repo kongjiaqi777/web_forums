@@ -3,11 +3,10 @@
 namespace App\Services;
 
 use App\Exceptions\NoStackException;
-use App\Services\BaseServices;
 use App\Repositories\ReplyRepository;
 use App\Repositories\PostRepository;
 
-class ReplyServices extends BaseServices
+class ReplyServices
 {
     private $replyRepos;
     private $postRepos;

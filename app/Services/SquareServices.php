@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Exceptions\NoStackException;
 use App\Repositories\SquareRepository;
 
-class SquareServices extends BaseServices
+class SquareServices
 {
 
     private $squareRepos;

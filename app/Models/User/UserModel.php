@@ -6,7 +6,6 @@ use App\Exceptions\NoStackException;
 use App\Models\BaseModel;
 use Carbon\Carbon;
 use App\Libs\UtilLib;
-use Log;
 
 class UserModel extends BaseModel
 {

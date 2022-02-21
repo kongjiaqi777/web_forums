@@ -3,13 +3,11 @@
 namespace App\Services\Admin;
 
 use App\Exceptions\NoStackException;
-use App\Services\BaseServices;
 use App\Repositories\SquareRepository;
 use App\Repositories\UserRepository;
-use Carbon\Carbon;
 use App\Libs\UtilLib;
 
-class SquareServices extends BaseServices
+class SquareServices
 {
     private $squareRepos;
     private $userRepos;

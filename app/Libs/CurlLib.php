@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Libs;
-use Log;
+
 class CurlLib
 {
     public static function curl_get($url){
@@ -42,7 +42,7 @@ class CurlLib
         $data = curl_exec($curl);
         //关闭URL请求
         curl_close($curl);
-      //获得数据并返回
+        //获得数据并返回
         $data = json_decode($data, true); 
         return $data;
     }
