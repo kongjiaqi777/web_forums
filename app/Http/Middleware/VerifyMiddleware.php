@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Redis;
 use App\Exceptions\NoStackException;
 use App\Libs\CurlLib;
 use App\Models\User\UserModel;
+use Log;
+use Carbon\Carbon;
 
 class VerifyMiddleware
 {
@@ -23,11 +25,14 @@ class VerifyMiddleware
         // $defaultUserId = rand(100, 124);
 
         //支持ajax跨域请求
-        header('content-type:application:json;charset=utf8');
-        header('Access-Control-Allow-Origin:*');
-        header('Access-Control-Allow-Headers:x-requested-with,content-type,token');
-        header('Access-Control-Allow-Methods:GET, POST, PATCH, PUT, OPTIONS');
+        // header('content-type:application:json;charset=utf8');
+        // header('Access-Control-Allow-Origin:*');
+        // header('Access-Control-Allow-Headers:x-requested-with,content-type,token');
+        // header('Access-Control-Allow-Methods:GET, POST, PATCH, PUT, OPTIONS');
         
+	$origin = $request->server('HTTP_ORIGIN') ? $request->server('HTTP_ORIGIN') : '';
+
+	Log::info(sprintf('RequestLog:[Origin Address][%s][method][%s][Time][%s][RequestParam][%s][header][%s]',$origin, $request->method(), Carbon::now()->toDateTimeString(),json_encode($request->all()),json_encode($request->header())));
         
         $path = $request->getPathInfo();
         //不需要做任何校验的接口
@@ -37,9 +42,10 @@ class VerifyMiddleware
         }
 
         $requestToken = $request->header('token');
-
+	
         if (empty($requestToken)) {
-            throw new NoStackException('登录失效，请重新登录', -2);
+		Log::info('header is null');	    
+		throw new NoStackException('登录失效，请重新登录', -2);
         }
 
         $dbToken = Redis::get('web_forums' . $requestToken);
