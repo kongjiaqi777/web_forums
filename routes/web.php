@@ -43,6 +43,7 @@ $router->group(['prefix' => 'v1/user', 'middleware' => 'api'], function () use (
 $router->group(['prefix' => 'v1/common'], function () use ($router) {
     // 配置列表
     $router->get('config', ['uses' => 'ConfigController@getConfigList']);
+    $router->get('get_qiniu_token', ['uses' => 'QiniuController@getQiniuToken']);
 });
 
 $router->group(['prefix' => 'v1/message', 'middleware' => 'api'], function () use ($router) {

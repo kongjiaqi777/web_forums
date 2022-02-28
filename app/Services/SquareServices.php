@@ -109,4 +109,9 @@ class SquareServices
         $params['verify_status'] = config('display.square_verify_status.apply_relieve.code');
         return $this->squareRepos->updateSquare($params, $operationInfo);
     }
+
+    public function getList($params, $operatorId)
+    {
+        return $this->squareRepos->getList($params, true, $operatorId);
+    }
 }

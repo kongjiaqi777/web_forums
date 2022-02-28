@@ -23,10 +23,10 @@ class VerifyMiddleware
         // $defaultUserId = rand(100, 124);
 
         //支持ajax跨域请求
-        header('content-type:application:json;charset=utf8');
-        header('Access-Control-Allow-Origin:*');
-        header('Access-Control-Allow-Headers:x-requested-with,content-type,token');
-        header('Access-Control-Allow-Methods:GET, POST, PATCH, PUT, OPTIONS');
+        // header('content-type:application:json;charset=utf8');
+        // header('Access-Control-Allow-Origin:*');
+        // header('Access-Control-Allow-Headers:x-requested-with,content-type,token');
+        // header('Access-Control-Allow-Methods:GET, POST, PATCH, PUT, OPTIONS');
         
         
         $path = $request->getPathInfo();
@@ -82,6 +82,7 @@ class VerifyMiddleware
             '/v1/user/suggest_user',
             // 模糊搜索广场
             '/v1/square/suggest',
+            '/v1/square/list',
             // 广场详情
             '/v1/square/detail',
             // 模糊搜索广播

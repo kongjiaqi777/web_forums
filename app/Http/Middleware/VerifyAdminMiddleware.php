@@ -20,10 +20,10 @@ class VerifyAdminMiddleware
     {
 
         //支持ajax跨域请求
-        header('content-type:application:json;charset=utf8');
-        header('Access-Control-Allow-Origin:*');
-        header('Access-Control-Allow-Headers:x-requested-with,content-type,token');
-        header('Access-Control-Allow-Methods:GET, POST, PATCH, PUT, OPTIONS');
+        // header('content-type:application:json;charset=utf8');
+        // header('Access-Control-Allow-Origin:*');
+        // header('Access-Control-Allow-Headers:x-requested-with,content-type,token');
+        // header('Access-Control-Allow-Methods:GET, POST, PATCH, PUT, OPTIONS');
        
         $path = $request->getPathInfo();
         //不需要做任何校验的接口

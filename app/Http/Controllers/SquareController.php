@@ -17,7 +17,7 @@ class SquareController extends Controller
     /**
      * @api {GET} /v1/square/suggest 根据名称模糊搜索广场列表
      * @apiVersion 1.0.0
-     * @apiName 广场列表
+     * @apiName 广场列表模糊搜索
      * @apiGroup Square
      * @apiPermission 允许不登录[用户未登录is_follow全部为0]
      *
@@ -38,29 +38,29 @@ class SquareController extends Controller
      * @apiSuccess {DateTime} created_at 创建时间
      * @apiSuccessExample Success-Response
      * {
-    "code": 0,
-    "msg": "success",
-    "info": {
-        "list": [
-            {
-                "id": 1004,
-                "name": "股票广场",
-                "label": "这是一个分享交流股票心得的广场。想一夜暴富吗？",
-                "avatar": "hhhhh",
-                "verify_status": 20,
-                "follow_count": 5,
-                "is_del": 0,
-                "is_follow": 1
+            "code": 0,
+            "msg": "success",
+            "info": {
+                "list": [
+                    {
+                        "id": 1004,
+                        "name": "股票广场",
+                        "label": "这是一个分享交流股票心得的广场。想一夜暴富吗？",
+                        "avatar": "hhhhh",
+                        "verify_status": 20,
+                        "follow_count": 5,
+                        "is_del": 0,
+                        "is_follow": 1
+                    }
+                ],
+                "pagination": {
+                    "page": 1,
+                    "perpage": 20,
+                    "total_page": 1,
+                    "total_count": 1
+                }
             }
-        ],
-        "pagination": {
-            "page": 1,
-            "perpage": 20,
-            "total_page": 1,
-            "total_count": 1
         }
-    }
-}
      */
     public function suggest(Request $request)
     {
@@ -442,6 +442,59 @@ class SquareController extends Controller
         $params = $request->only(['square_id']);
         $operationInfo = $this->getOperationInfo($request);
         $res = $this->squareServices->applyRelieve($params, $operationInfo);
+        return $this->buildSucceed($res);
+    }
+
+     /**
+     * @api {GET} /v1/square/list 广场列表
+     * @apiVersion 1.0.0
+     * @apiName 广场列表
+     * @apiGroup Square
+     * @apiPermission 允许不登录[用户未登录is_follow全部为0]
+     *
+     * @apiParam {Numeric} [page=1]     页码
+     * @apiParam {Numeric} [perpage=20] 每页条数
+     *
+     * 
+     * @apiSuccess {Numeric} id          广场ID
+     * @apiSuccess {String}  name        广场名称
+     * @apiSuccess {String}  avatar      广场头像
+     * @apiSuccess {String}  label       广场标签
+     * @apiSuccess {Numeric} is_follow   当前登录用户是否关注[0未关注/1已关注，用户未登录统一为0]
+     * @apiSuccess {DateTime} created_at 创建时间
+     * @apiSuccessExample Success-Response
+     * {
+            "code": 0,
+            "msg": "success",
+            "info": {
+                "list": [
+                    {
+                        "id": 1004,
+                        "name": "股票广场",
+                        "label": "这是一个分享交流股票心得的广场。想一夜暴富吗？",
+                        "avatar": "hhhhh",
+                        "verify_status": 20,
+                        "follow_count": 5,
+                        "is_del": 0,
+                        "is_follow": 1
+                    }
+                ],
+                "pagination": {
+                    "page": 1,
+                    "perpage": 20,
+                    "total_page": 1,
+                    "total_count": 1
+                }
+            }
+        }
+     */
+    public function getList(Request $request)
+    {
+        $params = $request->all();
+        $operationInfo = $this->getOperationInfo($request);
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+
+        $res = $this->squareServices->getList($params, $operatorId);
         return $this->buildSucceed($res);
     }
 }
