@@ -13,7 +13,7 @@
 
 $router->group(['prefix' => 'v1/square', 'middleware' => 'api'], function () use ($router) {
     // 广场列表
-    $router->get('list', ['uses' => 'SquareController@list']);
+    $router->get('list', ['uses' => 'SquareController@getList']);
 
     // 我关注的广场列表
     $router->get('my_follow_list', ['uses' => 'SquareController@myFollowList']);

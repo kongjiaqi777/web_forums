@@ -22,18 +22,6 @@ class VerifyMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        // $defaultUserId = rand(100, 124);
-
-        //支持ajax跨域请求
-        // header('content-type:application:json;charset=utf8');
-        // header('Access-Control-Allow-Origin:*');
-        // header('Access-Control-Allow-Headers:x-requested-with,content-type,token');
-        // header('Access-Control-Allow-Methods:GET, POST, PATCH, PUT, OPTIONS');
-        
-	$origin = $request->server('HTTP_ORIGIN') ? $request->server('HTTP_ORIGIN') : '';
-
-	Log::info(sprintf('RequestLog:[Origin Address][%s][method][%s][Time][%s][RequestParam][%s][header][%s]',$origin, $request->method(), Carbon::now()->toDateTimeString(),json_encode($request->all()),json_encode($request->header())));
-        
         $path = $request->getPathInfo();
         //不需要做任何校验的接口
         $whiteList = $this->noAuthList();
@@ -42,7 +30,6 @@ class VerifyMiddleware
         }
 
         $requestToken = $request->header('token');
-	
         if (empty($requestToken)) {
 		Log::info('header is null');	    
 		throw new NoStackException('登录失效，请重新登录', -2);
@@ -88,6 +75,7 @@ class VerifyMiddleware
             '/v1/user/suggest_user',
             // 模糊搜索广场
             '/v1/square/suggest',
+            '/v1/square/list',
             // 广场详情
             '/v1/square/detail',
             // 模糊搜索广播

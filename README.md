@@ -67,16 +67,11 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 版本要求:
 Laravel 8+
-PHP 7.3 or 8.0
-Mysql 8+
+PHP 7.3
+Mysql 8+ 
 
 Linux定时任务
 * * * * * /you_php you_path/artisan schedule:run >> /dev/null 2>&1
 
-
-
-
-
 ./configure --prefix=/usr/local/php7.3 --with-config-file-path=/usr/local/php7.3/etc --with-curl --with-freetype-dir --with-gd --with-gettext --with-iconv-dir --with-kerberos --with-libdir=lib64 --with-libxml-dir --with-mysqli --with-openssl --with-pcre-regex --with-pear --with-png-dir --with-jpeg-dir --with-xmlrpc --with-xsl --with-zlib --with-openssl --enable-fpm --enable-bcmath --enable-libxml --enable-inline-optimization --enable-mbregex --enable-opcache --enable-pcntl --enable-shmop --enable-soap --enable-sockets --enable-sysvsem --enable-xml --enable-zip --enable-mbstring --with-mcrypt --enable-mysqlnd --with-pdo-mysql=mysqlnd --disable-fileinfo
 
- 
