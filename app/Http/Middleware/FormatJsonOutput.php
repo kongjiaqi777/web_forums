@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Log;
 use Illuminate\Http\JsonResponse;
 use Exception;
-
+use Carbon\Carbon;
 
 class FormatJsonOutput
 {
@@ -20,10 +20,21 @@ class FormatJsonOutput
      */
     public function handle(Request $request, Closure $next)
     {
-        header('Access-Control-Allow-Origin:http://localhost:8080');
-        header('Access-Control-Allow-Headers:X-Requested-With,Content-Type,token');
-        header('Access-Control-Allow-Methods:GET, POST, PATCH, PUT, OPTIONS');
-        header('Access-Control-Allow-Credentials:true');
+        $origin = $request->server('HTTP_ORIGIN') ? $request->server('HTTP_ORIGIN') : '';
+        $allowOrigin = [
+            'http://localhost:9020',
+            'http://localhost:8080',
+            'http://localhost:9528',
+            ];
+        if (in_array($origin, $allowOrigin)) {
+            header('Access-Control-Allow-Origin:'.$origin);
+            header('Access-Control-Allow-Headers:Origin,Content-Type,Cookie,Accept,Authorization,X-Requested-With,token,X-XSRF-TOKEN,X-CSRF-TOKEN');
+            header('Access-Control-Allow-Methods:GET, POST, PATCH, PUT, OPTIONS');
+            header('Access-Control-Allow-Credentials:true');
+        }
+
+        Log::info(sprintf('RequestLog:[Origin Address][%s][method][%s][Time][%s][RequestParam][%s][header][%s]',$origin, $request->method(), Carbon::now()->toDateTimeString(),json_encode($request->all()),json_encode($request->header())));
+            
         
         $response = $next($request);
 

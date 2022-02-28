@@ -19,16 +19,7 @@ class VerifyMiddleware
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function handle(Request $request, Closure $next)
-    {
-        // $defaultUserId = rand(100, 124);
-
-        //支持ajax跨域请求
-        // header('content-type:application:json;charset=utf8');
-        // header('Access-Control-Allow-Origin:*');
-        // header('Access-Control-Allow-Headers:x-requested-with,content-type,token');
-        // header('Access-Control-Allow-Methods:GET, POST, PATCH, PUT, OPTIONS');
-        
-        
+    { 
         $path = $request->getPathInfo();
         //不需要做任何校验的接口
         $whiteList = $this->noAuthList();
@@ -37,7 +28,6 @@ class VerifyMiddleware
         }
 
         $requestToken = $request->header('token');
-
         if (empty($requestToken)) {
             throw new NoStackException('登录失效，请重新登录', -2);
         }
