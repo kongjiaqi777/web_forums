@@ -12,6 +12,7 @@ use App\Models\Post\ReplyModel;
 use App\Models\Post\PraiseModel;
 use App\Models\Post\BrowseRecordModel;
 use App\Models\Follow\SquareFollowModel;
+use App\Models\User\UserModel;
 use Carbon\Carbon;
 use App\Libs\UtilLib;
 use DB;
@@ -25,6 +26,7 @@ class PostRepository extends BaseRepository
     private $praiseModel;
     private $browseRecordModel;
     private $followSquareModel;
+    private $userModel;
 
     public function __construct(
         PostModel $postModel,
@@ -33,7 +35,9 @@ class PostRepository extends BaseRepository
         ReplyModel $replyModel,
         PraiseModel $praiseModel,
         BrowseRecordModel $browseRecordModel,
-        SquareFollowModel $followSquareModel
+        SquareFollowModel $followSquareModel,
+        UserModel $userModel
+ 
     ) {
         $this->postModel = $postModel;
         $this->postOpLogModel = $postOpLogModel;
@@ -42,6 +46,7 @@ class PostRepository extends BaseRepository
         $this->praiseModel = $praiseModel;
         $this->browseRecordModel = $browseRecordModel;
         $this->followSquareModel = $followSquareModel;
+        $this->userModel = $userModel;
     }
 
     /**
@@ -158,6 +163,14 @@ class PostRepository extends BaseRepository
     {
         $postId = $params['post_id'] ?? 0;
         $detail = $this->postModel->getById($postId);
+
+        $createrInfo = $this->userModel->getFirstByCondition([
+            'id' => $detail['creater_id']
+        ]);
+
+        $detail['creater_name'] = $createrInfo['nickname'] ?? '';
+        $detail['creater_avatar'] = $createrInfo['avatar'] ?? '';
+
         $detail ['is_praise'] = 0;
 
         if ($joinPraiseFlag && $operatorId && $detail) {
