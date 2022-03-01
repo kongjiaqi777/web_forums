@@ -604,6 +604,7 @@ class PostController extends Controller
      * @apiSuccess {String} photo       图片
      * @apiSuccess {Numeric} creater_id 创建人ID
      * @apiSuccess {Numeric} creater_name 创建人名称
+     * @apiSuccess {Numeric} creater_avatar 创建人头像
      * @apiSuccess {Numeric} top_rule       置顶规则
      * @apiSuccess {Numeric} reply_count    回复数目
      * @apiSuccess {Numeric} praise_count   点赞数目
