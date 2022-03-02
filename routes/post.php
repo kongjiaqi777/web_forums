@@ -41,6 +41,8 @@ $router->group(['prefix' => 'v1/post', 'middleware' => 'api'], function () use (
 
     // 我的广播列表
     $router->get('my_list', ['uses' => 'PostController@getMyPostList']);
+
+    $router->get('suggest', ['uses' => 'PostController@suggest']);
 });
 
 

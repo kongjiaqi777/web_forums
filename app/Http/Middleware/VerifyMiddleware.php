@@ -25,14 +25,14 @@ class VerifyMiddleware
         $path = $request->getPathInfo();
         //不需要做任何校验的接口
         $whiteList = $this->noAuthList();
-        if (in_array($path, $whiteList)) {
+        $requestToken = $request->header('token');
+
+        if (in_array($path, $whiteList) && empty($requestToken)) {
             return $next($request);
         }
 
-        $requestToken = $request->header('token');
-        if (empty($requestToken)) {
-		Log::info('header is null');	    
-		throw new NoStackException('登录失效，请重新登录', -2);
+        if (empty($requestToken)) {    
+		    throw new NoStackException('登录失效，请重新登录', -2);
         }
 
         $dbToken = Redis::get('web_forums' . $requestToken);

@@ -25,6 +25,7 @@ class FormatJsonOutput
 	    'http://localhost:9020',
 	    'http://localhost:8080',
 	    'http://localhost:9528',
+        'http://113.31.126.66:9025',
     	];
 	if (in_array($origin, $allowOrigin)) {
 	    header('Access-Control-Allow-Origin:'.$origin);
