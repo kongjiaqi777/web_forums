@@ -310,7 +310,21 @@ class ReplyRepository extends BaseRepository
                 'table_name' => 'posts',
                 'left' => 'posts.id',
                 'right' => 'post_replys.post_id',
-            ]
+                'conds' => [
+                    'post_type' => 10,
+                ],
+                'conds_search' => [
+                    'post_type' => [
+                        'query_key' => 'post_type',
+                        'operator' => '='
+                    ],
+                ]
+            ],
+            [
+                'table_name' => 'squares',
+                'left' => 'squares.id',
+                'right' => 'posts.square_id',
+            ],
         ];
 
         return $this->getDataList(
@@ -321,6 +335,8 @@ class ReplyRepository extends BaseRepository
                 'post_replys.content',
                 'post_replys.created_at',
                 'posts.title',
+                'posts.square_id',
+                'squares.name as square_name'
             ], [
                 'is_del' => 0,
                 'user_id' => $operatorId
