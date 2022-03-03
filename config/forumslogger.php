@@ -6,7 +6,8 @@ return [
     /**
      * header name
      */
-    'trace_id' => 'HTTP_X_REQUEST_ID',
+    'trace_id' => 'request-id',
+    // 'HTTP_X_REQUEST_ID',
 
     'default_format' => '#traceId:{traceId} operator_id:{operatorId} operator_type:{operatorType} host:{host} from:{from} uri:{uri} clientIp:{clientIp} ',
 

@@ -162,9 +162,9 @@ abstract class Processor
     protected function getTraceId()
     {
         $header = app('request')->header();
-        $this->traceId = $header['request_id'] ?? '0';
+        $traceIdConf = config('forumslogger.trace_id');
+        $this->traceId = $header[$traceIdConf] ?? '0';
         return $this->traceId;
-        // $traceIdConf = config('forumslogger.trace_id');
         // $this->traceId = empty($_SERVER[$traceIdConf]) ? '0' : $_SERVER[$traceIdConf];
         // return $this->traceId;
     }
