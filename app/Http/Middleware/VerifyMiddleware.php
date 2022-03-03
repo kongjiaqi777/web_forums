@@ -33,30 +33,30 @@ class VerifyMiddleware
 		    throw new NoStackException('登录失效，请重新登录', -2);
         }
 
-        // $dbToken = Redis::get('web_forums' . $requestToken);
-        // if (empty($dbToken)) {
-        //     $userSourceInfo = $this->verifyToken($requestToken);
+        $dbToken = Redis::get('web_forums' . $requestToken);
+        if (empty($dbToken)) {
+            $userSourceInfo = $this->verifyToken($requestToken);
 
-        //     $userModel = new UserModel();
-        //     $userInfo = $userModel->setUserBySourceInfo($userSourceInfo);
-        //     $token = $userSourceInfo['token'] ?? '';
-        //     $this->setRedis($token, $userInfo);
+            $userModel = new UserModel();
+            $userInfo = $userModel->setUserBySourceInfo($userSourceInfo);
+            $token = $userSourceInfo['token'] ?? '';
+            $this->setRedis($token, $userInfo);
 
-        //     $userStatus = $userInfo['status'] ?? 0;
-        //     $forbiddenList = $this->forbiddenList();
-        //     if ($userStatus == config('display.user_status.forbidden.code') && in_array($path, $forbiddenList)) {
-        //         throw New NoStackException('禁言中,不允许此操作');
-        //     }
-        // } else {
-        //     $userInfo = json_decode($dbToken, true);
-        //     if (empty($userInfo)) {
-        //         throw new NoStackException('登录失效，请重新登录', -2);
-        //     }
-        // }
+            $userStatus = $userInfo['status'] ?? 0;
+            $forbiddenList = $this->forbiddenList();
+            if ($userStatus == config('display.user_status.forbidden.code') && in_array($path, $forbiddenList)) {
+                throw New NoStackException('禁言中,不允许此操作');
+            }
+        } else {
+            $userInfo = json_decode($dbToken, true);
+            if (empty($userInfo)) {
+                throw new NoStackException('登录失效，请重新登录', -2);
+            }
+        }
 
         $request->merge(
             [
-                'operator_id' => $userInfo['id'] ?? 118,
+                'operator_id' => $userInfo['id'] ?? 0,
                 'operator_type' => 10,
                 'operator_ip' => $request->getClientIp()
             ]
