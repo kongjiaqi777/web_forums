@@ -163,7 +163,7 @@ abstract class Processor
     {
         $header = app('request')->header();
         $traceIdConf = config('forumslogger.trace_id');
-        $this->traceId = $header[$traceIdConf] ?? '0';
+        $this->traceId = $header[$traceIdConf][0] ?? '0';
         return $this->traceId;
         // $this->traceId = empty($_SERVER[$traceIdConf]) ? '0' : $_SERVER[$traceIdConf];
         // return $this->traceId;
