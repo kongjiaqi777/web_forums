@@ -5,7 +5,6 @@ namespace App\LoggerForums\Processors;
 use App\LoggerForums\Handlers\Handler;
 use App\LoggerForums\Extend\RequestProcessor;
 use App\LoggerForums\Extend\CustomProcessor;
-use Log;
 
 class BaseLogProcessor extends Processor
 {
@@ -45,7 +44,6 @@ class BaseLogProcessor extends Processor
         $this->logger = $logger;
         $this->configureHandlers($this->handler);
         $this->logger->pushAsyncTask(array($this, 'handleFinish'));
-        Log::info('handlerFinish');
     }
 
     /**

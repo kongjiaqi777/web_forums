@@ -352,8 +352,6 @@ class SquareRepository extends BaseRepository
      */
     public function suggest($params, $isJoinFollow=false, $operatorId=0)
     {
-        Log::error('suggest');
-        Log::info('hello');
         $name = $params['name'] ?? '';
         $page = $params['page'] ?? 1;
         $perpage = $params['perpage'] ?? 20;
