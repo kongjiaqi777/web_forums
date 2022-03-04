@@ -17,8 +17,6 @@ class MonologHandler extends Handler implements PsrLoggerInterface
 {
     private $handler;
 
-    private $pushHandler;
-
     public function __construct($channel = 'local')
     {
         $this->handler = new Monolog($channel);

@@ -131,9 +131,7 @@ class SQLLogProcessor extends Processor
         }
         $request = $this->getRequestLogProcessor();
         $queryCollector = $this;
-        $request->listen(function ($query, $bindings = null, $time = null, $connectionName = null, $occurTime =
-        null) use
-        ($queryCollector) {
+        $request->listen(function ($query, $bindings = null, $time = null, $connectionName = null, $occurTime = null) use ($queryCollector) {
             $queryCollector->writeLog($query, $bindings, $time, $connectionName, $occurTime);
         });
     }

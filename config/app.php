@@ -213,7 +213,7 @@ return [
         'Js' => Illuminate\Support\Js::class,
         'Lang' => Illuminate\Support\Facades\Lang::class,
         'Log' => Illuminate\Support\Facades\Log::class,
-        // 'Log' => App\LoggerForums\Logger::class,
+        'Log' => App\LoggerForums\Facades\ForumsLogger::class,
         'Mail' => Illuminate\Support\Facades\Mail::class,
         'Notification' => Illuminate\Support\Facades\Notification::class,
         'Password' => Illuminate\Support\Facades\Password::class,

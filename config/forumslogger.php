@@ -61,6 +61,7 @@ return [
 
         'format' => 'totalTime:{totalTime} asyncTime:{asyncTime} file:{file} line:{line} error:[{error}]'
     ],
+
     'sql_log'       => [
 
         'enabled' => true,
@@ -76,6 +77,7 @@ return [
 
         'format' => 'time:{time} occurTime:{occurTime} sql:[{sql}]'
     ],
+
     'trans_log'     => [
 
         'enabled' => false,
@@ -91,6 +93,7 @@ return [
 
         'format' => 'DB TRANSACTION:[{sql}]'
     ],
+
     'custom_log'     => [
         'level'   => env('APP_LOG_LEVEL', 'debug'),
     ],

@@ -7,7 +7,7 @@ use App\LoggerForums\Logger;
 
 class LogServiceProvider extends ServiceProvider
 {
-    protected $defer = false;
+    // protected $defer = false;
 
     public function register()
     {
