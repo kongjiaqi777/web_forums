@@ -65,8 +65,17 @@ class UserController extends Controller
      */
     public function suggestUser(Request $request)
     {
-        $params = $request->all();
-        $res = $this->userServices->suggestUser($params);
+        $this->validate($request, [
+            'nickname' => 'required',
+        ], [
+            'nickname.required' => '需要输入昵称或标签'
+        ]);
+
+        $params = $request->only(['nickname']);
+
+        $operationInfo = $this->getOperationInfo($request);
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+        $res = $this->userServices->suggestUser($params, true, $operatorId);
         return $this->buildSucceed($res);
     }
 

@@ -15,6 +15,7 @@ use DB;
 use Exception;
 use Log;
 use App\Libs\MessageLib;
+use App\Models\Post\PraiseModel;
 
 class ReplyRepository extends BaseRepository
 {
@@ -22,17 +23,20 @@ class ReplyRepository extends BaseRepository
     private $postModel;
     private $userModel;
     private $squareModel;
+    private $praiseModel;
     
     public function __construct(
         ReplyModel $replyModel,
         PostModel $postModel,
         UserModel $userModel,
-        SquareModel $squareModel
+        SquareModel $squareModel,
+        PraiseModel $praiseModel
     ) {
         $this->replyModel = $replyModel;
         $this->postModel = $postModel;
         $this->userModel = $userModel;
         $this->squareModel = $squareModel;
+        $this->praiseModel = $praiseModel;
     }
 
     /**
@@ -40,7 +44,7 @@ class ReplyRepository extends BaseRepository
      * @param [type] $params
      * @return void
      */
-    public function getList($params)
+    public function getList($params, $isShowPraise=false, $operatorId=0)
     {
         $sortType = $params ['sort_type'] ?? 'asc';
         unset($params ['sort_type']);
@@ -57,6 +61,7 @@ class ReplyRepository extends BaseRepository
         }
 
         $replyIds = array_column($replyList, 'id');
+
         $userIds = array_column($replyList, 'user_id');
         $subList = $this->replyModel->getAll(
             [
@@ -71,6 +76,12 @@ class ReplyRepository extends BaseRepository
             ['created_at' => $sortType],
         );
 
+        $subReplyIds = array_column($subList, 'id');
+        $praiseList = [];
+        if ($isShowPraise && $operatorId) {
+            $praiseList = $this->joinPraiseFlag(array_merge($replyIds, $subReplyIds), $operatorId);
+        }
+
         $subUserIds = array_column($subList, 'user_id');
         $subParentIds = array_column($subList, 'parent_user_id');
         $userIds = array_unique(array_merge($userIds, $subUserIds, $subParentIds));
@@ -81,8 +92,20 @@ class ReplyRepository extends BaseRepository
         foreach ($replyList as &$reply) {
             $replyId = $reply['id'] ?? 0;
             $userId = $reply['user_id'] ?? 0;
+
+            // join user info
             $reply ['user_nickname'] = $userNames[$userId]['nickname'] ?? '';
             $reply ['user_avatar'] = $userNames[$userId]['avatar'] ?? '';
+
+            // join praise flag
+            $isPraise = $praiseList[$replyId] ?? 0;
+            if($isPraise) {
+                $reply ['is_praise'] = 1;
+            } else {
+                $reply ['is_praise'] = 0;
+            }
+
+            // join sub list
             $subReply = $indexList[$replyId] ?? [];
             $totalSubReplyCount = count($subReply) ?? 0;
             $totalSubReplyPage = ceil($totalSubReplyCount/5) ?? 0;
@@ -92,11 +115,20 @@ class ReplyRepository extends BaseRepository
             }
 
             foreach ($subReply as &$sub) {
+                $subReplyId = $sub['id'] ?? 0;
                 $subUserId = $sub ['user_id'] ?? 0;
                 $subParentUserId = $sub ['parent_user_id'] ?? 0;
 
                 $sub ['user_nickname'] = $userNames[$subUserId]['nickname'] ?? '';
                 $sub ['parent_user_name'] = $userNames[$subParentUserId]['nickname'] ?? '';
+
+                // join praise flag
+                $isSubPraise = $praiseList[$subReplyId] ?? 0;
+                if($isSubPraise) {
+                    $sub ['is_praise'] = 1;
+                } else {
+                    $sub ['is_praise'] = 0;
+                }
             }
             $reply ['sub_reply_list'] = $subReply;
             $reply ['sub_reply_pagination'] = [
@@ -259,7 +291,7 @@ class ReplyRepository extends BaseRepository
      * @param [type] $params
      * @return void
      */
-    public function getSubList($params)
+    public function getSubList($params, $isShowPraise=false, $operatorId=0)
     {
         $sortType = $params ['sort_type'] ?? 'asc';
         unset($params ['sort_type']);
@@ -288,6 +320,12 @@ class ReplyRepository extends BaseRepository
         $userIds = array_unique(array_merge($subUserIds, $subParentIds));
         $userNames = $this->userModel->getUserNameList($userIds);
         $userNames = UtilLib::indexBy($userNames, 'id');
+        $subReplyIds = array_column($subList, 'id');
+
+        $praiseList = [];
+        if ($isShowPraise && $operatorId) {
+            $praiseList = $this->joinPraiseFlag($subReplyIds, $operatorId);
+        }
 
         foreach ($subList as &$sub) {
             $subUserId = $sub ['user_id'] ?? 0;
@@ -295,6 +333,15 @@ class ReplyRepository extends BaseRepository
 
             $sub ['user_nickname'] = $userNames[$subUserId]['nickname'] ?? '';
             $sub ['parent_user_name'] = $userNames[$subParentUserId]['nickname'] ?? '';
+
+            $subReplyId = $sub['id'] ?? 0;
+            // join praise flag
+            $isSubPraise = $praiseList[$subReplyId] ?? 0;
+            if($isSubPraise) {
+                $sub ['is_praise'] = 1;
+            } else {
+                $sub ['is_praise'] = 0;
+            }
         }
         $subRes ['list'] = $subList;
         return $subRes;
@@ -346,5 +393,22 @@ class ReplyRepository extends BaseRepository
             $leftModels,
             ['post_replys.created_at' => 'desc']
         );
+    }
+
+    private function joinPraiseFlag($replyIds, $operatorId)
+    {
+        $praiseList = $this->praiseModel->getAll(
+            [
+                'user_id' => $operatorId,
+                'praise_type' => config('display.praise_type.reply_type.code'),
+                'reply_id' => $replyIds,
+                'is_del' => 0
+            ]
+        );
+        if ($praiseList) {
+            return UtilLib::indexBy($praiseList, 'reply_id');
+        }
+
+        return [];
     }
 }

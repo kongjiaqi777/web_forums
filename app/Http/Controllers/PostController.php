@@ -48,6 +48,22 @@ class PostController extends Controller
      *      "square_id": 1001,
      *      "post_type": 10
      * }
+     * 
+     * @apiParamExample 某人的广场广播
+     * {
+     *      "page": 1,
+     *      "perpage": 20,
+     *      "creater_id": 1001,
+     *      "post_type": 10
+     * }
+     * 
+     * @apiParamExample 某人的个人广播
+     * {
+     *      "page": 1,
+     *      "perpage": 20,
+     *      "creater_id": 1001,
+     *      "post_type": 20
+     * }
      *
      * @apiSuccess {Numeric} id         广播ID
      * @apiSuccess {Numeric} square_id  所属广场ID
@@ -99,7 +115,8 @@ class PostController extends Controller
             'page',
             'perpage',
             'square_id',
-            'post_type'
+            'post_type',
+            'creater_id',
         ]);
 
         $operationInfo = $this->getOperationInfo($request);

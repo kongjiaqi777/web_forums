@@ -8,9 +8,11 @@ use App\Models\User\AdminUserModel;
 use App\Models\User\UserOpLogModel;
 use DB;
 use App\Exceptions\NoStackException;
+use App\Libs\UtilLib;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Follow\UserFollowModel;
 
 
 class UserRepository extends BaseRepository
@@ -18,15 +20,18 @@ class UserRepository extends BaseRepository
     private $userModel;
     private $adminUserModel;
     private $userOpLogModel;
+    private $userFollowModel;
 
     public function __construct(
         UserModel $userModel,
         AdminUserModel $adminUserModel,
-        UserOpLogModel $userOpLogModel
+        UserOpLogModel $userOpLogModel,
+        UserFollowModel $userFollowModel
     ) {
         $this->userModel = $userModel;
         $this->adminUserModel = $adminUserModel;
         $this->userOpLogModel = $userOpLogModel;
+        $this->userFollowModel = $userFollowModel;
     }
 
     /**
@@ -34,7 +39,7 @@ class UserRepository extends BaseRepository
      * @param [type] $params
      * @return void
      */
-    public function suggestUser($params)
+    public function suggestUser($params, $isJoinFollow=false, $operatorId=0)
     {
         $name = $params['nickname'] ?? '';
         $page = $params['page'] ?? 1;
@@ -76,6 +81,10 @@ class UserRepository extends BaseRepository
             ->orderBy('id', 'desc')
             ->get()
             ->all();
+
+        if ($list && $isJoinFollow && $operatorId) {
+            $list = $this->joinUserFollow($list, $operatorId);
+        }
 
         return [
             'list' => $list,
@@ -181,5 +190,30 @@ class UserRepository extends BaseRepository
     {
         $params ['password'] = Hash::make($params['password']);
         return $this->commonCreateNoLog($this->adminUserModel, $params);
+    }
+
+    private function joinUserFollow($list, $operatorId)
+    {
+        $userIds = array_column($list, 'id');
+
+        $followList = $this->userFollowModel->getAll(
+            [
+                'follow_user_id' => $userIds,
+                'user_id' => $operatorId,
+                'is_del' => 0
+            ]
+        );
+
+        if ($followList) {
+            $followList = UtilLib::indexBy($followList, 'follow_user_id');
+            foreach ($list as &$userInfo) {
+                $userId = $userInfo['id'] ?? 0;
+                $followFlag = $followList[$userId] ?? false;
+                if ($followFlag) {
+                    $userInfo['is_follow'] = 1;
+                }
+            }
+        }
+        return $list;
     }
 }

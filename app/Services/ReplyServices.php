@@ -24,9 +24,9 @@ class ReplyServices
      * @param [type] $params
      * @return void
      */
-    public function getList($params)
+    public function getList($params, $isShowPraise, $operatorId)
     {
-        return $this->replyRepos->getList($params);
+        return $this->replyRepos->getList($params, $isShowPraise, $operatorId);
     }
 
     /**
@@ -94,9 +94,9 @@ class ReplyServices
      * @param [type] $params
      * @return void
      */
-    public function getSubList($params)
+    public function getSubList($params, $isShowPraise, $operatorId)
     {
-        return $this->replyRepos->getSubList($params);
+        return $this->replyRepos->getSubList($params, $isShowPraise, $operatorId);
     }
 
     public function getMyReplyList($params, $operatorId)

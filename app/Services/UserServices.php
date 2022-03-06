@@ -25,9 +25,9 @@ class UserServices
      * @param [type] $params
      * @return void
      */
-    public function suggestUser($params)
+    public function suggestUser($params, $isJoinFollow, $operatorId)
     {
-        return $this->userRepos->suggestUser($params);
+        return $this->userRepos->suggestUser($params, $isJoinFollow, $operatorId);
     }
 
     /**

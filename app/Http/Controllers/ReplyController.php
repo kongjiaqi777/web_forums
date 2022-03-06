@@ -125,7 +125,11 @@ class ReplyController extends Controller
             'post_id.*' => '广播ID必传'
         ]);
         $params = $request->all();
-        $res = $this->replyServices->getList($params);
+
+        $operationInfo = $this->getOperationInfo($request);
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+
+        $res = $this->replyServices->getList($params, true, $operatorId);
         return $this->buildSucceed($res);
     }
 
@@ -377,7 +381,11 @@ class ReplyController extends Controller
             'reply_id.*' => '评论ID必传'
         ]);
         $params = $request->all();
-        $res = $this->replyServices->getSubList($params);
+
+        $operationInfo = $this->getOperationInfo($request);
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+
+        $res = $this->replyServices->getSubList($params, true, $operatorId);
         return $this->buildSucceed($res);
     }
 

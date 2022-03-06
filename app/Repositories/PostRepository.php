@@ -62,21 +62,31 @@ class PostRepository extends BaseRepository
         $perpage = $params['perpage'] ?? 20;
 
         $fields = [
-            'id',
-            'square_id',
-            'post_type',
-            'creater_id',
-            'title',
-            'content',
-            'top_rule',
-            'photo',
-            'reply_count',
-            'praise_count',
-            'created_at',
-            'updated_at',
-            'deleted_at',
-            'is_del',
+            'posts.id',
+            'posts.square_id',
+            'posts.post_type',
+            'posts.creater_id',
+            'posts.title',
+            'posts.content',
+            'posts.top_rule',
+            'posts.photo',
+            'posts.reply_count',
+            'posts.praise_count',
+            'posts.created_at',
+            'posts.updated_at',
+            'posts.deleted_at',
+            'posts.is_del',
             DB::raw('0 as is_praise'),
+            'users.nickname as creater_name',
+            'users.avatar',
+        ];
+
+        $leftModels = [
+            [
+                'table_name' => 'users',
+                'left' => 'posts.creater_id',
+                'right' => 'users.id',
+            ]
         ];
 
         $res = $this->getDataList(
@@ -85,7 +95,7 @@ class PostRepository extends BaseRepository
             $params,
             $page,
             $perpage,
-            null,
+            $leftModels,
             [
                 'top_rule' => 'desc',
                 'created_at' => 'desc'
