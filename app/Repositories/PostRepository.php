@@ -522,21 +522,22 @@ class PostRepository extends BaseRepository
     {
         $page = $params['page'] ?? 1;
         $perpage = $params['perpage'] ?? 20;
+        $postType = $params['post_type'] ?? 10;
 
         $leftModels = [
             [
                 'table_name' => 'posts',
                 'left' => 'posts.id',
                 'right' => 'post_browse_records.post_id',
-                // 'conds' => [
-                //     'is_del' => 0,
-                // ],
-                // 'conds_search' => [
-                //     'is_del' => [
-                //         'query_key' => 'is_del',
-                //         'operator' => '='
-                //     ],
-                // ]
+                'conds' => [
+                    'post_type' => $postType,
+                ],
+                'conds_search' => [
+                    'post_type' => [
+                        'query_key' => 'post_type',
+                        'operator' => '='
+                    ],
+                ]
             ]
         ];
 

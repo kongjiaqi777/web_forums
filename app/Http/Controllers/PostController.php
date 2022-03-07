@@ -111,6 +111,18 @@ class PostController extends Controller
      */
     public function list(Request $request)
     {
+        $postTypes = data_get(config('display.post_type'), '*.code');
+
+        $this->validate($request, [
+            'post_type' => 'in:' . implode(',', $postTypes),
+            'square_id' => 'numeric',
+            'creater_id' => 'numeric'
+        ], [
+            'post_type.in' => '广播类型不合法',
+            'square_id.numeric' => '广场ID不合法',
+            'creater_id.numeric' => '创建人ID不合法',
+        ]);
+
         $params = $request->only([
             'page',
             'perpage',
@@ -197,6 +209,14 @@ class PostController extends Controller
      */
     public function getMyPostList(Request $request)
     {
+        $postTypes = data_get(config('display.post_type'), '*.code');
+
+        $this->validate($request, [
+            'post_type' => 'in:' . implode(',', $postTypes),
+        ], [
+            'post_type.in' => '广播类型不合法'
+        ]);
+
         $params = $request->only([
             'page',
             'perpage',
@@ -673,6 +693,7 @@ class PostController extends Controller
      *
      * @apiParam {Numeric} [page=1] 页码，默认值1
      * @apiParam {Numeric} [perpage=20] 每页条数
+     * @apiParam {Numeric} [post_type=10] 默认查询广场广播
      *
      * @apiParamExample {curl} Request Example
      * curl 'http://forums.test/v1/post/browse_list'
@@ -719,10 +740,21 @@ class PostController extends Controller
      */
     public function browseList(Request $request)
     {
+        $postTypes = data_get(config('display.post_type'), '*.code');
+
+        $this->validate($request, [
+            'post_type' => 'in:' . implode(',', $postTypes),
+        ], [
+            'post_type.in' => '广播类型不合法'
+        ]);
+
         $params = $request->only([
             'page',
-            'perpage'
+            'perpage',
+            'post_type'
         ]);
+
+        
         $operationInfo = $this->getOperationInfo($request);
         $operatorId = $operationInfo['operator_id'] ?? 0;
         $res = $this->postServices->browseList($params, $operatorId);
