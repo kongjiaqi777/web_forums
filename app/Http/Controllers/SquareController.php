@@ -354,6 +354,12 @@ class SquareController extends Controller
      */
     public function setFollow(Request $request)
     {
+        $this->validate($request, [
+            'square_id' => 'required',
+        ], [
+            'square_id.required' => '广场ID必传'
+        ]);
+
         $params = $request->all();
         $operationInfo = $this->getOperationInfo($request);
         $squareId = $params['square_id'] ?? 0;
@@ -385,6 +391,12 @@ class SquareController extends Controller
      */
     public function cancelFollow(Request $request)
     {
+        $this->validate($request, [
+            'square_id' => 'required',
+        ], [
+            'square_id.required' => '广场ID必传'
+        ]);
+
         $params = $request->all();
         $operationInfo = $this->getOperationInfo($request);
         $squareId = $params['square_id'] ?? 0;
@@ -439,6 +451,12 @@ class SquareController extends Controller
      */
     public function applyRelieve(Request $request)
     {
+        $this->validate($request, [
+            'square_id' => 'required',
+        ], [
+            'square_id.required' => '广场ID必传'
+        ]);
+
         $params = $request->only(['square_id']);
         $operationInfo = $this->getOperationInfo($request);
         $res = $this->squareServices->applyRelieve($params, $operationInfo);

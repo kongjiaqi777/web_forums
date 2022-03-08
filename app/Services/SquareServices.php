@@ -37,9 +37,10 @@ class SquareServices
         $squareId = $params['square_id'] ?? 0;
         $squareInfo = $this->squareRepos->getById($squareId);
 
+        $squareCreaterId = $squareInfo['creater_id'] ?? 0;
         $operatorId = $operationInfo['operator_id'] ?? 0;
 
-        if ($operatorId != $squareInfo['creater_id']) {
+        if ($operatorId != $squareCreaterId) {
             throw New NoStackException('只有广场主可以修改广场信息');
         }
 
@@ -100,9 +101,10 @@ class SquareServices
         $squareId = $params['square_id'] ?? 0;
         $squareInfo = $this->squareRepos->getById($squareId);
 
+        $squareCreaterId = $squareInfo['creater_id'] ?? 0;
         $operatorId = $operationInfo['operator_id'] ?? 0;
 
-        if ($operatorId != $squareInfo['creater_id']) {
+        if ($operatorId != $squareCreaterId) {
             throw New NoStackException('只有广场主可以申请卸任');
         }
 
