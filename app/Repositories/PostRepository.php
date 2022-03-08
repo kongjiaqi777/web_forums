@@ -16,6 +16,7 @@ use App\Models\User\UserModel;
 use Carbon\Carbon;
 use App\Libs\UtilLib;
 use DB;
+use Log;
 
 class PostRepository extends BaseRepository
 {
@@ -247,6 +248,8 @@ class PostRepository extends BaseRepository
             'photo',
             'reply_count',
             'praise_count',
+            'square_id',
+            'post_type',
             DB::raw('0 as is_follow')
         ];
 
@@ -298,6 +301,14 @@ class PostRepository extends BaseRepository
             throw New NoStackException('不符合置顶规则');
         }
 
+        $squareInfo = $this->squareModel->getById($squareId);
+        $squareCreaterId = $squareInfo['creater_id'] ?? 0;
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+
+        if ($squareCreaterId != $operatorId) {
+            throw New NoStackException('广场主才可以进行此操作');
+        }
+
         // 当前广场已经置顶的广播
         $maxTopRule = $this->postModel
             ->where('top_rule', '<=', 3)
@@ -308,9 +319,12 @@ class PostRepository extends BaseRepository
             ])
             ->max('top_rule');
 
-        if ($maxTopRule < 3) {
-            // 当前广场置顶数目小于3
-            return DB::transaction(function () use ($maxTopRule, $postId, $postInfo, $squareId, $operationInfo) {
+        if ($maxTopRule >= 3) {
+            throw New NoStackException('每个广场只能置顶三条广播');
+        }
+
+        return DB::transaction(function () use ($maxTopRule, $postId, $postInfo, $squareId, $operationInfo) {
+            try {
                 // 发消息
                 MessageLib::sendMessage(
                     config('display.msg_type.owner_top.code'),
@@ -328,23 +342,57 @@ class PostRepository extends BaseRepository
                     $operationInfo,
                     '广场主设置置顶'
                 );
-            });
+            } catch (\Exception $e) {
+                Log::info(sprintf('置顶失败[Code][%s][Msg][%s][PostID][%s][OperationInfo][%s]', $e->getCode(), $e->getMessage(), $postId, json_encode($operationInfo)));
+                throw New NoStackException('置顶失败');
+            }
+        });
+        
+    }
 
-        } else if ($maxTopRule == 3) {
-            $updateList = $this->postModel
+    public function cancelTop($postId, $operationInfo)
+    {
+        $postInfo = $this->postModel->getById($postId);
+        $squareId = $postInfo['square_id'] ?? 0;
+        $currentTopRule = $postInfo['top_rule'] ?? 0;
+        if (!$squareId || !$currentTopRule || $currentTopRule>3) {
+            throw New NoStackException('不符合置顶规则');
+        }
+
+        $squareInfo = $this->squareModel->getById($squareId);
+        $squareCreaterId = $squareInfo['creater_id'] ?? 0;
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+
+        if ($squareCreaterId != $operatorId) {
+            throw New NoStackException('广场主才可以进行此操作');
+        }
+        
+        // 当前广场已经置顶的广播
+        $maxTopRule = $this->postModel
             ->where('top_rule', '<=', 3)
             ->where('top_rule', '>', 0)
             ->where([
                 'is_del' => 0,
                 'square_id' => $squareId
             ])
-            ->select(['id', 'top_rule'])
-            ->get();
-
+            ->max('top_rule');
+        
+        $news = [];
+        $originals = [];
+        $updateIds = [];
+        if ($currentTopRule < $maxTopRule) {
+            // 当前不是最大值，当前值top_rule=0，大于他的都减1
+            $updateList = $this->postModel
+                ->where('top_rule', '<=', 3)
+                ->where('top_rule', '>', $currentTopRule)
+                ->where([
+                    'is_del' => 0,
+                    'square_id' => $squareId
+                ])
+                ->select(['id', 'top_rule'])
+                ->get()
+                ->all();
             $updateIds = array_column($updateList, 'id');
-            if (in_array($postId, $updateIds)) {
-                throw New NoStackException('当前广播已经置顶');
-            }
 
             $news = [];
             $originals = [];
@@ -354,10 +402,13 @@ class PostRepository extends BaseRepository
                 $news[$id] = ['top_rule' => $topRule - 1];
                 $originals [$id] = ['top_rule' => $topRule];  
             }
-            return DB::transaction(function () use ($squareId, $postId, $news, $originals, $operationInfo, $postInfo) {
-                try {
+        }
+
+        return DB::transaction(function () use ($squareId, $postId, $news, $originals, $updateIds, $currentTopRule, $maxTopRule, $operationInfo) {
+            try {
+                if ($currentTopRule < $maxTopRule) {
                     $this->postModel
-                        ->where('top_rule', '<=', 3)
+                        ->whereIn('id', $updateIds)
                         ->where('top_rule', '>', 0)
                         ->where([
                             'is_del' => 0,
@@ -365,23 +416,15 @@ class PostRepository extends BaseRepository
                         ])
                         ->decrement('top_rule');
                     // oplog
-                    $this->postOpLogModel->saveUpdateOpLogDatas($news, $originals, $operationInfo, '广场主设置置顶');
-                    // 发消息
-                    MessageLib::sendMessage(
-                        config('display.msg_type.owner_top.code'),
-                        [$postInfo['creater_id']],
-                        [
-                            'post_id' => $postId,
-                            'square_id' => $squareId
-                        ]
-                    );
-
-                    return $this->updatePost(['post_id' => $postId, 'top_rule' => 3], $operationInfo, '广场主设置置顶');
-                } catch (\Exception $e) {
-                    throw New NoStackException('置顶失败');
+                    $this->postOpLogModel->saveUpdateOpLogDatas($news, $originals, $operationInfo, '广场主取消置顶');
                 }
-            });
-        }
+
+                return $this->updatePost(['post_id' => $postId, 'top_rule' => 0], $operationInfo, '广场主取消置顶');
+            } catch (\Exception $e) {
+                Log::info(sprintf('取消置顶失败[Code][%s][Msg][%s][PostID][%s][OperationInfo][%s]', $e->getCode(), $e->getMessage(), $postId, json_encode($operationInfo)));
+                throw New NoStackException('取消置顶失败');
+            }
+        });
     }
 
     /**

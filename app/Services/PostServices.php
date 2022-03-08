@@ -92,6 +92,17 @@ class PostServices
     }
 
     /**
+     * 取消广播置顶
+     * @param [type] $params
+     * @param [type] $operationInfo
+     * @return void
+     */
+    public function cancelTop($postId, $operationInfo)
+    {
+        return $this->postRepos->cancelTop($postId, $operationInfo);
+    }
+
+    /**
      * 删除广播
      * @param [type] $params
      * @param [type] $operationInfo

@@ -240,6 +240,8 @@ class PostController extends Controller
      * @apiParam {Numeric} [page=1] 页码，默认值1
      * @apiParam {Numeric} [perpage=20] 每页条数
      * @apiParam {String} name 广播标题或内容
+     * @apiParam {Numeric} [square_id] 广场ID
+     * @apiParam {Numeric} [post_type] 广播类型
      *
      * @apiSuccess {Numeric} id         广播ID
      * @apiSuccess {Numeric} square_id  所属广场ID
@@ -254,6 +256,8 @@ class PostController extends Controller
      * @apiSuccess {Numeric} reply_count    回复数目
      * @apiSuccess {Numeric} praise_count   点赞数目
      * @apiSuccess {Numeric} is_praise      我是否点赞：0未点赞/1已点赞
+     * @apiSuccess {Numeric} square_id      广场ID
+     * @apiSuccess {Numeric} post_type      广播类型
      * @apiSuccessExample Success-Response
      * {
      *      "code": 0,
@@ -287,18 +291,25 @@ class PostController extends Controller
      */
     public function suggest(Request $request)
     {
+        $postTypes = data_get(config('display.post_type'), '*.code');
         $this->validate($request, [
             'name' => 'required|max:38|string',
+            'square_id' => 'numeric',
+            'post_type' => 'in:' . implode(',', $postTypes),
         ], [
             'name.required' => '请输入查询关键字',
             'name.max' => '最多支持输入38个字符',
-            'name.string' => '仅支持字符串查询'
+            'name.string' => '仅支持字符串查询',
+            'square_id.numeric' => '广场ID必须是数字类型',
+            'post_type.in' => '广播类型不合法',
         ]);
 
         $params = $request->only([
             'page',
             'perpage',
             'name',
+            'square_id',
+            'post_type',
         ]);
 
         $operationInfo = $this->getOperationInfo($request);
@@ -591,6 +602,39 @@ class PostController extends Controller
         $operationInfo = $this->getOperationInfo($request);
         $postId = $params['post_id'] ?? 0;
         $res = $this->postServices->setTop($postId, $operationInfo);
+        return $this->buildSucceed($res);
+    }
+
+    /**
+     * @api {post} /v1/post/cancel_top 广场主取消广播
+     * @apiVersion 1.0.0
+     * @apiName 广场主取消广播
+     * @apiGroup Post
+     * @apiPermission 必须登录
+     * 
+     * @apiParam {Numeric} post_id 被取消置顶的广播ID
+     * 
+     * @apiSuccessExample Success-Response
+     * {
+     *      "code": 0,
+     *      "msg": "success",
+     *      "info": 1003
+     *  }
+     */
+    public function cancelTop(Request $request)
+    {
+        $this->validate($request, [
+            'post_id' => 'required'
+        ], [
+            'post_id.required' => '广播ID必传'
+        ]);
+
+        $params = $request->only([
+            'post_id'
+        ]);
+        $operationInfo = $this->getOperationInfo($request);
+        $postId = $params['post_id'] ?? 0;
+        $res = $this->postServices->cancelTop($postId, $operationInfo);
         return $this->buildSucceed($res);
     }
 

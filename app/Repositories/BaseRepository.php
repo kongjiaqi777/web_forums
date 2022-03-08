@@ -191,7 +191,7 @@ abstract class BaseRepository
                 $leftModelCondsSearch = Arr::get($leftModel, 'conds_search', []);
 
                 $query = $query->leftJoin($leftModelName, $leftModelLeft, '=', $leftModelRight);
-                $query = $this->getQuery($query, $leftModelConds, $leftModelCondsSearch, $leftModelName . '.', );
+                $query = $this->getQuery($query, $leftModelConds, $leftModelCondsSearch, $leftModelName . '.', true);
             }
         }
 

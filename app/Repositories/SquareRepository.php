@@ -115,6 +115,12 @@ class SquareRepository extends BaseRepository
     
             $detail['is_follow'] = $followFlag ? 1 : 0;
         }
+
+        $createrId = $detail['creater_id'] ?? 0;
+        $createrInfo = $this->userModel->getById($createrId);
+        $createrName = $createrInfo['nickname'] ?? '';
+
+        $detail['creater_name'] = $createrName;
         return $detail;
     }
 
