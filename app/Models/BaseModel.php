@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Log;
 use Illuminate\Support\Arr;
+use DateTimeInterface;
 
 class BaseModel extends Model
 {
@@ -66,6 +67,10 @@ class BaseModel extends Model
      */
     protected $fillable = [];
 
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
 
     /**
      * 构建查询条件

@@ -55,9 +55,9 @@ class UserServices
      * @param [type] $userId
      * @return void
      */
-    public function getById($userId)
+    public function getById($userId, $isJoinFollow, $operatorId)
     {
-        return $this->userRepos->getById($userId);
+        return $this->userRepos->getById($userId, $isJoinFollow, $operatorId);
     }
 
     /**

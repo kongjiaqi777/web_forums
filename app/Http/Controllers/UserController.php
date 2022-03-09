@@ -401,7 +401,10 @@ class UserController extends Controller
         $params = $request->only('id');
         $userId = $params ['id'] ?? 0;
 
-        $res = $this->userServices->getById($userId);
+        $operationInfo = $this->getOperationInfo($request);
+        $operatorId = $operationInfo['operator_id'] ?? 0;
+
+        $res = $this->userServices->getById($userId, true, $operatorId);
         return $this->buildSucceed($res);
     }
 

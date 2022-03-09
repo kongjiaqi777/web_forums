@@ -146,10 +146,7 @@ class PostRepository extends BaseRepository
                 'is_del' => 0
             ]);
 
-            $squareCreaterId = $squareInfo['creater_id'] ?? 0;
-            $operatorId = $operationInfo['operator_id'] ?? 0;
-
-            if (empty($isFollow) && $squareCreaterId != $operatorId) {
+            if (empty($isFollow)) {
                 throw New NoStackException('未关注不能发布广播');
             }
         } else {

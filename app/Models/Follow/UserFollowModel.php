@@ -33,6 +33,10 @@ class UserFollowModel extends BaseModel
                 'query_key' => 'follow_user_id',
                 'operator' => '=',
             ],
+            'is_del' => [
+                'query_key' => 'is_del',
+                'operator' => '='
+            ],
         ];    
     }
  

@@ -97,9 +97,15 @@ class UserRepository extends BaseRepository
      * @param [type] $userId
      * @return void
      */
-    public function getById($userId)
+    public function getById($userId, $isJoinFollow=false, $operatorId=0)
     {
-        return $this->userModel->getById($userId);
+
+        $detail = $this->userModel->getById($userId);
+        if ($detail && $isJoinFollow && $operatorId) {
+            $detail = $this->joinUserFollow([$detail], $operatorId)[0];
+        }
+
+        return $detail;
     }
 
     /**
@@ -206,14 +212,17 @@ class UserRepository extends BaseRepository
 
         if ($followList) {
             $followList = UtilLib::indexBy($followList, 'follow_user_id');
-            foreach ($list as &$userInfo) {
-                $userId = $userInfo['id'] ?? 0;
-                $followFlag = $followList[$userId] ?? false;
-                if ($followFlag) {
-                    $userInfo['is_follow'] = 1;
-                }
+        }
+
+        foreach ($list as &$userInfo) {
+            $userInfo['is_follow'] = 0;
+            $userId = $userInfo['id'] ?? 0;
+            $followFlag = $followList[$userId] ?? false;
+            if ($followFlag) {
+                $userInfo['is_follow'] = 1;
             }
         }
+
         return $list;
     }
 }

@@ -136,20 +136,30 @@ class SquareRepository extends BaseRepository
         if ($operatorType == 10) {
             $operatorId = $operationInfo['operator_id'] ?? 0;
             $userInfo = $this->userModel->getById($operatorId);
-
             $isAuth = $userInfo['is_auth'] ?? 0;
             if ($isAuth != 1) {
                 throw New NoStackException('认证状态不正确，请认证后重新登录！');
             }
         }
 
-        return $this->commonCreate(
-            $this->squareModel,
-            $params,
-            $this->squareOpLogModel,
-            $operationInfo,
-            '创建广场'
-        );
+        return DB::transaction(function () use ($params, $operationInfo, $operatorId) {
+            $params ['follow_count'] = 1;
+            $squareId = $this->commonCreate(
+                $this->squareModel,
+                $params,
+                $this->squareOpLogModel,
+                $operationInfo,
+                '创建广场'
+            );
+            $this->squareFollowModel->insertGetId(
+                [
+                    'square_id' => $squareId,
+                    'follow_user_id' => $operatorId,
+                    'created_at' => Carbon::now()->toDateTimeString()
+                ]
+            );
+            return $squareId;
+        });
     }
 
     /**
@@ -374,6 +384,7 @@ class SquareRepository extends BaseRepository
             'verify_status',
             'follow_count',
             'is_del',
+            'created_at',
             DB::raw('0 as is_follow')
         ];
 
