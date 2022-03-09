@@ -111,7 +111,7 @@ class UserController extends Controller
     {
         $operationInfo = $this->getOperationInfo($request);
         $operatorId = $operationInfo['operator_id'] ?? 0;
-        $res = $this->userServices->getById($operatorId);
+        $res = $this->userServices->getById($operatorId, false, 0);
         return $this->buildSucceed($res);
     }
 
