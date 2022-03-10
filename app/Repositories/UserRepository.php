@@ -13,6 +13,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Follow\UserFollowModel;
+use App\Models\Post\PostModel;
 
 
 class UserRepository extends BaseRepository
@@ -21,17 +22,20 @@ class UserRepository extends BaseRepository
     private $adminUserModel;
     private $userOpLogModel;
     private $userFollowModel;
+    private $postModel;
 
     public function __construct(
         UserModel $userModel,
         AdminUserModel $adminUserModel,
         UserOpLogModel $userOpLogModel,
-        UserFollowModel $userFollowModel
+        UserFollowModel $userFollowModel,
+        PostModel $postModel
     ) {
         $this->userModel = $userModel;
         $this->adminUserModel = $adminUserModel;
         $this->userOpLogModel = $userOpLogModel;
         $this->userFollowModel = $userFollowModel;
+        $this->postModel = $postModel;
     }
 
     /**
@@ -105,7 +109,17 @@ class UserRepository extends BaseRepository
             $detail = $this->joinUserFollow([$detail], $operatorId)[0];
         }
 
-        return $detail;
+        $userId = $detail['id'] ?? 0;
+
+        // 广播数目和获赞数目
+        $postInfo = $this->postModel->where([
+            'is_del' => 0,
+            'creater_id' => $userId
+        ])->select(
+            DB::raw('count(id) as posts_count, sum(praise_count) as praise_count')
+        )->first()->toArray();
+
+        return array_merge($detail, $postInfo);
     }
 
     /**
