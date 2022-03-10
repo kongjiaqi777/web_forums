@@ -236,9 +236,10 @@ class ReplyRepository extends BaseRepository
             }
         }
 
-        $replyType = $replyInfo['reply_type'] ?? 0;
-        return DB::transaction(function () use ($replyId, $postId, $replyType) {
+        
+        return DB::transaction(function () use ($replyId, $postId, $replyInfo) {
             try {
+                $replyType = $replyInfo['reply_type'] ?? 0;
                 $postDecrement = 1;
 
                 if ($replyType == config('display.reply_type.post.code')) {

@@ -239,18 +239,21 @@ class PostRepository extends BaseRepository
         $condsSearch = array_intersect_key($searchAble, $params);
 
         $fields = [
-            'id',
-            'title',
-            'content',
-            'photo',
-            'reply_count',
-            'praise_count',
-            'square_id',
-            'post_type',
-            DB::raw('0 as is_follow')
+            'posts.id',
+            'posts.title',
+            'posts.content',
+            'posts.photo',
+            'posts.reply_count',
+            'posts.praise_count',
+            'posts.square_id',
+            'posts.post_type',
+            'posts.creater_id',
+            DB::raw('0 as is_follow'),
+            'users.nickname as creater_name',
+            'users.avatar',
         ];
 
-        $query = $this->postModel;
+        $query = $this->postModel->leftJoin('users', 'users.id', '=', 'posts.creater_id');
 
         if ($condsSearch) {
             $query = $this->getQueryBuilder($query, $params, $condsSearch, $fields);
@@ -258,8 +261,8 @@ class PostRepository extends BaseRepository
 
         // 模糊搜索
         $query = $query->where(function ($query) use ($name) {
-            $query->orWhere('title', 'like', '%'.$name.'%')
-            ->orWhere('content', 'like', '%'.$name.'%');
+            $query->orWhere('posts.title', 'like', '%'.$name.'%')
+            ->orWhere('posts.content', 'like', '%'.$name.'%');
         });
 
         $offset = ($page - 1) * $perpage;
@@ -268,8 +271,8 @@ class PostRepository extends BaseRepository
         $list = $query->select($fields)
             ->offset($offset)
             ->limit($perpage)
-            ->orderBy('reply_count', 'desc')
-            ->orderBy('id', 'desc')
+            ->orderBy('posts.reply_count', 'desc')
+            ->orderBy('posts.id', 'desc')
             ->get()
             ->all();
 
@@ -596,7 +599,10 @@ class PostRepository extends BaseRepository
             ],
             $page,
             $perpage,
-            $leftModels
+            $leftModels,
+            [
+                'browsed_at' => 'desc'
+            ]
         );
     }
 

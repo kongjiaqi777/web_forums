@@ -364,7 +364,7 @@ class PostController extends Controller
             'square_id' => 'required_if:square_type,10',
             'title' => 'required',
             'content' => 'required',
-            'photo' => 'required',
+            // 'photo' => 'required',
         ], [
             'post_type.*' => '广播类型必传',
             'square_id.*' => '广场广播必传广场ID',
