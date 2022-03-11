@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Redis;
 use App\Exceptions\NoStackException;
 use App\Libs\CurlLib;
 use App\Models\User\UserModel;
+use Carbon\Carbon;
+use Log;
 
 class VerifyMiddleware
 {
@@ -33,15 +35,18 @@ class VerifyMiddleware
 		    throw new NoStackException('登录失效，请重新登录', -2);
         }
 
+        Log::info('start redis token at :'.Carbon::now()->toDateTimeString());
         $dbToken = Redis::get('web_forums' . $requestToken);
+        Log::info('end redis token at :'.Carbon::now()->toDateTimeString());
         if (empty($dbToken)) {
+            Log::info('start set token at :'.Carbon::now()->toDateTimeString());
             $userSourceInfo = $this->verifyToken($requestToken);
 
             $userModel = new UserModel();
             $userInfo = $userModel->setUserBySourceInfo($userSourceInfo);
             $token = $userSourceInfo['token'] ?? '';
             $this->setRedis($token, $userInfo);
-
+            Log::info('end set token at :'.Carbon::now()->toDateTimeString());
             $userStatus = $userInfo['status'] ?? 0;
             $forbiddenList = $this->forbiddenList();
             if ($userStatus == config('display.user_status.forbidden.code') && in_array($path, $forbiddenList)) {
