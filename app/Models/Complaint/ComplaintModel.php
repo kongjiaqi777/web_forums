@@ -83,4 +83,9 @@ class ComplaintModel extends BaseModel
         'updated_at',
         'created_at',
     ];
+
+    public $sortable = [
+        'id',
+        'created_at',
+    ];
 }

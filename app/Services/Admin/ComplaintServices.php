@@ -3,15 +3,20 @@
 namespace App\Services\Admin;
 
 use App\Repositories\ComplaintRepository;
+use App\Repositories\UserRepository;
 use App\Libs\UtilLib;
 
 class ComplaintServices
 {
     private $complaintRepos;
+    private $userRepos;
 
-    public function __construct(ComplaintRepository $complaintRepos)
-    {
+    public function __construct(
+        ComplaintRepository $complaintRepos,
+        UserRepository $userRepos
+    ) {
         $this->complaintRepos = $complaintRepos;
+        $this->userRepos = $userRepos;
     }
 
     /**
@@ -74,13 +79,30 @@ class ComplaintServices
     {
         $list = $res['list'] ?? [];
         if ($list) {
+            $joinUserIdA = array_column($list, 'complaint_user_id');
+            $joinUserIdB = array_column($list, 'user_id');
+            $userIds = array_merge($joinUserIdA, $joinUserIdB);
+            $userNameList = [];
+            if ($userIds) {
+                $userIds = array_unique($userIds);
+                $userNameList = $this->userRepos->getUserNameList($userIds);
+                $userNameList = UtilLib::indexBy($userNameList, 'id');
+            }
+           
             foreach ($list as &$info) {
                 $info['verify_status_display'] = UtilLib::getConfigByCode(
                     $info['verify_status'],
                     'display.'.$codeType,
                     'desc'
                 );
+
+                $complaintUserId = $info['complaint_user_id'] ?? 0;
+                $info['complaint_user_email'] = $userNameList[$complaintUserId]['email'] ?? '';
+
+                $userId = $info['user_id'] ?? 0;
+                $info['user_email'] = $userNameList[$userId]['email'] ?? '';
             }
+
             $res['list'] = $list;
         }
         return $res;

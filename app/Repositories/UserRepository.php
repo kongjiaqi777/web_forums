@@ -239,4 +239,9 @@ class UserRepository extends BaseRepository
 
         return $list;
     }
+
+    public function getUserNameList($userIds)
+    {
+        return $this->userModel->getUserNameList($userIds);
+    }
 }

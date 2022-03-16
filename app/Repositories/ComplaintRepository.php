@@ -47,7 +47,45 @@ class ComplaintRepository extends BaseRepository
      */
     public function getList($params)
     {
-        return $this->complaintModel->getList($params);
+        // return $this->complaintModel->getList($params);
+
+        $page = $params['page'] ?? 1;
+        $perpage = $params['perpage'] ?? 20;
+        $leftModels = [
+            [
+                'table_name' => 'squares',
+                'left' => 'complaints.square_id',
+                'right' => 'squares.id',
+            ]
+        ];
+
+        $fields = [
+            'complaints.id',
+            'complaints.post_id',
+            'complaints.reply_id',
+            'complaints.square_id',
+            'complaints.complaint_user_id',
+            'complaints.complaint_type',
+            'complaints.user_id',
+            'complaints.content',
+            'complaints.photo',
+            'complaints.verify_status',
+            'complaints.verify_reason',
+            'complaints.is_del',
+            'complaints.deleted_at',
+            'complaints.updated_at',
+            'complaints.created_at',
+            'squares.name as square_name',
+        ];
+
+        return $this->getDataList(
+            $this->complaintModel,
+            $fields,
+            $params,
+            $page,
+            $perpage,
+            $leftModels
+        );
     }
 
     /**

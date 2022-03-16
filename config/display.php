@@ -291,5 +291,55 @@ return [
             'code' => 35,
             'desc' => '通知广场主被投诉'
         ],
-    ]
+    ],
+    'is_del' => [
+        'deleted' => [
+            'code' => 1,
+            'desc' => '已删除',
+        ],
+        'displaying' => [
+            'code' => 0,
+            'desc' => '展示中'
+        ],
+    ],
+    'top_rule' => [
+        'zero' => [
+            'code' => 0,
+            'desc' => '未置顶'
+        ],
+        'one' => [
+            'code' => 1,
+            'desc' => '吧内置顶'
+        ],
+        'two' => [
+            'code' => 2,
+            'desc' => '吧内置顶'
+        ],
+        'three' => [
+            'code' => 3,
+            'desc' => '吧内置顶'
+        ],
+        'four' => [
+            'code' => 4,
+            'desc' => '吧内置顶'
+        ],
+        'five' => [
+            'code' => 5,
+            'desc' => '首页置顶'
+        ],
+    ],
+    'top_rule_select' => [
+        'none' => [
+            'code' => 0,
+            'desc' => '未置顶'
+        ],
+        'internal_top' => [
+            'code' => 1,
+            'desc' => '吧内置顶'
+        ],
+        'homepage_top' => [
+            'code' => 5,
+            'desc' => '首页置顶'
+        ],
+    ],
 ];

@@ -55,7 +55,11 @@ class PostModel extends BaseModel
             'is_del' => [
                 'query_key' => 'is_del',
                 'operator' => '='
-            ]
+            ],
+            'post_id' => [
+                'query_key' => 'id',
+                'operator' => '='
+            ],
         ];    
     }
  

@@ -107,17 +107,6 @@ class UtilLib
         }
     }
 
-    // public static function getDataInField($data, $fieldList)
-    // {
-    //     $fieldData = [];
-    //     foreach ($data as $key => $value) {
-    //         if (in_array($key, $fieldList)) {
-    //             $fieldData[$key] = $value;
-    //         }
-    //     }
-    //     return $fieldData;
-    // }
-
     public static function getDiffData($origin, $new)
     {
         $diff = [];

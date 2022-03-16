@@ -4,6 +4,7 @@ namespace App\Services\Admin;
 
 use App\Repositories\PostRepository;
 use App\Repositories\ReplyRepository;
+use App\Libs\UtilLib;
 
 class PostServices
 {
@@ -25,7 +26,32 @@ class PostServices
      */
     public function getList($params)
     {
-        return $this->postRepos->getList($params);
+        // 处理置顶规则
+        $topRuleSelect = $params['top_rule_select'] ?? 0;
+        if ($topRuleSelect == 1) {
+            $params['top_rule_select'] = [1, 2, 3, 4];
+        }
+
+        $res = $this->postRepos->getList($params);
+        $list = $res ['list'] ?? [];
+
+        if ($list) {
+            foreach ($list as &$info) {
+                $info['is_del_display'] = UtilLib::getConfigByCode(
+                    $info['is_del'],
+                    'display.is_del',
+                    'desc'
+                );
+
+                $info['top_rule_display'] = UtilLib::getConfigByCode(
+                    $info['top_rule'],
+                    'display.top_rule',
+                    'desc'
+                );
+            }
+            $res ['list'] = $list;
+        }
+        return $res;
     }
 
     /**

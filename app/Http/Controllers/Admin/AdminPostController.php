@@ -30,7 +30,7 @@ class AdminPostController extends Controller
      * @apiParam {DateTime} [created_start] 创建开始时间
      * @apiParam {DateTime} [created_end] 创建结束时间
      * @apiParam {Numeric} [is_del] 是否删除
-     * @apiParam {Numeric} [top_rule] 置顶规则
+     * @apiParam {Numeric} [top_rule_select] 置顶规则
      *
      * @apiSuccess {Numeric} id         广播ID
      * @apiSuccess {Numeric} square_id  所属广场ID
@@ -77,7 +77,27 @@ class AdminPostController extends Controller
      */
     public function list(Request $request)
     {
-        $params = $request->all();
+        $this->validate($request, [
+            'square_id' => 'numeric',
+            'post_id' => 'numeric',
+            'post_type' => 'numeric',
+            'created_start' => '',
+            'created_end' => '',
+            'is_del'  => 'numeric|in:0,1',
+            'top_rule_select' => 'numeric',
+        ]);
+
+        $params = $request->only([
+            'page',
+            'perpage',
+            'square_id',
+            'post_id',
+            'post_type',
+            'created_start',
+            'created_end',
+            'is_del',
+            'top_rule_select',
+        ]);
         $res = $this->postServices->getList($params);
         return $this->buildSucceed($res);
     }
