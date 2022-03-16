@@ -60,6 +60,14 @@ class PostModel extends BaseModel
                 'query_key' => 'id',
                 'operator' => '='
             ],
+            'created_start' => [
+                'query_key' => 'created_at',
+                'operator' => '>='
+            ],
+            'created_end' => [
+                'query_key' => 'created_at',
+                'operator' => '<='
+            ],
         ];    
     }
  

@@ -151,6 +151,13 @@ class AdminSquareController extends Controller
      */
     public function list(Request $request)
     {
+        $this->validate($request, [
+            'square_id' => 'numeric',
+            'creater_id' => 'numeric',
+            'created_start' => 'date_format:Y-m-d H:i:s',
+            'created_end' => 'date_format:Y-m-d H:i:s',
+            'verify_status'  => 'numeric',
+        ]);
         $params = $request->all();
         $res = $this->squareServices->getList($params);
         return $this->buildSucceed($res);

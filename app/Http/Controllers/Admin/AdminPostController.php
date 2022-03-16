@@ -81,8 +81,8 @@ class AdminPostController extends Controller
             'square_id' => 'numeric',
             'post_id' => 'numeric',
             'post_type' => 'numeric',
-            'created_start' => '',
-            'created_end' => '',
+            'created_start' => 'date_format:Y-m-d H:i:s',
+            'created_end' => 'date_format:Y-m-d H:i:s',
             'is_del'  => 'numeric|in:0,1',
             'top_rule_select' => 'numeric',
         ]);
