@@ -61,6 +61,10 @@ class ComplaintModel extends BaseModel
                 'query_key' => 'created_at',
                 'operator' => '<='
             ],
+            'verify_status' => [
+                'query_key' => 'verify_status',
+                'operator' => '='
+            ],
         ];    
     }
  

@@ -53,4 +53,10 @@ class UserServices
     {
         return $this->userRepos->adminSignUp($params);  
     }
+
+    public function suggest($params)
+    {
+        return $this->userRepos->suggestUser($params);
+
+    }
 }

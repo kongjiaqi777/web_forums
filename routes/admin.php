@@ -21,6 +21,8 @@ $router->group(['prefix' => 'v1/admin/user'], function () use ($router) {
 
     // 添加管理端用户
     $router->post('signup', ['uses' => 'Admin\AdminUserController@signup']);
+
+    $router->get('suggest', ['uses' => 'Admin\AdminUserController@suggest']);
 });
 
 // 管理端用户-广场相关路由

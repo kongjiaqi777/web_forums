@@ -78,4 +78,62 @@ class AdminUserController extends Controller
         return $this->buildSucceed($res);
     }
 
+    /**
+     * @api {get} /v1/admin/user/suggest 根据信息模糊搜索用户
+     * @apiVersion 1.0.0
+     * @apiName 管理端用户模糊搜索
+     * @apiGroup AdminUser
+     *
+     * @apiParam {string} nickname 用户昵称或标签
+     *
+     * @apiParamExample Request-Example
+     * {
+     *      "nickname": "霜"
+     * }
+     *
+     * @apiSuccess {Numeric} id 用户ID
+     * @apiSuccess {String} email 邮件信息
+     * @apiSuccess {String} nickname 昵称
+     * @apiSuccess {String} avatar 头像
+     * @apiSuccess {String} label 个人简介
+     * 
+     *
+     * @apiSuccessExample Success-Response
+     *  {
+            "code": 0,
+            "msg": "success",
+            "info": {
+                "list": [
+                    {
+                        "id": 118,
+                        "nickname": "霜降",
+                        "label": "test",
+                        "avatar": null,
+                        "email": "test18@123.com"
+                    }
+                ],
+                "pagination": {
+                    "page": 1,
+                    "perpage": 20,
+                    "total_page": 1,
+                    "total_count": 1
+                }
+            }
+        }
+     */
+    public function suggest(Request $request)
+    {
+        $this->validate($request, [
+            'nickname' => 'required',
+        ], [
+            'nickname.required' => '需要输入昵称或标签'
+        ]);
+
+        $params = $request->only(['nickname']);
+
+        $res = $this->userServices->suggest($params);
+        return $this->buildSucceed($res);
+    }
+
+
 }
