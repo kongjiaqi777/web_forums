@@ -72,6 +72,8 @@ $router->group(['prefix' => 'v1/admin/post', 'middleware' => 'admin'], function 
     // 删除回复
     $router->post('delete_reply', ['uses' => 'Admin\AdminPostController@deleteReply']);
 
+    $router->get('reply_list', ['uses' => 'Admin\AdminPostController@getListWithoutSub']);
+
     // 模糊搜索
     $router->get('suggest', ['uses' => 'Admin\AdminPostController@suggest']);
 });

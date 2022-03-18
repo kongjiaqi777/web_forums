@@ -412,4 +412,37 @@ class ReplyRepository extends BaseRepository
 
         return [];
     }
+
+    public function getListWithoutSub($params)
+    {
+        $page = $params['page'] ?? 1;
+        $perpage = $params['perpage'] ?? 20;
+        $postId = $params['post_id'] ?? 0;
+
+        $leftModels = [
+            [
+                'table_name' => 'users',
+                'left' => 'users.id',
+                'right' => 'post_replys.user_id',
+            ]
+        ];
+
+        return $this->getDataList(
+            $this->replyModel,
+            [
+                'post_replys.id',
+                'post_replys.post_id',
+                'post_replys.content',
+                'post_replys.created_at',
+                'users.nickname',
+            ], [
+                'is_del' => 0,
+                'post_id' => $postId
+            ],
+            $page,
+            $perpage,
+            $leftModels,
+            ['post_replys.created_at' => 'desc']
+        );
+    }
 }

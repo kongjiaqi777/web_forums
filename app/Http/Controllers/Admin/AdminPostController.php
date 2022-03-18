@@ -319,4 +319,125 @@ class AdminPostController extends Controller
         $res = $this->postServices->suggest($params);
         return $this->buildSucceed($res);
     }
+
+    /**
+     * @api {get} /v1/admin/post/reply_list 管理端广播回复列表
+     * @apiVersion 1.0.0
+     * @apiName 管理端广播回复列表
+     * @apiGroup AdminPost
+     * @apiPermission 必须登录
+     *
+     * @apiParam {Numeric} [page=1] 页码，默认值1
+     * @apiParam {Numeric} [perpage=20] 每页条数
+     * @apiParam {Numeric} post_id 广播id
+     *
+     * @apiSuccess {Numeric} id         回复ID
+     * @apiSuccess {Numeric} post_id    广播ID
+     * @apiSuccess {String} content     回复内容
+     * @apiSuccess {Numeric} created_at 创建时间
+     * @apiSuccess {String} nickname    评论人昵称
+     * @apiSuccessExample Success-Response
+     * {
+            "code": 0,
+            "msg": "success",
+            "info": {
+                "list": [
+                    {
+                        "id": 12,
+                        "post_id": 10008,
+                        "content": "写得不错",
+                        "created_at": "2022-02-03 14:27:34",
+                        "nickname": "大暑"
+                    },
+                    {
+                        "id": 13,
+                        "post_id": 10008,
+                        "content": "我也觉得",
+                        "created_at": "2022-02-03 14:27:59",
+                        "nickname": "冬至"
+                    },
+                    {
+                        "id": 14,
+                        "post_id": 10008,
+                        "content": "内容丰富",
+                        "created_at": "2022-02-03 14:29:08",
+                        "nickname": "小暑"
+                    },
+                    {
+                        "id": 15,
+                        "post_id": 10008,
+                        "content": "我也觉得",
+                        "created_at": "2022-02-03 14:29:15",
+                        "nickname": "霜降"
+                    },
+                    {
+                        "id": 16,
+                        "post_id": 10008,
+                        "content": "认真的吗",
+                        "created_at": "2022-02-03 15:09:54",
+                        "nickname": "小满"
+                    },
+                    {
+                        "id": 17,
+                        "post_id": 10008,
+                        "content": "有什么不同意的吗",
+                        "created_at": "2022-02-03 15:10:55",
+                        "nickname": "小暑"
+                    },
+                    {
+                        "id": 28,
+                        "post_id": 10008,
+                        "content": "是这样吗",
+                        "created_at": "2022-02-12 13:22:15",
+                        "nickname": "大雪"
+                    },
+                    {
+                        "id": 29,
+                        "post_id": 10008,
+                        "content": "你有不同意见吗",
+                        "created_at": "2022-02-12 13:23:09",
+                        "nickname": "清明"
+                    },
+                    {
+                        "id": 30,
+                        "post_id": 10008,
+                        "content": "no",
+                        "created_at": "2022-02-12 13:24:26",
+                        "nickname": "雨水"
+                    },
+                    {
+                        "id": 31,
+                        "post_id": 10008,
+                        "content": "no",
+                        "created_at": "2022-02-12 13:24:37",
+                        "nickname": "冬至"
+                    },
+                    {
+                        "id": 32,
+                        "post_id": 10008,
+                        "content": "no",
+                        "created_at": "2022-02-15 18:13:55",
+                        "nickname": "花花"
+                    }
+                ],
+                "pagination": {
+                    "page": 1,
+                    "perpage": 20,
+                    "total_page": 1,
+                    "total_count": 11
+                }
+            }
+        }
+     */
+    public function getListWithoutSub(Request $request)
+    {
+        $this->validate($request, [
+            'post_id' => 'required'
+        ], [
+            'post_id.*' => '需要广播ID'
+        ]);
+        $params = $request->only(['post_id', 'page', 'perpage']);
+        $res = $this->postServices->getListWithoutSub($params);
+        return $this->buildSucceed($res);
+    }
 }

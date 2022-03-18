@@ -108,4 +108,9 @@ class PostServices
         return $this->postRepos->suggest($params);
     }
 
+    public function getListWithoutSub($params)
+    {
+        return $this->replyRepos->getListWithoutSub($params);
+    }
+
 }
