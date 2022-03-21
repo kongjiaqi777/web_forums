@@ -93,6 +93,8 @@ class UserController extends Controller
      * @apiSuccess {String} avatar 头像
      * @apiSuccess {String} label 个人简介
      * @apiSuccess {Numeric} unread_message_count 未读消息数目
+     * @apiSuccess {Numeric} posts_count 广场广播数目
+     * @apiSuccess {Numeric} praise_count 获赞数目
      *
      * @apiSuccessExample Success-Response
      *  {

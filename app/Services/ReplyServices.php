@@ -99,6 +99,12 @@ class ReplyServices
         return $this->replyRepos->getSubList($params, $isShowPraise, $operatorId);
     }
 
+    /**
+     * 我的回复列表
+     * @param [type] $params
+     * @param [type] $operatorId
+     * @return void
+     */
     public function getMyReplyList($params, $operatorId)
     {
         return $this->replyRepos->getMyReplyList($params, $operatorId);

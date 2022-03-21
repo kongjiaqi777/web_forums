@@ -53,7 +53,7 @@ class PraiseServices
 
         $params ['post_id'] = $replyInfo ['post_id'] ?? 0;
         $params ['user_id'] = $operationInfo['operator_id'] ?? 0;
-        $params ['praise_type'] = config('display.praise_type.post_type.code');
+        $params ['praise_type'] = config('display.praise_type.reply_type.code');
         return $this->praiseRepos->cancelPraise($params, $operationInfo, '取消点赞评论');
     }
 }

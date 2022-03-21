@@ -348,6 +348,12 @@ class ReplyRepository extends BaseRepository
         return $subRes;
     }
 
+    /**
+     * 我的回复列表
+     * @param [type] $params
+     * @param [type] $operatorId
+     * @return void
+     */
     public function getMyReplyList($params, $operatorId)
     {
         $page = $params['page'] ?? 1;
@@ -413,6 +419,11 @@ class ReplyRepository extends BaseRepository
         return [];
     }
 
+    /**
+     * 广播回复列表，直接列表加分页
+     * @param [type] $params
+     * @return void
+     */
     public function getListWithoutSub($params)
     {
         $page = $params['page'] ?? 1;

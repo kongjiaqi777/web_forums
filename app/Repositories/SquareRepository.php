@@ -39,7 +39,7 @@ class SquareRepository extends BaseRepository
         $this->userModel = $userModel;
         $this->squareStatusEffective = [
             config('display.square_verify_status.approved.code'),
-            config('display.square_verify_status.dismissed.code'),
+            config('display.square_verify_status.apply_relieve.code'),
         ];
     }
 

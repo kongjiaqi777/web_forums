@@ -108,6 +108,11 @@ class PostServices
         return $this->postRepos->suggest($params);
     }
 
+    /**
+     * 广播回复列表，直接列表加分页
+     * @param [type] $params
+     * @return void
+     */
     public function getListWithoutSub($params)
     {
         return $this->replyRepos->getListWithoutSub($params);

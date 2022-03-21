@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Follow\UserFollowModel;
 use App\Models\Post\PostModel;
-
+use App\Models\Message\MessageModel;
 
 class UserRepository extends BaseRepository
 {
@@ -23,19 +23,22 @@ class UserRepository extends BaseRepository
     private $userOpLogModel;
     private $userFollowModel;
     private $postModel;
+    private $messageModel;
 
     public function __construct(
         UserModel $userModel,
         AdminUserModel $adminUserModel,
         UserOpLogModel $userOpLogModel,
         UserFollowModel $userFollowModel,
-        PostModel $postModel
+        PostModel $postModel,
+        MessageModel $messageModel
     ) {
         $this->userModel = $userModel;
         $this->adminUserModel = $adminUserModel;
         $this->userOpLogModel = $userOpLogModel;
         $this->userFollowModel = $userFollowModel;
         $this->postModel = $postModel;
+        $this->messageModel = $messageModel;
     }
 
     /**
@@ -72,7 +75,8 @@ class UserRepository extends BaseRepository
         // 模糊搜索
         $query = $query->where(function ($query) use ($name) {
             $query->orWhere('nickname', 'like', '%'.$name.'%')
-            ->orWhere('label', 'like', '%'.$name.'%');
+            ->orWhere('label', 'like', '%'.$name.'%')
+            ->orWhere('email', 'like', '%'.$name.'%');
         });
 
         $offset = ($page - 1) * $perpage;
@@ -119,7 +123,17 @@ class UserRepository extends BaseRepository
             DB::raw('count(id) as posts_count, sum(praise_count) as praise_count')
         )->first()->toArray();
 
-        return array_merge($detail, $postInfo);
+        // 未读消息数目
+        $messageInfo = $this->messageModel->where([
+            'is_del' => 0,
+            'user_id' => $userId,
+            'is_read' => 0,
+            'is_del' => 0
+        ])->select(
+            DB::raw('count(id) as unread_message_count')
+        )->first()->toArray();
+
+        return array_merge($detail, $postInfo, $messageInfo);
     }
 
     /**

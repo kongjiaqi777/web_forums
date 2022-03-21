@@ -121,6 +121,18 @@ class ComplaintRepository extends BaseRepository
             $params['square_id'] = $postInfo['square_id'] ?? 0;
         }
 
+        $where = [
+            'complaint_type' => $params['complaint_type'],
+            'user_id' => $operationInfo['operator_id'],
+            'verify_status' => config('display.complaint_verify_status.undeal.code'),
+            'is_del' => 0
+        ];
+
+        $search = $this->complaintModel->getFirstByCondition($where);
+        if ($search) {
+            throw New NoStackException('有正在处理中的投诉，请稍后提交');
+        }
+
         return $this->commonCreate(
             $this->complaintModel,
             $params,

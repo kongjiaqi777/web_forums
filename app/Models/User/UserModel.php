@@ -6,6 +6,7 @@ use App\Exceptions\NoStackException;
 use App\Models\BaseModel;
 use Carbon\Carbon;
 use App\Libs\UtilLib;
+use Illuminate\Support\Arr;
 
 class UserModel extends BaseModel
 {
@@ -162,8 +163,9 @@ class UserModel extends BaseModel
         } else {
             $diffData = UtilLib::getDiffData($userInfo, $insertData);
             $userId = $userInfo['id'] ?? 0;
+            $diffData = Arr::only($diffData, $this->updateable);
             if ($diffData) {
-                $this->updateByCondition($diffData, ['id' => $userId]);
+                $this->updateByCondition(['id' => $userId], $diffData);
                 return $this->getById($userId);
             }
             return $this->getById($userId);

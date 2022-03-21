@@ -57,6 +57,10 @@ class ReplyModel extends BaseModel
                 'query_key' => 'reply_type',
                 'operator' => '='
             ],
+            'is_del' => [
+                'query_key' => 'is_del',
+                'operator' => '='
+            ],
         ];    
     }
  
