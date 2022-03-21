@@ -56,7 +56,7 @@ class UserServices
 
     public function suggest($params)
     {
-        return $this->userRepos->suggestUser($params);
+        return $this->userRepos->suggestUser($params, false, 0, ['email', 'label', 'nickname']);
 
     }
 }

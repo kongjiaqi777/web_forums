@@ -46,7 +46,7 @@ class UserRepository extends BaseRepository
      * @param [type] $params
      * @return void
      */
-    public function suggestUser($params, $isJoinFollow=false, $operatorId=0)
+    public function suggestUser($params, $isJoinFollow=false, $operatorId=0, $searchKey = ['nickname', 'label'])
     {
         $name = $params['nickname'] ?? '';
         $page = $params['page'] ?? 1;
@@ -73,10 +73,10 @@ class UserRepository extends BaseRepository
         }
 
         // 模糊搜索
-        $query = $query->where(function ($query) use ($name) {
-            $query->orWhere('nickname', 'like', '%'.$name.'%')
-            ->orWhere('label', 'like', '%'.$name.'%')
-            ->orWhere('email', 'like', '%'.$name.'%');
+        $query = $query->where(function ($query) use ($name, $searchKey) {
+            foreach ($searchKey as $key) {
+                $query->orWhere($key, 'like', '%'.$name.'%');
+            }
         });
 
         $offset = ($page - 1) * $perpage;
