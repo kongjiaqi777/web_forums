@@ -61,6 +61,10 @@ class SquareModel extends BaseModel
                 'query_key' => 'created_at',
                 'operator' => '<='
             ],
+            'verify_status_in' => [
+                'query_key' => 'verify_status',
+                'operator' => 'in',
+            ],
         ];    
     }
  

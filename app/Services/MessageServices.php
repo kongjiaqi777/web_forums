@@ -43,4 +43,9 @@ class MessageServices
     {
         return $this->messageRepos->myMessageList($params);
     }
+
+    public function delete($operationInfo)
+    {
+        return $this->messageRepos->delete($operationInfo);
+    }
 }

@@ -55,6 +55,9 @@ $router->group(['prefix' => 'v1/message', 'middleware' => 'api'], function () us
 
     // 标记已读
     $router->post('read', ['uses' => 'MessageController@read']);
+
+    // 删除
+    $router->post('delete', ['uses' => 'MessageController@delete']);
 });
 
 $router->group(['prefix' => 'v1/complaint', 'middleware' => 'api'], function () use ($router) {

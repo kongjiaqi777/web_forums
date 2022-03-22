@@ -23,6 +23,8 @@ class MessageModel extends BaseModel
         'is_read',
         'created_at',
         'updated_at',
+        'is_del',
+        'deleted_at',
     ];
  
     // 可以作为筛选条件的字段
@@ -39,6 +41,10 @@ class MessageModel extends BaseModel
             ],
             'is_read' => [
                 'query_key' => 'is_read',
+                'operator' => '='
+            ],
+            'is_del' => [
+                'query_key' => 'is_del',
                 'operator' => '='
             ],
         ];    
@@ -62,6 +68,7 @@ class MessageModel extends BaseModel
         'url',
         'is_read',
         'created_at',
+        'is_del',
     ];
 
     public $sortable = [

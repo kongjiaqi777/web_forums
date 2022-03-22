@@ -17,7 +17,7 @@ class SquareServices
         $this->squareRepos = $squareRepos;
         $this->squareStatusEffective = [
             config('display.square_verify_status.approved.code'),
-            config('display.square_verify_status.dismissed.code'),
+            config('display.square_verify_status.apply_relieve.code'),
         ];
     }
 
@@ -77,7 +77,7 @@ class SquareServices
     public function suggestList($params, $isJoinFollow=false, $operatorId=0)
     {
         $params['is_del'] = 0;
-        $params['verify_status'] = $this->squareStatusEffective;
+        $params['verify_status_in'] = $this->squareStatusEffective;
 
         return $this->squareRepos->suggest($params, $isJoinFollow, $operatorId);
     }

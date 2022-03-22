@@ -138,5 +138,18 @@ class MessageController extends Controller
         $res = $this->messageServices->read($params, $operationInfo);
         return $this->buildSucceed($res);
     }
-    
+
+    /**
+     * @api {post} /v1/message/delete 删除消息
+     * @apiVersion 1.0.0
+     * @apiName 删除消息
+     * @apiGroup User
+     * @apiPermission 必须登录
+     */
+    public function delete(Request $request)
+    {
+        $operationInfo = $this->getOperationInfo($request);
+        $res = $this->messageServices->delete($operationInfo);
+        return $this->buildSucceed($res);
+    }
 }

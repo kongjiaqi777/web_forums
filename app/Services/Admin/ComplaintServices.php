@@ -26,7 +26,7 @@ class ComplaintServices
      */
     public function getPostComplaintList($params)
     {
-        $params['complaint_type'] = [10, 20];
+        $params['complaint_type_in'] = [10, 20];
         $res = $this->complaintRepos->getList($params);
         return $this->joinDisplayCode($res, 'complaint_verify_status');
     }
@@ -38,7 +38,7 @@ class ComplaintServices
      */
     public function getUserComplaintList($params)
     {
-        $params['complaint_type'] = [30];
+        $params['complaint_type'] = 30;
         $res = $this->complaintRepos->getList($params);
         return $this->joinDisplayCode($res, 'owner_complaint_verify_status');
     }

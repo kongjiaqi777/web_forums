@@ -65,6 +65,10 @@ class ComplaintModel extends BaseModel
                 'query_key' => 'verify_status',
                 'operator' => '='
             ],
+            'complaint_type_in' => [
+                'query_key' => 'complaint_type',
+                'operator' => 'in'
+            ],
         ];    
     }
  
